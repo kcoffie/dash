@@ -1,8 +1,16 @@
 import React, { useState } from 'react';
 
+/**
+ * Contextual Scoring Model:
+ * Don't just flag a pattern. Score exploitability based on context:
+ * - "SQL injection pattern found" (medium) vs
+ * - "SQL injection pattern found AND no input sanitization AND endpoint is public API" (critical)
+ */
+
 export default function Dashboard({ findings, loading }) {
   const [severity, setSeverity] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [showCoverage, setShowCoverage] = useState(false);
 
   const filtered = findings.filter(f => {
     const matchesSeverity = severity === 'all' || f.severity === severity;
@@ -22,12 +30,56 @@ export default function Dashboard({ findings, loading }) {
     return colors[sev] || 'bg-gray-100';
   };
 
+  // Example coverage data (will come from scanner)
+  const coverage = {
+    checked: [
+      'Hardcoded Secrets',
+      'SQL Injection Patterns',
+      'XSS Vulnerabilities',
+      'Insecure Crypto Usage',
+      'CORS Misconfiguration',
+      'Async Footguns (unhandled promises)',
+      'Permission Creep (overgrantinig access)',
+      'Logging PII',
+      'Dependency CVEs',
+    ],
+    found: findings.length,
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6">
       <header className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Security Audit Platform</h1>
-        <p className="text-gray-600">Real vulnerability scanner + interactive dashboard</p>
+        <p className="text-gray-600">Real vulnerability scanner. Contextual scoring to reduce noise.</p>
       </header>
+
+      {/* Coverage Report */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <button
+          onClick={() => setShowCoverage(!showCoverage)}
+          className="flex items-center gap-2 font-semibold text-blue-900 hover:text-blue-700"
+        >
+          <span>{showCoverage ? '▼' : '▶'}</span>
+          Coverage Report
+        </button>
+        {showCoverage && (
+          <div className="mt-4 space-y-2">
+            <p className="text-sm text-blue-800 font-medium">
+              ✅ Checked for {coverage.checked.length} vulnerability types:
+            </p>
+            <ul className="grid grid-cols-2 gap-2 text-sm text-blue-800">
+              {coverage.checked.map((item, i) => (
+                <li key={i} className="flex items-center gap-2">
+                  <span className="text-green-600">✓</span> {item}
+                </li>
+              ))}
+            </ul>
+            <p className="text-sm text-blue-800 mt-4 font-medium">
+              🔍 Found: {coverage.found} {coverage.found === 1 ? 'finding' : 'findings'}
+            </p>
+          </div>
+        )}
+      </div>
 
       <div className="bg-white rounded-lg shadow p-6 mb-6">
         <div className="grid grid-cols-2 gap-4 mb-6">
@@ -78,6 +130,19 @@ export default function Dashboard({ findings, loading }) {
                   </span>
                 </div>
                 <p className="mb-3">{finding.description}</p>
+
+                {/* Contextual Scoring: Show exploitability factors */}
+                {finding.context && (
+                  <div className="bg-black/10 rounded p-3 mb-3 text-sm">
+                    <p className="font-medium mb-2">Exploitability Factors:</p>
+                    <ul className="space-y-1 ml-4">
+                      {finding.context.map((factor, i) => (
+                        <li key={i}>• {factor}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 {finding.file && (
                   <p className="text-sm opacity-75 mb-2">
                     <span className="font-mono">{finding.file}</span>

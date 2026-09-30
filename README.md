@@ -5,10 +5,12 @@ Real vulnerability scanner + interactive dashboard for portfolio.
 ## Features
 
 - **Dependency Scanning**: Parse package.json, requirements.txt, go.mod → check against CVE database
-- **Pattern Detection**: Grep for hardcoded secrets, SQL injection, XSS, insecure crypto, CORS misconfig
-- **Interactive Dashboard**: Findings grouped by severity with filtering, search, and visualization
-- **Remediation Guidance**: Business context and fix steps for each finding
-- **Export Reports**: Generate PDF reports of audit findings
+- **Pattern Detection**: Grep for hardcoded secrets, SQL injection, XSS, insecure crypto, CORS misconfig, async footguns, permission creep
+- **Contextual Scoring**: Not just "vuln found" → "exploitable if X AND Y AND Z" (reduces noise, increases signal)
+- **Coverage Report**: Show what was checked *and* what was found (demonstrates thoroughness)
+- **Interactive Dashboard**: Findings grouped by exploitability + context, search/filter by type and severity
+- **Remediation Guidance**: Business impact and fix steps for each finding
+- **AI/Modern Code Focus**: Catch pitfalls common in AI-generated code (copy-paste vulns, async issues, type assumptions)
 
 ## Architecture
 

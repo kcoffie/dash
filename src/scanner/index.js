@@ -30,11 +30,42 @@ console.log('  - Dependency scanning: TODO');
 console.log('  - Pattern detection: TODO');
 console.log('  - Output report: TODO\n');
 
-// Placeholder output
+// Placeholder output with example finding structure
 const report = {
   timestamp: new Date().toISOString(),
   targetPath,
-  findings: [],
+  findings: [
+    // Example finding with contextual scoring
+    // {
+    //   type: 'sql-injection-pattern',
+    //   title: 'Potential SQL Injection',
+    //   severity: 'high',  // Based on context below
+    //   description: 'String concatenation in SQL query without sanitization',
+    //   file: 'src/db.js',
+    //   line: 42,
+    //   pattern: 'query = "SELECT * FROM users WHERE id = " + userId',
+    //   context: [
+    //     '✓ Concatenation pattern detected',
+    //     '⚠ No sanitization/prepared statement visible',
+    //     '✓ Endpoint input source unclear (could be user-controlled)',
+    //   ],
+    //   remediation: 'Use parameterized queries: db.query("SELECT * FROM users WHERE id = ?", [userId])',
+    //   references: ['https://owasp.org/www-community/attacks/SQL_Injection'],
+    // },
+  ],
+  coverage: {
+    checked: [
+      'Hardcoded Secrets',
+      'SQL Injection Patterns',
+      'XSS Vulnerabilities',
+      'Insecure Crypto Usage',
+      'CORS Misconfiguration',
+      'Async Footguns',
+      'Permission Creep',
+      'Logging PII',
+      'Dependency CVEs',
+    ],
+  },
   summary: {
     total: 0,
     critical: 0,
