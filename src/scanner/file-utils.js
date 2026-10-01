@@ -14,9 +14,11 @@ const SKIPPED_PATHS = [
   /\.svg$/,
   /\.png$/,
   /\.jpg$/,
+  /\.min\.js$/,
 ];
 
 const SOURCE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx']);
+const TEMPLATE_EXTENSIONS = new Set(['.html', '.htm', '.ejs', '.pug', '.jade', '.hbs', '.handlebars', '.mustache', '.vue']);
 
 export function shouldSkipFile(filePath) {
   return SKIPPED_PATHS.some((pattern) => pattern.test(filePath));
@@ -26,9 +28,16 @@ export function isSourceFile(filePath) {
   return SOURCE_EXTENSIONS.has(path.extname(filePath));
 }
 
+export function isTemplateFile(filePath) {
+  return TEMPLATE_EXTENSIONS.has(path.extname(filePath));
+}
+
 export function isTestOrExampleFile(filePath) {
   return /(^|\/)(test|tests|__tests__|example|examples)\//.test(filePath) || /\.(test|spec)\./.test(filePath);
 }
+
+// Attacker-controlled request data on the server side
+export const USER_INPUT = /\breq\.(query|params|body|headers|cookies)\b|\bctx\.(query|params|request)\b|\brequest\.(query|params|body|payload)\b/;
 
 // Code that is reachable over HTTP: either registered inline (`app.get(...)`) or a handler
 // with a `(req, res` signature defined elsewhere (`module.exports = function (req, res)`,
