@@ -30,7 +30,7 @@ Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to
    node src/scanner/index.js /tmp/express                 # 0 sql-injection, 54 xss
    ```
    Run scans from a scratch dir — `index.js` writes `scanner-output.json` to the current directory.
-3. ✅ **CI test gate** — `npm test` + `.github/workflows/test.yml` (job `test`, runs on PRs to `main`). **User still needs to** mark `test` as a required status check in GitHub → Settings → Branches → `main` protection rule.
+3. ✅ **CI test gate** — `npm test` + `.github/workflows/test.yml`; `main` ruleset requires a PR + passing `test` check (enforced).
 4. **Week 2: Dashboard Core (Task #4)** — branch `feature/dashboard`. Load `scanner-output.json` into the React skeleton (`src/App.jsx`, `src/pages/Dashboard.jsx`): findings table, severity/type filters, search, coverage report, expandable rows showing `context` factors + `remediation`. DOD in STATUS.md and PRD.md Req 5. Use a Juice Shop scan as demo data (it exercises every finding type and severity).
 5. **Later:** Task #5 dashboard polish → Week 3 deploy (Task #6) → #2.4 crypto / #2.5 async scanners and the Open TODOs.
 
@@ -40,7 +40,8 @@ Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to
 - **Commit and push right away** after each logical chunk — user wants to be aggressive about pushing so no work is lost.
 - Commit style: separate `feat:` / `test:` / `docs:` commits, task ref like `(#2)` (these are plan task numbers — there are no GitHub issues, so don't write `Closes #N`). Never commit `.obsidian/workspace.json`.
 - **No `Co-Authored-By:` or other AI attribution lines** in commits (or PR descriptions). History was rewritten once to remove them.
-- Work on a branch, open PRs with the CONTRIBUTING.md template, **squash merge only when the user says so**. Delete merged branches.
+- Work on a branch, open PRs with the CONTRIBUTING.md template, **squash merge only when the user says so**. Delete merged branches. `main` is protected — direct pushes and force pushes are rejected.
+- **The repo is public** (since 2026-10-01). Commits in this repo use the GitHub noreply email (`git config user.email` is set locally); don't put personal info in commits, docs, or PRs.
 - Track limitations as checkboxes in **Open TODOs** below, and check them off when fixed — user wants limitations visible until they're gone.
 - Confirm a new test actually fails against the old code before calling a fix done.
 
@@ -135,7 +136,7 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 - [ ] **XSS: template injection not detected.** Juice Shop "CSP Bypass" (`routes/userProfile.ts:73`) splices user input into a Pug template string before `pug.compile`. Needs a "template compiled from a dynamic string" pattern (really SSTI, arguably its own scanner).
 - [ ] **XSS: sinks inside string literals are matched.** e.g. Express `test/res.redirect.js:115` — `'javascript:eval(document.body.innerHTML=...)'` is a string, not code.
 - [ ] **XSS: not covered yet** — `javascript:` URLs (`location.href = value`, `<a href>`), `eval`/`setTimeout(string)`, `res.render` with unescaped locals passed from routes (only the template side is checked).
-- [ ] **Run tests before PRs can be merged.** Mostly done (session 4): `npm test` runs every `src/scanner/__tests__/*.test.js` via `node --test` (each suite is its own process; non-zero exit = failure; verified with a forced-failure suite), and `.github/workflows/test.yml` runs it on Node 24 for PRs and pushes to `main`. **Remaining (user, GitHub settings):** add a branch protection rule on `main` requiring the `test` status check. New test files just need the `.test.js` suffix and a non-zero exit on failure.
+- [x] **Run tests before PRs can be merged.** Done (session 4): `npm test` runs every `src/scanner/__tests__/*.test.js` via `node --test`; `.github/workflows/test.yml` runs it on Node 24 for PRs and pushes to `main`. A ruleset on `main` (enforced since the repo went public) requires a PR (0 approvals, squash only) and a passing `test` check, and blocks force pushes and deletion. New test files just need the `.test.js` suffix and a non-zero exit on failure.
 - [ ] **Hardcoded-secret noise on Juice Shop.** 41 findings, 30 of them "Database Password" in `data/static/` seed data. `lib/insecurity.ts` private key is a real (planted) true positive. Review when tuning false positives.
 
 ---
