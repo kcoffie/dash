@@ -51,3 +51,43 @@ export function walkDir(dir, files = []) {
 
   return files;
 }
+
+// Cap on how many physical lines one statement may span, so an unbalanced backtick can't swallow a file
+const MAX_STATEMENT_LINES = 20;
+
+function countBackticks(line) {
+  return (line.match(/(?<!\\)`/g) || []).length;
+}
+
+function continuesOnNextLine(line, nextLine, openBackticks) {
+  if (openBackticks % 2 === 1) return true;
+  return /(^|[^+])\+$/.test(line.trim()) || /^\+(?!\+)/.test(nextLine.trim());
+}
+
+// Group physical lines into logical statements: lines joined by a trailing/leading `+`
+// or by an open template literal. Line numbers are 0-based.
+export function toStatements(lines) {
+  const statements = [];
+  let i = 0;
+
+  while (i < lines.length) {
+    const startLine = i;
+    let text = lines[i];
+    let backticks = countBackticks(lines[i]);
+
+    while (
+      i + 1 < lines.length
+      && i - startLine < MAX_STATEMENT_LINES - 1
+      && continuesOnNextLine(lines[i], lines[i + 1], backticks)
+    ) {
+      i++;
+      text += `\n${lines[i]}`;
+      backticks += countBackticks(lines[i]);
+    }
+
+    statements.push({ text, startLine, endLine: i });
+    i++;
+  }
+
+  return statements;
+}

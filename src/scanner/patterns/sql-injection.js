@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { shouldSkipFile, isSourceFile, isTestOrExampleFile, walkDir } from '../file-utils.js';
+import { shouldSkipFile, isSourceFile, isTestOrExampleFile, walkDir, toStatements } from '../file-utils.js';
 
 // A string literal that reads like a SQL statement, not just prose containing "select ... from".
 // Uppercase keywords count anywhere; lowercase SQL only counts when the string starts with it.
@@ -17,7 +17,8 @@ const PATTERNS = [
     name: 'SQL String Concatenation',
     // 'SELECT ... WHERE id = ' + userId   or   "... '" + name + "'"
     regex: /(['"])((?:(?!\1).)*)\1\s*\+\s*[\w$.[\]()]+/g,
-    sqlGroup: 2,
+    // The SQL may be split across several concatenated literals, so check them all together
+    sqlText: (match, statement) => [...statement.matchAll(/(['"])((?:(?!\1).)*)\1/g)].map((m) => m[2]).join(''),
     detected: '✓ String concatenation in SQL query detected',
     description: 'SQL query built by concatenating a variable into the query string',
   },
@@ -25,7 +26,7 @@ const PATTERNS = [
     name: 'SQL Template Literal Interpolation',
     // `SELECT * FROM users WHERE id = ${userId}`
     regex: /`([^`]*\$\{[^}]+\}[^`]*)`/g,
-    sqlGroup: 1,
+    sqlText: (match) => match[1],
     detected: '✓ Template literal interpolation in SQL query detected',
     description: 'SQL query built by interpolating a variable into a template literal',
   },
@@ -46,9 +47,9 @@ function shiftSeverity(severity, steps) {
   return SEVERITY_LADDER[Math.max(0, Math.min(SEVERITY_LADDER.length - 1, index))];
 }
 
-function interpolatedValues(line, matchedText) {
+function interpolatedValues(statement, matchedText) {
   const fromTemplate = [...matchedText.matchAll(/\$\{([^}]+)\}/g)].map((m) => m[1].trim());
-  const fromConcat = [...line.matchAll(/\+\s*([\w$.[\]()]+)/g)].map((m) => m[1].trim());
+  const fromConcat = [...statement.matchAll(/\+\s*([\w$.[\]()]+)/g)].map((m) => m[1].trim());
   return [...fromTemplate, ...fromConcat];
 }
 
@@ -56,10 +57,10 @@ function isConstantValue(value) {
   return /^[A-Z][A-Z0-9_]*$/.test(value) || /^\d+$/.test(value);
 }
 
-function assessContext(lines, lineNum, matchedText, sqlText, filePath, pattern) {
-  const line = lines[lineNum];
-  const nearby = lines.slice(Math.max(0, lineNum - CONTEXT_WINDOW), lineNum + 1).join('\n');
-  const values = interpolatedValues(line, matchedText);
+function assessContext(lines, statement, matchedText, sqlText, filePath, pattern) {
+  const { text, startLine, endLine } = statement;
+  const nearby = lines.slice(Math.max(0, startLine - CONTEXT_WINDOW), endLine + 1).join('\n');
+  const values = interpolatedValues(text, matchedText);
 
   const factors = [pattern.detected];
   let severity = 'medium';
@@ -71,7 +72,7 @@ function assessContext(lines, lineNum, matchedText, sqlText, filePath, pattern) 
     factors.push('⚠ No parameterized query visible');
   }
 
-  const userInputOnLine = USER_INPUT.test(line);
+  const userInputOnLine = USER_INPUT.test(text);
   if (userInputOnLine || USER_INPUT.test(nearby)) {
     factors.push(userInputOnLine
       ? '✓ User input (req.*) used directly in query'
@@ -139,39 +140,37 @@ export async function scanForSqlInjection(targetPath) {
       }
 
       const relFile = path.relative(targetPath, file);
-      // TODO(#2.2): Matching is line-by-line, so queries split across lines are missed
-      // (e.g. `'SELECT * FROM users ' +\n  'WHERE id = ' + id`). Join continued statements before matching.
       const lines = content.split('\n');
 
-      for (let lineNum = 0; lineNum < lines.length; lineNum++) {
-        const line = lines[lineNum];
-        const trimmed = line.trim();
-        if (trimmed.startsWith('//') || trimmed.startsWith('*')) continue;
+      for (const statement of toStatements(lines)) {
+        const firstLine = lines[statement.startLine].trim();
+        if (firstLine.startsWith('//') || firstLine.startsWith('*')) continue;
+
+        const lineNumber = statement.startLine + 1;
+        const findingKey = `${relFile}:${lineNumber}`;
 
         for (const pattern of PATTERNS) {
           pattern.regex.lastIndex = 0;
           let match;
 
-          while ((match = pattern.regex.exec(line)) !== null) {
-            const sqlText = match[pattern.sqlGroup];
+          while ((match = pattern.regex.exec(statement.text)) !== null) {
+            const sqlText = pattern.sqlText(match, statement.text);
             if (!looksLikeSql(sqlText)) continue;
-
-            const findingKey = `${relFile}:${lineNum + 1}`;
             if (seen.has(findingKey)) continue;
             seen.add(findingKey);
 
-            const { factors, severity, confidence } = assessContext(lines, lineNum, match[0], sqlText, relFile, pattern);
+            const { factors, severity, confidence } = assessContext(lines, statement, match[0], sqlText, relFile, pattern);
 
             findings.push({
-              id: `sqli-${relFile.replace(/[^\w]/g, '_')}-${lineNum + 1}`,
+              id: `sqli-${relFile.replace(/[^\w]/g, '_')}-${lineNumber}`,
               type: 'sql-injection',
               title: `Potential SQL Injection (${pattern.name})`,
               severity,
               confidence,
               description: pattern.description,
               file: relFile,
-              line: lineNum + 1,
-              snippet: trimmed.substring(0, 120),
+              line: lineNumber,
+              snippet: statement.text.replace(/\s+/g, ' ').trim().substring(0, 120),
               context: factors,
               remediation: remediationFor(pattern),
               references: [
