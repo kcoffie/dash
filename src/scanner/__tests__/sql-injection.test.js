@@ -125,6 +125,63 @@ async function testSkipsNodeModules() {
   return report('Skips node_modules', findings.length === 0, JSON.stringify(findings));
 }
 
+async function testMultiLineConcatenation() {
+  const findings = await scanSource('db.js', [
+    "const query = 'SELECT * FROM users ' +",
+    "  'WHERE id = ' + userId;",
+  ].join('\n'));
+  return report('Multi-line concatenation (trailing +)', findings.length === 1 && findings[0].line === 1, JSON.stringify(findings));
+}
+
+async function testMultiLineLeadingPlus() {
+  const findings = await scanSource('db.js', [
+    "const query = 'select id, name '",
+    "  + 'from users where email = ' + email;",
+  ].join('\n'));
+  return report('Multi-line concatenation (leading +, lowercase)', findings.length === 1 && findings[0].line === 1, JSON.stringify(findings));
+}
+
+async function testMultiLineTemplateLiteral() {
+  const findings = await scanSource('routes.js', [
+    "router.post('/orders', async (req, res) => {",
+    '  const rows = await db.query(`',
+    '    SELECT * FROM orders',
+    '    WHERE customer = ${req.body.customer}',
+    '  `);',
+    '});',
+  ].join('\n'));
+  const finding = findings[0];
+  return report(
+    'Multi-line template literal → critical',
+    findings.length === 1 && finding.line === 2 && finding.severity === 'critical',
+    JSON.stringify(findings),
+  );
+}
+
+async function testMultiLineParameterizedNotFlagged() {
+  const findings = await scanSource('db.js', [
+    'db.query(',
+    "  'SELECT * FROM users ' +",
+    "  'WHERE id = ?',",
+    '  [userId],',
+    ');',
+    'const html = `',
+    '  <div>${user.name}</div>',
+    '`;',
+  ].join('\n'));
+  return report('Multi-line safe code not flagged', findings.length === 0, JSON.stringify(findings));
+}
+
+async function testLineNumbersAfterMultiLineStatement() {
+  const findings = await scanSource('db.js', [
+    'const intro = `',
+    '  Welcome back',
+    '`;',
+    "const query = 'DELETE FROM sessions WHERE id = ' + sessionId;",
+  ].join('\n'));
+  return report('Line numbers correct after multi-line statement', findings[0]?.line === 4, JSON.stringify(findings));
+}
+
 async function runTests() {
   console.log('\n🧪 Running SQL injection tests...\n');
 
@@ -141,6 +198,11 @@ async function runTests() {
   results.push(await testCommentedCodeNotFlagged());
   results.push(await testExampleFileContext());
   results.push(await testSkipsNodeModules());
+  results.push(await testMultiLineConcatenation());
+  results.push(await testMultiLineLeadingPlus());
+  results.push(await testMultiLineTemplateLiteral());
+  results.push(await testMultiLineParameterizedNotFlagged());
+  results.push(await testLineNumbersAfterMultiLineStatement());
 
   console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
 
