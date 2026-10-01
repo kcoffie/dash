@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { shouldSkipFile, isSourceFile, isTestOrExampleFile, walkDir, toStatements } from '../file-utils.js';
+import { shouldSkipFile, isSourceFile, isTestOrExampleFile, walkDir, toStatements, ROUTE_HANDLER } from '../file-utils.js';
 
 // A string literal that reads like a SQL statement, not just prose containing "select ... from".
 // Uppercase keywords count anywhere; lowercase SQL only counts when the string starts with it.
@@ -33,7 +33,6 @@ const PATTERNS = [
 ];
 
 const USER_INPUT = /\breq\.(query|params|body|headers|cookies)\b|\bctx\.(query|params|request)\b|\brequest\.(query|params|body|payload)\b/;
-const ROUTE_HANDLER = /\b(app|router|server)\.(get|post|put|patch|delete|all|use)\s*\(/;
 const ESCAPING = /\b(escape|escapeId|escapeLiteral|escapeIdentifier)\s*\(|\b(parseInt|Number|parseFloat)\s*\(/;
 const PLACEHOLDER = /\?|\$\d+|(?<![\w:]):[a-zA-Z_]\w*/;
 

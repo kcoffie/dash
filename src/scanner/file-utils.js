@@ -30,6 +30,11 @@ export function isTestOrExampleFile(filePath) {
   return /(^|\/)(test|tests|__tests__|example|examples)\//.test(filePath) || /\.(test|spec)\./.test(filePath);
 }
 
+// Code that is reachable over HTTP: either registered inline (`app.get(...)`) or a handler
+// with a `(req, res` signature defined elsewhere (`module.exports = function (req, res)`,
+// `(req: Request, res: Response) =>`).
+export const ROUTE_HANDLER = /\b(app|router|server)\.(get|post|put|patch|delete|all|use)\s*\(|\(\s*req\b[^,()]*,\s*res\b/;
+
 export function walkDir(dir, files = []) {
   try {
     const entries = fs.readdirSync(dir, { withFileTypes: true });
