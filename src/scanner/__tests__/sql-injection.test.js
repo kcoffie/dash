@@ -66,6 +66,38 @@ async function testUserInputInRouteUpgradesSeverity() {
   );
 }
 
+async function testExportedHandlerFunctionIsRouteHandler() {
+  // DVNA style: handler defined in its own module, no app.get( in the file
+  const findings = await scanSource('core/appHandler.js', [
+    'module.exports.userSearch = function (req, res) {',
+    "  var query = \"SELECT name,id FROM Users WHERE login='\" + req.body.login + \"'\";",
+    '};',
+  ].join('\n'));
+  const finding = findings[0];
+  return report(
+    'Exported (req, res) function → critical',
+    finding?.severity === 'critical' && finding.context.some((c) => c.includes('route handler')),
+    JSON.stringify(finding),
+  );
+}
+
+async function testTypedArrowHandlerIsRouteHandler() {
+  // Juice Shop style: factory returning a typed (req: Request, res: Response) arrow function
+  const findings = await scanSource('routes/login.ts', [
+    'export function login () {',
+    '  return (req: Request, res: Response, next: NextFunction) => {',
+    "    models.sequelize.query(`SELECT * FROM Users WHERE email = '${req.body.email || ''}'`)",
+    '  }',
+    '}',
+  ].join('\n'));
+  const finding = findings[0];
+  return report(
+    'Typed (req: Request, res: Response) arrow → critical',
+    finding?.severity === 'critical' && finding.context.some((c) => c.includes('route handler')),
+    JSON.stringify(finding),
+  );
+}
+
 async function testNoUserInputStaysMedium() {
   const findings = await scanSource('report.js', `const sql = "DELETE FROM sessions WHERE user_id = " + userId;`);
   return report('No visible user input → medium', findings[0]?.severity === 'medium', JSON.stringify(findings[0]));
@@ -190,6 +222,8 @@ async function runTests() {
   results.push(await testLowercaseSqlDetection());
   results.push(await testTemplateLiteralDetection());
   results.push(await testUserInputInRouteUpgradesSeverity());
+  results.push(await testExportedHandlerFunctionIsRouteHandler());
+  results.push(await testTypedArrowHandlerIsRouteHandler());
   results.push(await testNoUserInputStaysMedium());
   results.push(await testEscapingDowngradesSeverity());
   results.push(await testConstantInterpolationIsLow());
