@@ -8,3 +8,6 @@ coverage/
 .vscode/
 .idea/
 scanner-output.json
+
+# Finder/iCloud duplicate copies (e.g. "file-utils 2.js")
+* 2.*
