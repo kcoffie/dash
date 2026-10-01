@@ -36,6 +36,31 @@ export function isTestOrExampleFile(filePath) {
   return /(^|\/)(test|tests|__tests__|example|examples)\//.test(filePath) || /\.(test|spec)\./.test(filePath);
 }
 
+// Code kept for teaching or testing rather than run by the app (e.g. Juice Shop's
+// data/static/codefixes/ "pick the right fix" quiz files)
+export function isCodeSnippetFile(filePath) {
+  return /(^|\/)(codefixes|snippets|fixtures)\//.test(filePath);
+}
+
+// Findings in code that doesn't run in production are capped at LOW severity. Returns the
+// context factor and an adjustment for the finding's confidence, or null for production code.
+export function nonProductionContext(filePath) {
+  if (isCodeSnippetFile(filePath)) {
+    // Never runs, so it can't be exploited no matter how risky the code looks
+    return {
+      factor: '⚠ Non-executed code snippet (training/fixture file, not run by the app)',
+      adjustConfidence: (confidence) => Math.min(confidence, 0.3),
+    };
+  }
+  if (isTestOrExampleFile(filePath)) {
+    return {
+      factor: '⚠ In test/example file (lower real-world risk)',
+      adjustConfidence: (confidence) => confidence - 0.15,
+    };
+  }
+  return null;
+}
+
 // Attacker-controlled request data on the server side
 export const USER_INPUT = /\breq\.(query|params|body|headers|cookies)\b|\bctx\.(query|params|request)\b|\brequest\.(query|params|body|payload)\b/;
 

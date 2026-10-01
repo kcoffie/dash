@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { shouldSkipFile, isSourceFile, isTestOrExampleFile, walkDir, toStatements, USER_INPUT, ROUTE_HANDLER } from '../file-utils.js';
+import { shouldSkipFile, isSourceFile, nonProductionContext, walkDir, toStatements, USER_INPUT, ROUTE_HANDLER } from '../file-utils.js';
 
 // A string literal that reads like a SQL statement, not just prose containing "select ... from".
 // Uppercase keywords count anywhere; lowercase SQL only counts when the string starts with it.
@@ -101,9 +101,11 @@ function assessContext(lines, statement, matchedText, sqlText, filePath, pattern
     confidence -= 0.3;
   }
 
-  if (isTestOrExampleFile(filePath)) {
-    factors.push('⚠ In test/example file (lower real-world risk)');
-    confidence -= 0.15;
+  const nonProduction = nonProductionContext(filePath);
+  if (nonProduction) {
+    factors.push(nonProduction.factor);
+    severity = 'low';
+    confidence = nonProduction.adjustConfidence(confidence);
   }
 
   return {

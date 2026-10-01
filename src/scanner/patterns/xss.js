@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  shouldSkipFile, isSourceFile, isTemplateFile, isTestOrExampleFile, walkDir, toStatements, USER_INPUT, ROUTE_HANDLER,
+  shouldSkipFile, isSourceFile, isTemplateFile, nonProductionContext, walkDir, toStatements, USER_INPUT, ROUTE_HANDLER,
 } from '../file-utils.js';
 
 // How many physical lines after a sink to read when its argument spans lines: `sink(\n  value\n)`
@@ -185,9 +185,11 @@ function assessContext(lines, statement, payload, traced, filePath, pattern) {
     confidence -= 0.3;
   }
 
-  if (isTestOrExampleFile(filePath)) {
-    factors.push('⚠ In test/example file (lower real-world risk)');
-    confidence -= 0.15;
+  const nonProduction = nonProductionContext(filePath);
+  if (nonProduction) {
+    factors.push(nonProduction.factor);
+    severity = 'low';
+    confidence = nonProduction.adjustConfidence(confidence);
   }
 
   return {
