@@ -39,8 +39,9 @@ src/
 
 ## Milestones
 
-- [ ] Week 1: Dependency scanner (npm audit integration)
-- [ ] Week 1: Pattern scanner (hardcoded secrets, SQL injection)
+- [x] Week 1: Dependency scanner (npm audit integration)
+- [x] Week 1: Pattern scanner (hardcoded secrets, SQL injection, XSS)
+- [ ] Week 1 (deferred): Pattern scanner (insecure crypto, async footguns)
 - [ ] Week 2: React dashboard with table & filtering
 - [ ] Week 2: Severity visualization & search
 - [ ] Week 3: Polish, export to PDF, deploy

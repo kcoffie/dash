@@ -1,16 +1,16 @@
 # Project Handoff — Security Audit Platform
 
 **Last updated:** 2026-10-01 (session 4)
-**Branch:** `feature/scanner-patterns` (pushed, in sync with origin — not yet merged to `main`)
-**Status:** Week 1 scanners in progress — Option B chosen (Secrets ✅, SQL Injection ✅, XSS ✅)
-**Next step:** Open the PR `feature/scanner-patterns` → `main`, then Week 2 dashboard
+**Branch:** `main` — PR #2 (secrets + SQLi + XSS) squash-merged as `488951c`; feature branches deleted
+**Status:** Option B scope complete (Secrets ✅, SQL Injection ✅, XSS ✅). Crypto + async scanners deferred.
+**Next step:** CI test gate (small), then Week 2 dashboard (Task #4) — see START HERE
 
 ---
 
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
-Option B was chosen (secrets + SQL injection + XSS before merging, then dashboard). Secrets, SQL injection, route-handler fix, and XSS are done, tested, and pushed. Non-production-code decision is made and implemented. Remaining: open a PR for `feature/scanner-patterns` → `main`.
+Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to `main`** via PR #2 (squash commit `488951c`). Insecure crypto (#2.4) and async footguns (#2.5) are deferred until after the dashboard. Session 4 work (route-handler fix, XSS scanner, non-production-code capping, commit-history cleanup) is all in `main`.
 
 ### Do these, in order
 1. **Setup** — clone scan targets if `/tmp` was wiped (they live outside the repo):
@@ -28,20 +28,33 @@ Option B was chosen (secrets + SQL injection + XSS before merging, then dashboar
    node src/scanner/index.js /tmp/dvna                    # 1 sql-injection, 10 xss
    node src/scanner/index.js /tmp/express                 # 0 sql-injection, 54 xss
    ```
-3. ✅ **Fix route-handler detection (~15 min)** — in `src/scanner/patterns/sql-injection.js`, `ROUTE_HANDLER` only matches `app.get(` / `router.post(` etc. Also treat a `(req, res` function signature as a route handler (Juice Shop + DVNA define handlers as `module.exports = function (req, res) {…}`). Expected result: `juice-shop/routes/login.ts:34` and `dvna/core/appHandler.js:10` become **critical**. Add a test. Consider moving the regex to `file-utils.js` so XSS reuses it.
-4. ✅ **Build XSS scanner (Task #2.3)** — done; answer key + recall below. — `src/scanner/patterns/xss.js` + `src/scanner/__tests__/xss.test.js`, wire into `src/scanner/pattern-scanner.js` (replace the `// TODO: XSS patterns` line). Follow the SQL injection scanner's structure exactly (see "How the pattern scanners work" below). Use Juice Shop as the answer key: find its known XSS sinks first (grep `bypassSecurityTrustHtml`, `innerHTML`, `res.send(` with user input; `data/static/codefixes/*Xss*` lists the challenges), then measure recall.
-5. ✅ **Ask the user** how to handle Juice Shop's `data/static/codefixes/` training snippets (exclude folder vs. low-confidence tag) — open decision, see Open TODOs.
-6. **Open PR** `feature/scanner-patterns` → `main` once XSS is in (use PR template in CONTRIBUTING.md; squash merge). Then Week 2: dashboard.
+   Run scans from a scratch dir — `index.js` writes `scanner-output.json` to the current directory.
+3. **CI test gate (~30 min)** — see the "Run tests before PRs can be merged" TODO: `npm test` script → GitHub Actions on `pull_request` → required status check on `main` (the branch-protection step is done by the user in GitHub settings). Protects `main` before the dashboard work starts.
+4. **Week 2: Dashboard Core (Task #4)** — branch `feature/dashboard`. Load `scanner-output.json` into the React skeleton (`src/App.jsx`, `src/pages/Dashboard.jsx`): findings table, severity/type filters, search, coverage report, expandable rows showing `context` factors + `remediation`. DOD in STATUS.md and PRD.md Req 5. Use a Juice Shop scan as demo data (it exercises every finding type and severity).
+5. **Later:** Task #5 dashboard polish → Week 3 deploy (Task #6) → #2.4 crypto / #2.5 async scanners and the Open TODOs.
+
+**Confirm the order with the user** before starting step 4 — they may prefer crypto/async scanners before the dashboard.
 
 ### Working agreements with the user
 - **Commit and push right away** after each logical chunk — user wants to be aggressive about pushing so no work is lost.
-- Commit style: separate `feat:` / `test:` / `docs:` commits, issue ref `(#2)`. Never commit `.obsidian/workspace.json`.
+- Commit style: separate `feat:` / `test:` / `docs:` commits, task ref like `(#2)` (these are plan task numbers — there are no GitHub issues, so don't write `Closes #N`). Never commit `.obsidian/workspace.json`.
+- **No `Co-Authored-By:` or other AI attribution lines** in commits (or PR descriptions). History was rewritten once to remove them.
+- Work on a branch, open PRs with the CONTRIBUTING.md template, **squash merge only when the user says so**. Delete merged branches.
 - Track limitations as checkboxes in **Open TODOs** below, and check them off when fixed — user wants limitations visible until they're gone.
 - Confirm a new test actually fails against the old code before calling a fix done.
 
 ---
 
-## What We Did This Session (2026-09-30, session 3)
+## What We Did in Session 4 (2026-10-01)
+
+- ✅ **Route-handler detection** — `ROUTE_HANDLER` (now in `file-utils.js`) also matches `(req, res` signatures incl. typed `(req: Request, res: Response) =>`. Juice Shop `login.ts:34` and DVNA `appHandler.js:10` → CRITICAL.
+- ✅ **XSS scanner** (`src/scanner/patterns/xss.js`, 22 tests) — Angular `bypassSecurityTrust*`, React `dangerouslySetInnerHTML`, `innerHTML`, `document.write`/`insertAdjacentHTML`/jQuery `.html()`, unescaped template output (EJS/Handlebars/Pug/Vue), `res.send()` of HTML or raw `req.*`. Recall: Juice Shop 8/9 challenges, DVNA 3/3 (answer key below).
+- ✅ **Non-production code capped at LOW** (user decision) — training snippets (`codefixes/`, `snippets/`, `fixtures/`) and test/example files, in both SQLi and XSS, via `nonProductionContext()`.
+- ✅ `*.min.js` skipped by all scanners; shared `USER_INPUT` in `file-utils.js`.
+- ✅ **PR #2 squash-merged** to `main` (`488951c`); `feature/scanner-patterns`, `feature/scanner-deps`, and the rewrite backup branch deleted.
+- ✅ **Housekeeping** — `Co-Authored-By` lines stripped from branch history (user request); stale Finder duplicates (`* 2.js`) deleted and `* 2.*` added to `.gitignore`; CI test-gate TODO added.
+
+## What We Did in Session 3 (2026-09-30)
 
 - ✅ **SQL injection scanner** (`src/scanner/patterns/sql-injection.js`)
   - Detects SQL built via string concatenation (`'SELECT … ' + id`) and template literal interpolation (`` `… ${id}` ``)
@@ -92,7 +105,7 @@ Design decisions: template files (`.html/.ejs/.pug/.hbs/.vue`) are scanned for X
 
 ```
 Design Phase     ████████████████████████████████ 100% ✅
-Week 1 Scanner   ████████████████████░░░░░░░░░░░░  65% 🔵  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ | crypto ⏳ async ⏳)
+Week 1 Scanner   ██████████████████████████░░░░░░  80% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ⏳ async ⏳ deferred)
 Week 2 Dashboard ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
 Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
 ```
@@ -100,11 +113,11 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 | Task | Status | Where |
 |---|---|---|
 | #1 Dependency scanner | ✅ Merged to `main` (PR #1) | `src/scanner/dependency-scanner.js`, `npm-audit-client.js` |
-| #2.1 Hardcoded secrets | ✅ Done, on branch | `src/scanner/patterns/hardcoded-secrets.js` |
-| #2.2 SQL injection | ✅ Done, on branch (1 small TODO) | `src/scanner/patterns/sql-injection.js` |
-| #2.3 XSS | ✅ Done, on branch (see TODOs) | `src/scanner/patterns/xss.js` |
-| #2.4 Insecure crypto | ⏳ After merge (Option B scope stops at XSS) | — |
-| #2.5 Async footguns | ⏳ After merge | — |
+| #2.1 Hardcoded secrets | ✅ Merged to `main` (PR #2) | `src/scanner/patterns/hardcoded-secrets.js` |
+| #2.2 SQL injection | ✅ Merged to `main` (PR #2) | `src/scanner/patterns/sql-injection.js` |
+| #2.3 XSS | ✅ Merged to `main` (PR #2) — see TODOs | `src/scanner/patterns/xss.js` |
+| #2.4 Insecure crypto | ⏳ Deferred until after dashboard (confirm with user) | — |
+| #2.5 Async footguns | ⏳ Deferred until after dashboard (confirm with user) | — |
 
 ---
 
@@ -128,7 +141,7 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 
 ---
 
-## How the Pattern Scanners Work (copy this shape for XSS)
+## How the Pattern Scanners Work (copy this shape for crypto / async)
 
 Each scanner in `src/scanner/patterns/` exports `async scanForX(targetPath)` returning findings matching the schema in PRD.md §3:
 
