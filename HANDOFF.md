@@ -57,7 +57,7 @@ Option B was chosen (secrets + SQL injection + XSS before merging, then dashboar
 | Target | Dependency CVEs | Secrets | SQL injection |
 |---|---|---|---|
 | Express (`/tmp/express`) | 4 | 1 | 0 (correct — no SQL) |
-| Juice Shop (`/tmp/juice-shop`) | 65 | 41 (noisy) | 13 (2 real routes + 10 training snippets + see TODOs) |
+| Juice Shop (`/tmp/juice-shop`) | 65 | 41 (noisy) | 13 (2 real routes + 11 training snippets) |
 | DVNA (`/tmp/dvna`) | 0 | 0 | 1 (real) |
 
 ---
@@ -89,8 +89,8 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
   - **OWASP Juice Shop** (`git clone --depth 1 https://github.com/juice-shop/juice-shop.git /tmp/juice-shop`, tested at `1618a61`) — primary demo target, well known, TypeScript + Sequelize, also has XSS.
   - **DVNA** (`git clone --depth 1 https://github.com/appsecco/dvna.git /tmp/dvna`, tested at `9ba473a`) — small, plain JS.
   - SQLi results: **3/3 known injections found** (`juice-shop/routes/login.ts:34`, `juice-shop/routes/search.ts:23`, `dvna/core/appHandler.js:10`); static query at `search.ts:47` correctly not flagged.
-- [ ] **Route handlers in separate modules aren't recognized.** Both apps define handlers as `module.exports = function (req, res) {…}` with no `app.get(` in the file, so the "inside a route handler" factor never fires and `req.body` used directly in a query tops out at HIGH instead of CRITICAL. Fix: also treat a `(req, res` function signature as a route handler.
-- [ ] **Juice Shop training snippets add noise.** 10 of 13 SQLi findings are in `data/static/codefixes/` — the in-app "pick the right fix" quiz files, not running code. They are genuinely vulnerable variants (none of the `*_correct.ts` files were flagged), so decide: exclude the folder, or tag as low-confidence "non-executed snippet".
+- [x] **Route handlers in separate modules aren't recognized.** Fixed — `ROUTE_HANDLER` (now shared in `file-utils.js`) also matches a `(req, res` signature, including typed `(req: Request, res: Response)`. `juice-shop/routes/login.ts:34` and `dvna/core/appHandler.js:10` are now CRITICAL. `search.ts:23` stays HIGH because `req.query.q` passes through a `criteria` variable (only `req.*` on the query line escalates to critical).
+- [ ] **Juice Shop training snippets add noise.** 11 of 13 SQLi findings are in `data/static/codefixes/` (7 of them now CRITICAL since the route-handler fix) — the in-app "pick the right fix" quiz files, not running code. They are genuinely vulnerable variants (none of the `*_correct.ts` files were flagged), so decide: exclude the folder, or tag as low-confidence "non-executed snippet".
 - [ ] **Hardcoded-secret noise on Juice Shop.** 41 findings, 30 of them "Database Password" in `data/static/` seed data. `lib/insecurity.ts` private key is a real (planted) true positive. Review when tuning false positives.
 
 ---
