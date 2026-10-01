@@ -1,5 +1,5 @@
 import {
-  filterFindings, sortFindings, countBySeverity, countByType, parseFactor, normalizeReport, findingKey, location,
+  filterFindings, sortFindings, countBySeverity, countByType, parseFactor, normalizeReport, findingKey, location, isSafeUrl,
 } from '../findings.js';
 
 function report(name, passed, detail = '') {
@@ -88,6 +88,12 @@ function testNormalizeReport() {
   return report('Normalize report / bare array / reject junk', full.findings.length === 1 && bare.findings.length === 2 && rejected);
 }
 
+function testIsSafeUrl() {
+  const safe = ['https://owasp.org/x', 'http://example.com'].every(isSafeUrl);
+  const unsafe = ['javascript:alert(1)', 'JavaScript:alert(1)', 'data:text/html,<script>', 'not a url', ''].some(isSafeUrl);
+  return report('Only http(s) reference URLs are linkable', safe && !unsafe);
+}
+
 const results = [
   testFilterBySeverityAndType(),
   testSearchAcrossFields(),
@@ -98,6 +104,7 @@ const results = [
   testKeysUniqueWithDuplicateIds(),
   testLocation(),
   testNormalizeReport(),
+  testIsSafeUrl(),
 ];
 
 console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
