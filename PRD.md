@@ -135,8 +135,9 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
     }
   ],
   "coverage": {
-    "checked": ["Hardcoded Secrets", "SQL Injection", "XSS", "Crypto Misuse", "CORS Config", "Async Footguns", "Permission Creep", "Logging PII", "Dependency CVEs"],
-    "checkedCount": 9,
+    "checked": ["Dependency CVEs", "Hardcoded Secrets", "SQL Injection Patterns", "XSS Vulnerabilities"],
+    "checkedCount": 4,
+    "notYetChecked": ["Insecure Crypto Usage", "CORS Misconfiguration", "Async Footguns", "Permission Creep", "Logging PII"],
     "findingsByType": {
       "dependency-cve": 3,
       "hardcoded-secret": 2,
