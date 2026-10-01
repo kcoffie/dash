@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** Add the CI test gate (see HANDOFF.md Open TODOs), then start Task #4 (Dashboard Core).
+**Next Step:** Start Task #4 (Dashboard Core). CI test gate is live — every PR must pass `npm test`.

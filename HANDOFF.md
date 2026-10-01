@@ -3,14 +3,14 @@
 **Last updated:** 2026-10-01 (session 4)
 **Branch:** `main` — PR #2 (secrets + SQLi + XSS) squash-merged as `488951c`; feature branches deleted
 **Status:** Option B scope complete (Secrets ✅, SQL Injection ✅, XSS ✅). Crypto + async scanners deferred.
-**Next step:** CI test gate (small), then Week 2 dashboard (Task #4) — see START HERE
+**Next step:** Week 2 Dashboard Core (Task #4) — see START HERE
 
 ---
 
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
-Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to `main`** via PR #2 (squash commit `488951c`). Insecure crypto (#2.4) and async footguns (#2.5) are deferred until after the dashboard. Session 4 work (route-handler fix, XSS scanner, non-production-code capping, commit-history cleanup) is all in `main`.
+Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to `main`** via PR #2 (squash commit `488951c`). The CI test gate is live (PR #4): every PR to `main` must pass `npm test`. The repo is **public** and `main` is protected (PR + passing `test` check required). Insecure crypto (#2.4) and async footguns (#2.5) are deferred until after the dashboard. Session 4 work (route-handler fix, XSS scanner, non-production-code capping, commit-history cleanup) is all in `main`.
 
 ### Do these, in order
 1. **Setup** — clone scan targets if `/tmp` was wiped (they live outside the repo):
@@ -34,7 +34,7 @@ Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to
 4. **Week 2: Dashboard Core (Task #4)** — branch `feature/dashboard`. Load `scanner-output.json` into the React skeleton (`src/App.jsx`, `src/pages/Dashboard.jsx`): findings table, severity/type filters, search, coverage report, expandable rows showing `context` factors + `remediation`. DOD in STATUS.md and PRD.md Req 5. Use a Juice Shop scan as demo data (it exercises every finding type and severity).
 5. **Later:** Task #5 dashboard polish → Week 3 deploy (Task #6) → #2.4 crypto / #2.5 async scanners and the Open TODOs.
 
-**Confirm the order with the user** before starting step 4 — they may prefer crypto/async scanners before the dashboard.
+User confirmed the order (2026-10-01): dashboard before crypto/async scanners.
 
 ### Working agreements with the user
 - **Commit and push right away** after each logical chunk — user wants to be aggressive about pushing so no work is lost.
@@ -54,7 +54,9 @@ Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to
 - ✅ **Non-production code capped at LOW** (user decision) — training snippets (`codefixes/`, `snippets/`, `fixtures/`) and test/example files, in both SQLi and XSS, via `nonProductionContext()`.
 - ✅ `*.min.js` skipped by all scanners; shared `USER_INPUT` in `file-utils.js`.
 - ✅ **PR #2 squash-merged** to `main` (`488951c`); `feature/scanner-patterns`, `feature/scanner-deps`, and the rewrite backup branch deleted.
-- ✅ **Housekeeping** — `Co-Authored-By` lines stripped from branch history (user request); stale Finder duplicates (`* 2.js`) deleted and `* 2.*` added to `.gitignore`; CI test-gate TODO added.
+- ✅ **Housekeeping** — `Co-Authored-By` lines stripped from branch history (user request); stale Finder duplicates (`* 2.js`) deleted and `* 2.*` added to `.gitignore`; status docs updated (PR #3).
+- ✅ **CI test gate** (PR #4) — `npm test` (Node built-in runner over every `*.test.js`) + GitHub Actions `test` job on PRs/pushes to `main`. Verified a failing suite fails the run.
+- ✅ **Repo made public** after a full-history audit (32 commits): no secrets, no `.env` / `scanner-output.json` ever committed; only fake test fixtures. Personal Gmail stays in old commit metadata (user's choice); new commits use the GitHub noreply email. `main` ruleset now enforced: PR required (0 approvals, squash only), `test` check required, no force pushes or deletion.
 
 ## What We Did in Session 3 (2026-09-30)
 
