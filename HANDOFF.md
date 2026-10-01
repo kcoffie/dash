@@ -110,6 +110,13 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 
 ---
 
+## Open TODOs
+
+- [ ] **SQL injection: multi-line queries are missed.** The scanner matches one line at a time, so a query built across lines (`'SELECT * FROM users ' +` / `'WHERE id = ' + id`) isn't flagged. Fix: join continued statements (trailing `+`, open template literal) before matching, and add tests. See TODO in `src/scanner/patterns/sql-injection.js`.
+- [ ] **Add a second scan target.** Express.js has no SQL, so it can't produce a SQL injection (or likely XSS) finding for the demo. Pick a real open-source Express + database app with known injectable queries and add it to the test runs.
+
+---
+
 ## Branch Strategy (Ready to Use)
 
 **Main:** Always deployable  
