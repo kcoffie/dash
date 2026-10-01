@@ -152,6 +152,31 @@ async function testExampleFileContext() {
   );
 }
 
+async function testSnippetFileCappedLow() {
+  // Juice Shop's "pick the right fix" quiz files: vulnerable, but never executed
+  const findings = await scanSource('data/static/codefixes/loginAdminChallenge_1.ts', [
+    'return (req: Request, res: Response, next: NextFunction) => {',
+    "  models.sequelize.query(`SELECT * FROM Users WHERE email = '${req.body.email}'`)",
+    '}',
+  ].join('\n'));
+  const finding = findings[0];
+  return report(
+    'Code snippet file → low, flagged non-executed',
+    finding?.severity === 'low' && finding.confidence <= 0.5
+      && finding.context.some((c) => c.includes('Non-executed')),
+    JSON.stringify(finding),
+  );
+}
+
+async function testTestFileCappedLow() {
+  const findings = await scanSource('test/routes.js', [
+    "app.get('/users/:id', (req, res) => {",
+    "  db.query('SELECT * FROM users WHERE id = ' + req.params.id);",
+    '});',
+  ].join('\n'));
+  return report('Test file → low (not critical)', findings[0]?.severity === 'low', JSON.stringify(findings[0]));
+}
+
 async function testSkipsNodeModules() {
   const findings = await scanSource('node_modules/orm/index.js', `const query = 'SELECT * FROM t WHERE id = ' + id;`);
   return report('Skips node_modules', findings.length === 0, JSON.stringify(findings));
@@ -231,6 +256,8 @@ async function runTests() {
   results.push(await testNonSqlStringsNotFlagged());
   results.push(await testCommentedCodeNotFlagged());
   results.push(await testExampleFileContext());
+  results.push(await testSnippetFileCappedLow());
+  results.push(await testTestFileCappedLow());
   results.push(await testSkipsNodeModules());
   results.push(await testMultiLineConcatenation());
   results.push(await testMultiLineLeadingPlus());

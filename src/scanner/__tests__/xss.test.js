@@ -203,6 +203,30 @@ async function testExampleFileContext() {
   );
 }
 
+async function testSnippetFileCappedLow() {
+  const findings = await scanSource('data/static/codefixes/localXssChallenge_1.ts', [
+    'let queryParam: string = this.route.snapshot.queryParams.q',
+    'this.searchValue = this.sanitizer.bypassSecurityTrustResourceUrl(queryParam)',
+  ].join('\n'));
+  const finding = findings[0];
+  return report(
+    'Code snippet file → low, flagged non-executed',
+    finding?.severity === 'low' && finding.confidence <= 0.5
+      && finding.context.some((c) => c.includes('Non-executed')),
+    JSON.stringify(finding),
+  );
+}
+
+async function testTestFileCappedLow() {
+  // Express's own test suite: res.send(req.params.user) inside app.get(...)
+  const findings = await scanSource('test/app.router.js', [
+    "app.get('/user/:user', function (req, res) {",
+    '  res.send(req.params.user);',
+    '});',
+  ].join('\n'));
+  return report('Test file → low (not critical)', findings[0]?.severity === 'low', JSON.stringify(findings[0]));
+}
+
 async function testSkipsVendoredCode() {
   const testPath = setup();
   fs.mkdirSync(path.join(testPath, 'node_modules', 'lib'), { recursive: true });
@@ -235,6 +259,8 @@ async function runTests() {
   results.push(await testConstantIsLow());
   results.push(await testCommentedCodeNotFlagged());
   results.push(await testExampleFileContext());
+  results.push(await testSnippetFileCappedLow());
+  results.push(await testTestFileCappedLow());
   results.push(await testSkipsVendoredCode());
 
   console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
