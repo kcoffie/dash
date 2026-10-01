@@ -82,3 +82,22 @@ export function normalizeReport(data) {
   if (data && Array.isArray(data.findings)) return data;
   throw new Error('Not a scanner report: expected an object with a "findings" array');
 }
+
+// Report files can come from anywhere; only link to web URLs (a javascript: link would be XSS)
+export function isSafeUrl(url) {
+  try {
+    return ['http:', 'https:'].includes(new URL(url).protocol);
+  } catch {
+    return false;
+  }
+}
+
+// coverage.checked uses display names; map them to finding types for per-category counts
+export const CATEGORY_TYPES = {
+  'Dependency CVEs': 'dependency-cve',
+  'Hardcoded Secrets': 'hardcoded-secret',
+  'SQL Injection Patterns': 'sql-injection',
+  'XSS Vulnerabilities': 'xss',
+  'Insecure Crypto Usage': 'crypto-misuse',
+  'Async Footguns': 'async-footgun',
+};
