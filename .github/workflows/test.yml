@@ -14,5 +14,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
-      # Scanner tests use only Node built-ins, so no npm install is needed
+          cache: npm
+      - run: npm ci
       - run: npm test
+      # Catches a dashboard that no longer compiles
+      - run: npm run build

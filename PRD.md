@@ -85,11 +85,11 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 **What:** React app that displays scanner JSON findings  
 **Why:** Makes output human-readable, shows UX design thinking  
 **Acceptance Criteria:**
-- [ ] Loads scanner-output.json and renders findings
-- [ ] Filter by severity (Critical → Info)
-- [ ] Search by keyword / file / type
-- [ ] Expandable rows show context factors + remediation
-- [ ] Responsive (works on mobile, tablet, desktop)
+- [x] Loads scanner-output.json and renders findings
+- [x] Filter by severity (Critical → Info)
+- [x] Search by keyword / file / type
+- [x] Expandable rows show context factors + remediation
+- [x] Responsive (works on mobile, tablet, desktop)
 - [ ] Dark mode (bonus, shows attention to detail)
 
 **Interview Talking Point:** "The dashboard is designed to let non-technical people understand security findings in 30 seconds."
@@ -135,8 +135,9 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
     }
   ],
   "coverage": {
-    "checked": ["Hardcoded Secrets", "SQL Injection", "XSS", "Crypto Misuse", "CORS Config", "Async Footguns", "Permission Creep", "Logging PII", "Dependency CVEs"],
-    "checkedCount": 9,
+    "checked": ["Dependency CVEs", "Hardcoded Secrets", "SQL Injection Patterns", "XSS Vulnerabilities"],
+    "checkedCount": 4,
+    "notYetChecked": ["Insecure Crypto Usage", "CORS Misconfiguration", "Async Footguns", "Permission Creep", "Logging PII"],
     "findingsByType": {
       "dependency-cve": 3,
       "hardcoded-secret": 2,

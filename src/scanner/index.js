@@ -75,18 +75,21 @@ async function scan() {
     targetPath,
     findings,
     coverage: {
+      // Only categories with a scanner behind them count as checked
       checked: [
         'Dependency CVEs',
         'Hardcoded Secrets',
         'SQL Injection Patterns',
         'XSS Vulnerabilities',
+      ],
+      checkedCount: 4,
+      notYetChecked: [
         'Insecure Crypto Usage',
         'CORS Misconfiguration',
         'Async Footguns',
         'Permission Creep',
         'Logging PII',
       ],
-      checkedCount: 9,
       findingsByType: {
         'dependency-cve': findings.filter((f) => f.type === 'dependency-cve').length,
         'hardcoded-secret': findings.filter((f) => f.type === 'hardcoded-secret').length,

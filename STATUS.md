@@ -52,7 +52,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
-| **#4: Dashboard Core** | 🔵 **Next** | Table, filters, search, coverage report, expandable rows |
+| **#4: Dashboard Core** | 🟡 PR open (`feature/dashboard`) | Table, filters, search, coverage report, expandable rows |
 | **#5: Dashboard Polish** | 🔵 Pending | Dark mode, pie chart, remediation links, responsive |
 
 **Deliverable:** Working React app at `npm run dev`
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** Start Task #4 (Dashboard Core). CI test gate is live — every PR must pass `npm test`.
+**Next Step:** Merge Task #4 (Dashboard Core), then Task #5 (Dashboard Polish). Every PR must pass `npm test` + `npm run build`.
