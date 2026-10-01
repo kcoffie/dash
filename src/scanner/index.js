@@ -10,6 +10,7 @@
 import fs from 'fs';
 import path from 'path';
 import { scanDependencies } from './dependency-scanner.js';
+import { scanPatterns } from './pattern-scanner.js';
 
 const targetPath = process.argv[2];
 
@@ -44,6 +45,21 @@ async function scan() {
     console.error(`✗ Dependency scanning failed: ${error.message}`);
   }
 
+  // Pattern scanning
+  try {
+    const { findings: patternFindings, errors: patternErrors } = await scanPatterns(targetPath);
+    findings.push(...patternFindings);
+    scanErrors.push(...patternErrors);
+    if (patternFindings.length > 0) {
+      console.log(`✓ Pattern scanning: ${patternFindings.length} finding(s) detected`);
+    } else {
+      console.log('✓ Pattern scanning: no issues found');
+    }
+  } catch (error) {
+    scanErrors.push(`Pattern scanning failed: ${error.message}`);
+    console.error(`✗ Pattern scanning failed: ${error.message}`);
+  }
+
   // Compute summary
   const summary = {
     total: findings.length,
@@ -73,11 +89,11 @@ async function scan() {
       checkedCount: 9,
       findingsByType: {
         'dependency-cve': findings.filter((f) => f.type === 'dependency-cve').length,
-        'hardcoded-secret': 0,
-        'sql-injection': 0,
-        'xss': 0,
-        'crypto-misuse': 0,
-        'async-footgun': 0,
+        'hardcoded-secret': findings.filter((f) => f.type === 'hardcoded-secret').length,
+        'sql-injection': findings.filter((f) => f.type === 'sql-injection').length,
+        'xss': findings.filter((f) => f.type === 'xss').length,
+        'crypto-misuse': findings.filter((f) => f.type === 'crypto-misuse').length,
+        'async-footgun': findings.filter((f) => f.type === 'async-footgun').length,
       },
     },
     summary,
