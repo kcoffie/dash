@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { shouldSkipFile, walkDir } from '../file-utils.js';
 
 const PATTERNS = [
   {
@@ -39,24 +40,6 @@ const PATTERNS = [
     description: 'Webhook URL (Slack/Discord) detected in code',
   },
 ];
-
-function shouldSkipFile(filePath) {
-  const skipped = [
-    /node_modules/,
-    /\.git/,
-    /dist\//,
-    /build\//,
-    /\.test\./,
-    /\.spec\./,
-    /README/,
-    /\.md$/,
-    /\.lock$/,
-    /\.svg$/,
-    /\.png$/,
-    /\.jpg$/,
-  ];
-  return skipped.some((pattern) => pattern.test(filePath));
-}
 
 function getContextFactors(line, filePath, matchedText) {
   const factors = [];
@@ -170,26 +153,4 @@ export async function scanForSecrets(targetPath) {
   }
 
   return findings;
-}
-
-function walkDir(dir, files = []) {
-  try {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
-
-    for (const entry of entries) {
-      const fullPath = path.join(dir, entry.name);
-
-      if (entry.isDirectory()) {
-        if (!shouldSkipFile(fullPath)) {
-          walkDir(fullPath, files);
-        }
-      } else {
-        files.push(fullPath);
-      }
-    }
-  } catch (error) {
-    // Skip directories we can't read
-  }
-
-  return files;
 }

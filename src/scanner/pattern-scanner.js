@@ -1,4 +1,5 @@
 import { scanForSecrets } from './patterns/hardcoded-secrets.js';
+import { scanForSqlInjection } from './patterns/sql-injection.js';
 
 export async function scanPatterns(targetPath) {
   const findings = [];
@@ -12,7 +13,14 @@ export async function scanPatterns(targetPath) {
     errors.push(`Secret scanning failed: ${error.message}`);
   }
 
-  // TODO: SQL Injection patterns (Task #2.2)
+  // SQL Injection
+  try {
+    const sqlFindings = await scanForSqlInjection(targetPath);
+    findings.push(...sqlFindings);
+  } catch (error) {
+    errors.push(`SQL injection scanning failed: ${error.message}`);
+  }
+
   // TODO: XSS patterns (Task #2.3)
   // TODO: Insecure Crypto patterns (Task #2.4)
   // TODO: Async Footguns patterns (Task #2.5)
