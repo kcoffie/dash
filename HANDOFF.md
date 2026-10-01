@@ -21,6 +21,7 @@ Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to
    ```
 2. **Verify baseline** — all should pass / match:
    ```bash
+   npm test                                               # runs every suite below (+ dependency-scanner 3/3)
    node src/scanner/__tests__/hardcoded-secrets.test.js   # 5/5
    node src/scanner/__tests__/sql-injection.test.js       # 21/21
    node src/scanner/__tests__/xss.test.js                 # 22/22
@@ -29,7 +30,7 @@ Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to
    node src/scanner/index.js /tmp/express                 # 0 sql-injection, 54 xss
    ```
    Run scans from a scratch dir — `index.js` writes `scanner-output.json` to the current directory.
-3. **CI test gate (~30 min)** — see the "Run tests before PRs can be merged" TODO: `npm test` script → GitHub Actions on `pull_request` → required status check on `main` (the branch-protection step is done by the user in GitHub settings). Protects `main` before the dashboard work starts.
+3. ✅ **CI test gate** — `npm test` + `.github/workflows/test.yml` (job `test`, runs on PRs to `main`). **User still needs to** mark `test` as a required status check in GitHub → Settings → Branches → `main` protection rule.
 4. **Week 2: Dashboard Core (Task #4)** — branch `feature/dashboard`. Load `scanner-output.json` into the React skeleton (`src/App.jsx`, `src/pages/Dashboard.jsx`): findings table, severity/type filters, search, coverage report, expandable rows showing `context` factors + `remediation`. DOD in STATUS.md and PRD.md Req 5. Use a Juice Shop scan as demo data (it exercises every finding type and severity).
 5. **Later:** Task #5 dashboard polish → Week 3 deploy (Task #6) → #2.4 crypto / #2.5 async scanners and the Open TODOs.
 
@@ -134,7 +135,7 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 - [ ] **XSS: template injection not detected.** Juice Shop "CSP Bypass" (`routes/userProfile.ts:73`) splices user input into a Pug template string before `pug.compile`. Needs a "template compiled from a dynamic string" pattern (really SSTI, arguably its own scanner).
 - [ ] **XSS: sinks inside string literals are matched.** e.g. Express `test/res.redirect.js:115` — `'javascript:eval(document.body.innerHTML=...)'` is a string, not code.
 - [ ] **XSS: not covered yet** — `javascript:` URLs (`location.href = value`, `<a href>`), `eval`/`setTimeout(string)`, `res.render` with unescaped locals passed from routes (only the template side is checked).
-- [ ] **Run tests before PRs can be merged.** Nothing enforces tests today: no `npm test` script, no `.github/workflows/`, and the "Require status checks" rule in CONTRIBUTING.md isn't set up on GitHub. Plan: add `"test"` to package.json (run each `src/scanner/__tests__/*.test.js`), add a GitHub Actions workflow on `pull_request`, then mark it a required status check in `main`'s branch protection. (This is CI for *this repo* — different from the out-of-scope "CI/CD integration" of the scanner as a product.)
+- [ ] **Run tests before PRs can be merged.** Mostly done (session 4): `npm test` runs every `src/scanner/__tests__/*.test.js` via `node --test` (each suite is its own process; non-zero exit = failure; verified with a forced-failure suite), and `.github/workflows/test.yml` runs it on Node 24 for PRs and pushes to `main`. **Remaining (user, GitHub settings):** add a branch protection rule on `main` requiring the `test` status check. New test files just need the `.test.js` suffix and a non-zero exit on failure.
 - [ ] **Hardcoded-secret noise on Juice Shop.** 41 findings, 30 of them "Database Password" in `data/static/` seed data. `lib/insecurity.ts` private key is a real (planted) true positive. Review when tuning false positives.
 
 ---

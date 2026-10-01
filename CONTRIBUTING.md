@@ -201,7 +201,7 @@ Code commit → PR → Self-review → Merge to main → Auto-deploy to Vercel
 **Recommended settings for `main`:**
 - Require PR reviews (1 approval minimum)
   - *For solo: approve your own PR after self-review*
-- Require status checks (linting, tests)
+- Require status checks (tests: the `test` job from `.github/workflows/test.yml`; run locally with `npm test`)
 - Dismiss stale reviews (if you push new commits)
 - Delete head branch on merge (keeps repo clean)
 
