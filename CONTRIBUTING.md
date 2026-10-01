@@ -196,14 +196,15 @@ Code commit → PR → Self-review → Merge to main → Auto-deploy to Vercel
 
 ---
 
-## Branch Protection (If Using GitHub)
+## Branch Protection
 
-**Recommended settings for `main`:**
-- Require PR reviews (1 approval minimum)
-  - *For solo: approve your own PR after self-review*
-- Require status checks (tests: the `test` job from `.github/workflows/test.yml`; run locally with `npm test`)
-- Dismiss stale reviews (if you push new commits)
-- Delete head branch on merge (keeps repo clean)
+**Active ruleset on `main`** (Settings → Rules → Rulesets; enforced since the repo went public):
+- Require a pull request before merging — **0 approvals** (GitHub doesn't let you approve your own PR, so solo work self-reviews in the diff view)
+- Squash is the only allowed merge method
+- Require status checks: the `test` job from `.github/workflows/test.yml` (run locally with `npm test`)
+- Block force pushes and branch deletion
+
+Head branches are not auto-deleted on merge — delete them after merging (GitHub's "Delete branch" button, then `git fetch --prune` and `git branch -D <branch>` locally).
 
 ---
 
