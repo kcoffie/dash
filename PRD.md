@@ -218,10 +218,11 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 **Goal:** Functioning scanner + basic dashboard
 
 **Week 1:**
-- [ ] Dependency scanner (parse + npm audit API)
-- [ ] Pattern scanners (hardcoded secrets, SQL injection, XSS, crypto, async)
-- [ ] JSON output generation
-- [ ] Test on 1 real repo (Express.js)
+- [x] Dependency scanner (parse + npm audit API)
+- [x] Pattern scanners: hardcoded secrets, SQL injection, XSS
+- [ ] Pattern scanners: insecure crypto, async (deferred until after dashboard)
+- [x] JSON output generation
+- [x] Test on 1 real repo (Express.js) — plus OWASP Juice Shop + DVNA as known answer keys
 
 **Week 2:**
 - [ ] React dashboard (table, filters, search)

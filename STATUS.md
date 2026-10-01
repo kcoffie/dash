@@ -1,14 +1,14 @@
 # Project Status Dashboard
 
-**Last Updated:** 2026-09-30  
-**Status:** Design Phase Complete → Week 1 Ready to Start
+**Last Updated:** 2026-10-01  
+**Status:** Week 1 scanners merged (deps, secrets, SQLi, XSS) → Week 2 dashboard next
 
 ---
 
 ## Overall Progress
 
 ```
-Phase 1 (MVP)      ████░░░░░░ 20%  (Planning done, coding starts)
+Phase 1 (MVP)      █████░░░░░ 50%  (Scanners merged; dashboard + deploy remaining)
 Phase 2 (Polish)   ░░░░░░░░░░  0%  (Queued for Week 3)
 Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDEAS.md)
 ```
@@ -36,23 +36,23 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 
 ---
 
-## What's TBD (Week 1 - Coding Phase)
+## Phase 1 Tasks
 
 ### Week 1: Build Scanners
 
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
 | **#1: Dependency Scanner** | ✅ Merged | Parse JSON, query npm audit API, output CVE findings |
-| **#2: Pattern Scanners (Secrets + SQL)** | ✅ Done on `feature/scanner-patterns` (see HANDOFF.md) | Regex for hardcoded secrets, SQL patterns, 3+ context factors |
-| **#3: Pattern Scanners (XSS, Crypto, Async)** | 🔵 Next: XSS | XSS, MD5/SHA1, async footguns, integrated output |
+| **#2: Pattern Scanners (Secrets + SQL)** | ✅ Merged (PR #2) | Regex for hardcoded secrets, SQL patterns, 3+ context factors |
+| **#3: Pattern Scanners (XSS, Crypto, Async)** | 🟡 XSS ✅ merged (PR #2); crypto + async deferred until after dashboard | XSS, MD5/SHA1, async footguns, integrated output |
 
-**Deliverable:** `scanner-output.json` with 5 finding types + context factors
+**Deliverable:** `scanner-output.json` with 5 finding types + context factors — 4 of 5 shipped (dependency CVEs, secrets, SQLi, XSS). Validated against OWASP Juice Shop + DVNA answer keys: SQLi 3/3, XSS 8/9 Juice Shop challenges + 3/3 DVNA. Details in HANDOFF.md.
 
 ### Week 2: Build Dashboard
 
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
-| **#4: Dashboard Core** | 🔵 Pending | Table, filters, search, coverage report, expandable rows |
+| **#4: Dashboard Core** | 🔵 **Next** | Table, filters, search, coverage report, expandable rows |
 | **#5: Dashboard Polish** | 🔵 Pending | Dark mode, pie chart, remediation links, responsive |
 
 **Deliverable:** Working React app at `npm run dev`
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** Start Task #1 (Dependency Scanner). Let's go.
+**Next Step:** Add the CI test gate (see HANDOFF.md Open TODOs), then start Task #4 (Dashboard Core).
