@@ -1,16 +1,16 @@
 # Project Handoff — Security Audit Platform
 
-**Last updated:** 2026-09-30 (end of session 3)
+**Last updated:** 2026-10-01 (session 4)
 **Branch:** `feature/scanner-patterns` (pushed, in sync with origin — not yet merged to `main`)
-**Status:** Week 1 scanners in progress — Option B chosen (Secrets ✅, SQL Injection ✅, XSS ⏳)
-**Next step:** Fix route-handler detection (small), then build the XSS scanner (Task #2.3)
+**Status:** Week 1 scanners in progress — Option B chosen (Secrets ✅, SQL Injection ✅, XSS ✅)
+**Next step:** Decide how to treat non-production code (codefixes snippets, `test/` dirs), then open the PR
 
 ---
 
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
-Option B was chosen (secrets + SQL injection + XSS before merging, then dashboard). Secrets and SQL injection are done, tested, and pushed. XSS is next. Then open a PR for `feature/scanner-patterns` → `main`.
+Option B was chosen (secrets + SQL injection + XSS before merging, then dashboard). Secrets, SQL injection, route-handler fix, and XSS are done, tested, and pushed. Remaining: the non-production-code decision (step 5), then open a PR for `feature/scanner-patterns` → `main`.
 
 ### Do these, in order
 1. **Setup** — clone scan targets if `/tmp` was wiped (they live outside the repo):
@@ -22,12 +22,14 @@ Option B was chosen (secrets + SQL injection + XSS before merging, then dashboar
 2. **Verify baseline** — all should pass / match:
    ```bash
    node src/scanner/__tests__/hardcoded-secrets.test.js   # 5/5
-   node src/scanner/__tests__/sql-injection.test.js       # 17/17
-   node src/scanner/index.js /tmp/juice-shop              # 13 sql-injection findings
-   node src/scanner/index.js /tmp/dvna                    # 1 sql-injection finding
+   node src/scanner/__tests__/sql-injection.test.js       # 19/19
+   node src/scanner/__tests__/xss.test.js                 # 20/20
+   node src/scanner/index.js /tmp/juice-shop              # 13 sql-injection, 19 xss
+   node src/scanner/index.js /tmp/dvna                    # 1 sql-injection, 10 xss
+   node src/scanner/index.js /tmp/express                 # 0 sql-injection, 54 xss
    ```
-3. **Fix route-handler detection (~15 min)** — in `src/scanner/patterns/sql-injection.js`, `ROUTE_HANDLER` only matches `app.get(` / `router.post(` etc. Also treat a `(req, res` function signature as a route handler (Juice Shop + DVNA define handlers as `module.exports = function (req, res) {…}`). Expected result: `juice-shop/routes/login.ts:34` and `dvna/core/appHandler.js:10` become **critical**. Add a test. Consider moving the regex to `file-utils.js` so XSS reuses it.
-4. **Build XSS scanner (Task #2.3)** — `src/scanner/patterns/xss.js` + `src/scanner/__tests__/xss.test.js`, wire into `src/scanner/pattern-scanner.js` (replace the `// TODO: XSS patterns` line). Follow the SQL injection scanner's structure exactly (see "How the pattern scanners work" below). Use Juice Shop as the answer key: find its known XSS sinks first (grep `bypassSecurityTrustHtml`, `innerHTML`, `res.send(` with user input; `data/static/codefixes/*Xss*` lists the challenges), then measure recall.
+3. ✅ **Fix route-handler detection (~15 min)** — in `src/scanner/patterns/sql-injection.js`, `ROUTE_HANDLER` only matches `app.get(` / `router.post(` etc. Also treat a `(req, res` function signature as a route handler (Juice Shop + DVNA define handlers as `module.exports = function (req, res) {…}`). Expected result: `juice-shop/routes/login.ts:34` and `dvna/core/appHandler.js:10` become **critical**. Add a test. Consider moving the regex to `file-utils.js` so XSS reuses it.
+4. ✅ **Build XSS scanner (Task #2.3)** — done; answer key + recall below. — `src/scanner/patterns/xss.js` + `src/scanner/__tests__/xss.test.js`, wire into `src/scanner/pattern-scanner.js` (replace the `// TODO: XSS patterns` line). Follow the SQL injection scanner's structure exactly (see "How the pattern scanners work" below). Use Juice Shop as the answer key: find its known XSS sinks first (grep `bypassSecurityTrustHtml`, `innerHTML`, `res.send(` with user input; `data/static/codefixes/*Xss*` lists the challenges), then measure recall.
 5. **Ask the user** how to handle Juice Shop's `data/static/codefixes/` training snippets (exclude folder vs. low-confidence tag) — open decision, see Open TODOs.
 6. **Open PR** `feature/scanner-patterns` → `main` once XSS is in (use PR template in CONTRIBUTING.md; squash merge). Then Week 2: dashboard.
 
@@ -54,11 +56,35 @@ Option B was chosen (secrets + SQL injection + XSS before merging, then dashboar
 
 ### Scan results snapshot
 
-| Target | Dependency CVEs | Secrets | SQL injection |
+| Target | Dependency CVEs | Secrets | SQL injection | XSS |
+|---|---|---|---|---|
+| Express (`/tmp/express`) | 4 | 1 | 0 (correct — no SQL) | 54 (40 critical — `res.send(req.params.x)` in `test/` + `examples/`) |
+| Juice Shop (`/tmp/juice-shop`) | 65 | 41 (noisy) | 13 (2 real routes + 11 training snippets) | 19 (13 app code + 6 training snippets) |
+| DVNA (`/tmp/dvna`) | 0 | 0 | 1 (real) | 10 |
+
+### XSS answer key + recall (session 4)
+
+Juice Shop marks real vulnerable lines with `// vuln-code-snippet vuln-line <challenge>`; the rest were traced from `data/static/challenges.yml` (9 XSS challenges). DVNA's are listed in `docs/solution/a7-xss.md`.
+
+| Challenge | Sink | Found | Severity |
 |---|---|---|---|
-| Express (`/tmp/express`) | 4 | 1 | 0 (correct — no SQL) |
-| Juice Shop (`/tmp/juice-shop`) | 65 | 41 (noisy) | 13 (2 real routes + 11 training snippets) |
-| DVNA (`/tmp/dvna`) | 0 | 0 | 1 (real) |
+| DOM XSS + Bonus Payload | `frontend/src/app/search-result/search-result.component.ts:144` | ✅ | high |
+| API-only XSS | `search-result.component.ts:111` | ✅ | high |
+| Reflected XSS | `frontend/src/app/track-result/track-result.component.ts:49` | ✅ | high |
+| HTTP-Header XSS | `frontend/src/app/last-login-ip/last-login-ip.component.ts:40` | ✅ | high |
+| Client-side XSS Protection | `frontend/src/app/administration/administration.component.ts:74` | ✅ | medium |
+| Server-side XSS Protection | `frontend/src/app/about/about.component.ts:120` (+ `administration.component.ts:92`) | ✅ | medium |
+| Video XSS | `routes/videoHandler.ts:72` (`res.send` of HTML built from `subs` on :71) | ✅ | medium |
+| CSP Bypass | `routes/userProfile.ts:73` (username spliced into a Pug template, then `pug.compile`) | ❌ | — |
+| DVNA reflected search | `views/app/products.ejs:20` | ✅ | medium |
+| DVNA stored products | `views/app/products.ejs:49-53` | ✅ | medium |
+| DVNA DOM (admin users) | `views/app/adminusers.ejs:40-42` | ✅ | medium |
+
+**Recall: Juice Shop 8/9 challenges (7/8 sink sites), DVNA 3/3.** Juice Shop's `*_correct.ts` codefixes are not flagged; neither are the fake-API quiz variants (`bypassSecurityTrustSoundCloud`). Juice Shop `.hbs` views (all `{{ }}`) are not flagged.
+
+Juice Shop app-code findings that aren't challenges (5 of 13): `data-export.component.ts:58` (captcha, server-generated), `:72` (`document.write` of the user's own export), `score-board.component.ts:83` (challenge descriptions), `hacking-instructor/index.ts:126` (static hint markdown), `assets/private/three.js:11375` (vendored). Debatable, not clearly wrong.
+
+Design decisions: template files (`.html/.ejs/.pug/.hbs/.vue`) are scanned for XSS only (DVNA's sinks are all in `.ejs`). Angular `[innerHTML]` bindings are **not** flagged — Angular sanitizes them; the risk is `bypassSecurityTrust*`, which is.
 
 ---
 
@@ -66,7 +92,7 @@ Option B was chosen (secrets + SQL injection + XSS before merging, then dashboar
 
 ```
 Design Phase     ████████████████████████████████ 100% ✅
-Week 1 Scanner   ████████████████░░░░░░░░░░░░░░░░  50% 🔵  (deps ✅ secrets ✅ SQLi ✅ | XSS ⏳ crypto ⏳ async ⏳)
+Week 1 Scanner   ████████████████████░░░░░░░░░░░░  65% 🔵  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ | crypto ⏳ async ⏳)
 Week 2 Dashboard ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
 Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
 ```
@@ -76,7 +102,7 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 | #1 Dependency scanner | ✅ Merged to `main` (PR #1) | `src/scanner/dependency-scanner.js`, `npm-audit-client.js` |
 | #2.1 Hardcoded secrets | ✅ Done, on branch | `src/scanner/patterns/hardcoded-secrets.js` |
 | #2.2 SQL injection | ✅ Done, on branch (1 small TODO) | `src/scanner/patterns/sql-injection.js` |
-| #2.3 XSS | ⏳ **Next** | `src/scanner/patterns/xss.js` (to create) |
+| #2.3 XSS | ✅ Done, on branch (see TODOs) | `src/scanner/patterns/xss.js` |
 | #2.4 Insecure crypto | ⏳ After merge (Option B scope stops at XSS) | — |
 | #2.5 Async footguns | ⏳ After merge | — |
 
@@ -90,7 +116,11 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
   - **DVNA** (`git clone --depth 1 https://github.com/appsecco/dvna.git /tmp/dvna`, tested at `9ba473a`) — small, plain JS.
   - SQLi results: **3/3 known injections found** (`juice-shop/routes/login.ts:34`, `juice-shop/routes/search.ts:23`, `dvna/core/appHandler.js:10`); static query at `search.ts:47` correctly not flagged.
 - [x] **Route handlers in separate modules aren't recognized.** Fixed — `ROUTE_HANDLER` (now shared in `file-utils.js`) also matches a `(req, res` signature, including typed `(req: Request, res: Response)`. `juice-shop/routes/login.ts:34` and `dvna/core/appHandler.js:10` are now CRITICAL. `search.ts:23` stays HIGH because `req.query.q` passes through a `criteria` variable (only `req.*` on the query line escalates to critical).
-- [ ] **Juice Shop training snippets add noise.** 11 of 13 SQLi findings are in `data/static/codefixes/` (7 of them now CRITICAL since the route-handler fix) — the in-app "pick the right fix" quiz files, not running code. They are genuinely vulnerable variants (none of the `*_correct.ts` files were flagged), so decide: exclude the folder, or tag as low-confidence "non-executed snippet".
+- [ ] **Juice Shop training snippets add noise.** (Awaiting user decision.) Also 6 of 19 XSS findings. 11 of 13 SQLi findings are in `data/static/codefixes/` (7 of them now CRITICAL since the route-handler fix) — the in-app "pick the right fix" quiz files, not running code. They are genuinely vulnerable variants (none of the `*_correct.ts` files were flagged), so decide: exclude the folder, or tag as low-confidence "non-executed snippet".
+- [ ] **XSS: test-suite noise on Express.** 38 of Express's 40 critical XSS findings are `res.send(req.params.x)` inside `test/` (they're technically reflected XSS, but it's test code). Like SQLi, test/example files only lower confidence, not severity. Decide alongside the codefixes question.
+- [ ] **XSS: template injection not detected.** Juice Shop "CSP Bypass" (`routes/userProfile.ts:73`) splices user input into a Pug template string before `pug.compile`. Needs a "template compiled from a dynamic string" pattern (really SSTI, arguably its own scanner).
+- [ ] **XSS: sinks inside string literals are matched.** e.g. Express `test/res.redirect.js:115` — `'javascript:eval(document.body.innerHTML=...)'` is a string, not code.
+- [ ] **XSS: not covered yet** — `javascript:` URLs (`location.href = value`, `<a href>`), `eval`/`setTimeout(string)`, `res.render` with unescaped locals passed from routes (only the template side is checked).
 - [ ] **Hardcoded-secret noise on Juice Shop.** 41 findings, 30 of them "Database Password" in `data/static/` seed data. `lib/insecurity.ts` private key is a real (planted) true positive. Review when tuning false positives.
 
 ---
@@ -155,15 +185,17 @@ src/scanner/
 ├── index.js                  ← CLI: node src/scanner/index.js <repo> → scanner-output.json
 ├── dependency-scanner.js     ← Task #1
 ├── npm-audit-client.js       ← Task #1
-├── pattern-scanner.js        ← runs each pattern scanner (XSS/crypto/async TODOs here)
-├── file-utils.js             ← shared: walkDir, skip rules, toStatements
+├── pattern-scanner.js        ← runs each pattern scanner (crypto/async TODOs here)
+├── file-utils.js             ← shared: walkDir, skip rules, toStatements, USER_INPUT, ROUTE_HANDLER
 ├── patterns/
 │   ├── hardcoded-secrets.js  ← Task #2.1
-│   └── sql-injection.js      ← Task #2.2
+│   ├── sql-injection.js      ← Task #2.2
+│   └── xss.js                ← Task #2.3
 └── __tests__/
     ├── dependency-scanner.test.js
     ├── hardcoded-secrets.test.js
-    └── sql-injection.test.js
+    ├── sql-injection.test.js
+    └── xss.test.js
 ```
 Dashboard skeleton (Week 2, untouched): `src/App.jsx`, `src/pages/Dashboard.jsx`.
 
