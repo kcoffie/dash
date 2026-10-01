@@ -9,6 +9,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { scanDependencies } from './dependency-scanner.js';
 
 const targetPath = process.argv[2];
 
@@ -22,60 +23,79 @@ if (!fs.existsSync(targetPath)) {
   process.exit(1);
 }
 
-const findings = [];
+async function scan() {
+  const findings = [];
+  const scanErrors = [];
 
-console.log(`\n🔍 Scanning ${targetPath}...\n`);
-console.log('✓ Scanner initialized (Phase 1 placeholder)');
-console.log('  - Dependency scanning: TODO');
-console.log('  - Pattern detection: TODO');
-console.log('  - Output report: TODO\n');
+  console.log(`\n🔍 Scanning ${targetPath}...\n`);
 
-// Placeholder output with example finding structure
-const report = {
-  timestamp: new Date().toISOString(),
-  targetPath,
-  findings: [
-    // Example finding with contextual scoring
-    // {
-    //   type: 'sql-injection-pattern',
-    //   title: 'Potential SQL Injection',
-    //   severity: 'high',  // Based on context below
-    //   description: 'String concatenation in SQL query without sanitization',
-    //   file: 'src/db.js',
-    //   line: 42,
-    //   pattern: 'query = "SELECT * FROM users WHERE id = " + userId',
-    //   context: [
-    //     '✓ Concatenation pattern detected',
-    //     '⚠ No sanitization/prepared statement visible',
-    //     '✓ Endpoint input source unclear (could be user-controlled)',
-    //   ],
-    //   remediation: 'Use parameterized queries: db.query("SELECT * FROM users WHERE id = ?", [userId])',
-    //   references: ['https://owasp.org/www-community/attacks/SQL_Injection'],
-    // },
-  ],
-  coverage: {
-    checked: [
-      'Hardcoded Secrets',
-      'SQL Injection Patterns',
-      'XSS Vulnerabilities',
-      'Insecure Crypto Usage',
-      'CORS Misconfiguration',
-      'Async Footguns',
-      'Permission Creep',
-      'Logging PII',
-      'Dependency CVEs',
-    ],
-  },
-  summary: {
-    total: 0,
-    critical: 0,
-    high: 0,
-    medium: 0,
-    low: 0,
-    info: 0,
-  },
-};
+  // Dependency scanning
+  try {
+    const { findings: depFindings, errors: depErrors } = await scanDependencies(targetPath);
+    findings.push(...depFindings);
+    scanErrors.push(...depErrors);
+    if (depFindings.length > 0) {
+      console.log(`✓ Dependency scanning: ${depFindings.length} CVE(s) found`);
+    } else {
+      console.log('✓ Dependency scanning: no vulnerabilities');
+    }
+  } catch (error) {
+    scanErrors.push(`Dependency scanning failed: ${error.message}`);
+    console.error(`✗ Dependency scanning failed: ${error.message}`);
+  }
 
-const outputPath = 'scanner-output.json';
-fs.writeFileSync(outputPath, JSON.stringify(report, null, 2));
-console.log(`📄 Report saved to ${outputPath}`);
+  // Compute summary
+  const summary = {
+    total: findings.length,
+    critical: findings.filter((f) => f.severity === 'critical').length,
+    high: findings.filter((f) => f.severity === 'high').length,
+    medium: findings.filter((f) => f.severity === 'medium').length,
+    low: findings.filter((f) => f.severity === 'low').length,
+    info: findings.filter((f) => f.severity === 'info').length,
+  };
+
+  const report = {
+    timestamp: new Date().toISOString(),
+    targetPath,
+    findings,
+    coverage: {
+      checked: [
+        'Dependency CVEs',
+        'Hardcoded Secrets',
+        'SQL Injection Patterns',
+        'XSS Vulnerabilities',
+        'Insecure Crypto Usage',
+        'CORS Misconfiguration',
+        'Async Footguns',
+        'Permission Creep',
+        'Logging PII',
+      ],
+      checkedCount: 9,
+      findingsByType: {
+        'dependency-cve': findings.filter((f) => f.type === 'dependency-cve').length,
+        'hardcoded-secret': 0,
+        'sql-injection': 0,
+        'xss': 0,
+        'crypto-misuse': 0,
+        'async-footgun': 0,
+      },
+    },
+    summary,
+    ...(scanErrors.length > 0 && { errors: scanErrors }),
+  };
+
+  const outputPath = 'scanner-output.json';
+  fs.writeFileSync(outputPath, JSON.stringify(report, null, 2));
+  console.log(`\n📄 Report saved to ${outputPath}`);
+  console.log(`\n📊 Summary: ${summary.total} finding(s)`);
+  if (summary.critical > 0) console.log(`   🔴 Critical: ${summary.critical}`);
+  if (summary.high > 0) console.log(`   🟠 High: ${summary.high}`);
+  if (summary.medium > 0) console.log(`   🟡 Medium: ${summary.medium}`);
+  if (summary.low > 0) console.log(`   🟢 Low: ${summary.low}`);
+  console.log();
+}
+
+scan().catch((error) => {
+  console.error('Fatal error:', error.message);
+  process.exit(1);
+});
