@@ -42,9 +42,9 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
-| **#1: Dependency Scanner** | 🔵 Pending | Parse JSON, query npm audit API, output CVE findings |
-| **#2: Pattern Scanners (Secrets + SQL)** | 🔵 Pending | Regex for hardcoded secrets, SQL patterns, 3+ context factors |
-| **#3: Pattern Scanners (XSS, Crypto, Async)** | 🔵 Pending | XSS, MD5/SHA1, async footguns, integrated output |
+| **#1: Dependency Scanner** | ✅ Merged | Parse JSON, query npm audit API, output CVE findings |
+| **#2: Pattern Scanners (Secrets + SQL)** | ✅ Done on `feature/scanner-patterns` (see HANDOFF.md) | Regex for hardcoded secrets, SQL patterns, 3+ context factors |
+| **#3: Pattern Scanners (XSS, Crypto, Async)** | 🔵 Next: XSS | XSS, MD5/SHA1, async footguns, integrated output |
 
 **Deliverable:** `scanner-output.json` with 5 finding types + context factors
 
