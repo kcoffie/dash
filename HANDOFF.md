@@ -1,45 +1,50 @@
 # Project Handoff — Security Audit Platform
 
-**Last updated:** 2026-10-01 (session 4)
-**Branch:** `main` — PR #2 (secrets + SQLi + XSS) squash-merged as `488951c`; feature branches deleted
-**Status:** Option B scope complete (Secrets ✅, SQL Injection ✅, XSS ✅). Crypto + async scanners deferred.
-**Next step:** Merge the Dashboard Core PR (Task #4, branch `feature/dashboard`), then Task #5 polish — see START HERE
+**Last updated:** 2026-10-01 (end of session 4)
+**Branch:** `main` @ `9116ed3` — everything merged (PRs #2–#7), no open PRs, no other branches
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard Core ✅ (PR #7) · repo public, `main` protected
+**Next step:** Task #5 — Dashboard Polish (dark mode, severity chart, responsive refinements) on a new branch `feature/dashboard-polish`
 
 ---
 
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
-Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to `main`** via PR #2 (squash commit `488951c`). The CI test gate is live (PR #4): every PR to `main` must pass `npm test`. The repo is **public** and `main` is protected (PR + passing `test` check required). Insecure crypto (#2.4) and async footguns (#2.5) are deferred until after the dashboard. Session 4 work (route-handler fix, XSS scanner, non-production-code capping, commit-history cleanup) is all in `main`.
+The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
 
 ### Do these, in order
-1. **Setup** — clone scan targets if `/tmp` was wiped (they live outside the repo):
+1. **Setup**
    ```bash
+   git checkout main && git pull
+   npm ci                                   # node_modules isn't committed; needed for dev/build
+   # Scan targets live outside the repo — re-clone if /tmp was wiped:
    git clone --depth 1 https://github.com/expressjs/express.git /tmp/express
    git clone --depth 1 https://github.com/juice-shop/juice-shop.git /tmp/juice-shop
    git clone --depth 1 https://github.com/appsecco/dvna.git /tmp/dvna
    ```
-2. **Verify baseline** — all should pass / match:
+   `npm ci` warns that esbuild's install script wasn't approved — harmless (the build works; CI is green).
+2. **Verify baseline**
    ```bash
-   npm test                                               # runs every suite below (+ dependency-scanner 3/3)
-   node src/scanner/__tests__/hardcoded-secrets.test.js   # 5/5
-   node src/scanner/__tests__/sql-injection.test.js       # 21/21
-   node src/scanner/__tests__/xss.test.js                 # 22/22
-   node src/scanner/index.js /tmp/juice-shop              # 13 sql-injection, 19 xss
-   node src/scanner/index.js /tmp/dvna                    # 1 sql-injection, 10 xss
-   node src/scanner/index.js /tmp/express                 # 0 sql-injection, 54 xss
+   npm test                                 # 5 suites: dependency 3/3, secrets 5/5, SQLi 21/21, XSS 22/22, dashboard helpers 10/10
+   npm run build                            # must succeed (CI runs it)
    ```
-   Run scans from a scratch dir — `index.js` writes `scanner-output.json` to the current directory.
-3. ✅ **CI test gate** — `npm test` + `.github/workflows/test.yml`; `main` ruleset requires a PR + passing `test` check (enforced).
-4. ✅ **Week 2: Dashboard Core (Task #4)** — on `feature/dashboard` (PR open). Run it: `npm run scan /tmp/juice-shop` from the repo root (writes `scanner-output.json`, gitignored), then `npm run dev` → http://localhost:5173. Or use "Load scan file…" with any report.
-   - `src/App.jsx` loads the report (a non-JSON response means "no report": Vite answers missing files with index.html); `src/pages/Dashboard.jsx` composes `src/components/` (SummaryCards, CoverageReport, FilterBar, FindingsTable, FindingDetails, SeverityBadge).
-   - All filter/sort/count logic is plain JS in `src/utils/findings.js`, tested by `src/utils/__tests__/findings.test.js` (10 tests) — keep new logic there so `npm test` covers it.
-   - Verified in Chrome on the Juice Shop scan (138 findings): severity cards filter, search matches snippets, rows expand with factors/fix/links, 390px layout has no horizontal scroll, no console errors.
-   - CI `test` job now also runs `npm ci` and `npm run build`.
-5. **Task #5: Dashboard Polish** — dark mode, severity chart, responsive refinements (STATUS.md DOD). Then Week 3: deploy (Task #6) — needs committed demo data (see Open TODOs).
-6. **Later:** #2.4 crypto / #2.5 async scanners and the Open TODOs.
+   Scanner counts (run from a scratch dir — `index.js` writes `scanner-output.json` to the cwd):
+   Juice Shop 13 SQLi / 19 XSS / 138 total · DVNA 1 SQLi / 10 XSS · Express 0 SQLi / 54 XSS (all low).
+3. **See the dashboard**: from the repo root, `npm run scan /tmp/juice-shop` (writes the gitignored `scanner-output.json` the dev server serves), then `npm run dev` → http://localhost:5173. "Load scan file…" loads any other report.
+4. **Task #5: Dashboard Polish** — new branch `feature/dashboard-polish`, PR when done. DOD (STATUS.md / PRD.md Req 5):
+   - **Dark mode** — the PRD's "bonus" item. Tailwind v4 is set up via `@import "tailwindcss"` in `src/index.css` (no `tailwind.config.js` — v4 doesn't use it). Follow the system preference with `dark:` variants; severity colors in `src/components/SeverityBadge.jsx` (`SEVERITY_STYLES`) and `SummaryCards.jsx` need dark counterparts. Keep contrast readable.
+   - **Severity / type chart** — STATUS.md says "pie chart"; consider a horizontal bar per severity or per type instead (easier to compare). Load the `dataviz` skill before writing chart code. Prefer no new heavy dependency (plain SVG/CSS is fine).
+   - **Responsive refinements** — the 5th summary card ("Info", usually 0) sits alone on phones; consider hiding zero-count cards or a 3-col layout.
+   - Put any new logic in `src/utils/findings.js` with tests in `src/utils/__tests__/findings.test.js`.
+5. **Then Week 3: Deploy (Task #6)** — Vercel. Blocked on committed demo data (see Open TODOs: "Deploy needs committed demo data"). Ask the user which scan to publish.
+6. **Later:** fix the scanner TODOs (secret ids, `@undefined` dep versions, secret context factors, ESLint config), then #2.4 crypto / #2.5 async.
 
-User confirmed the order (2026-10-01): dashboard before crypto/async scanners.
+### Dashboard map (Task #4, merged)
+- `src/App.jsx` — loads `/scanner-output.json`; a non-JSON response means "no report" (Vite and static hosts answer missing files with `index.html` + 200). File picker via `normalizeReport()`.
+- `src/pages/Dashboard.jsx` — sorts once, assigns stable row keys on the unfiltered list (so expanded rows survive filtering), filters, composes components.
+- `src/components/` — `SummaryCards` (click = severity filter), `CoverageReport` (`coverage.checked` / `notYetChecked` / `errors`), `FilterBar`, `FindingsTable` (expand/collapse, responsive columns), `FindingDetails` (snippet, ✓/⚠/? factors, fix, links — only `http(s)` URLs are linked), `SeverityBadge`.
+- `src/utils/findings.js` — filter/search/sort/count, `parseFactor`, `findingKey` (scanner ids aren't unique), `isSafeUrl`, `CATEGORY_TYPES`.
+- Manual-testing tips: Claude-in-Chrome's `resize_window` didn't change the viewport here — test phone width by injecting `<iframe src="/" style="width:390px">` via the JS tool. Close tabs and stop the dev server when done.
 
 ### Working agreements with the user
 - **Commit and push right away** after each logical chunk — user wants to be aggressive about pushing so no work is lost.
@@ -62,6 +67,7 @@ User confirmed the order (2026-10-01): dashboard before crypto/async scanners.
 - ✅ **Housekeeping** — `Co-Authored-By` lines stripped from branch history (user request); stale Finder duplicates (`* 2.js`) deleted and `* 2.*` added to `.gitignore`; status docs updated (PR #3).
 - ✅ **CI test gate** (PR #4) — `npm test` (Node built-in runner over every `*.test.js`) + GitHub Actions `test` job on PRs/pushes to `main`. Verified a failing suite fails the run.
 - ✅ **Repo made public** after a full-history audit (32 commits): no secrets, no `.env` / `scanner-output.json` ever committed; only fake test fixtures. Personal Gmail stays in old commit metadata (user's choice); new commits use the GitHub noreply email. `main` ruleset now enforced: PR required (0 approvals, squash only), `test` check required, no force pushes or deletion.
+- ✅ **Dashboard Core (Task #4, PR #7)** — summary cards, coverage report, search + severity/type filters, expandable rows explaining severity, responsive; tested logic in `src/utils/findings.js`. Fixed along the way: Tailwind v3/v4 mismatch (no styles were generated), scanner coverage claiming 9 checked categories when only 4 exist (`notYetChecked` added), Vite's index.html fallback breaking the empty state. CI now also runs `npm ci` + `npm run build`.
 
 ## What We Did in Session 3 (2026-09-30)
 
@@ -115,7 +121,7 @@ Design decisions: template files (`.html/.ejs/.pug/.hbs/.vue`) are scanned for X
 ```
 Design Phase     ████████████████████████████████ 100% ✅
 Week 1 Scanner   ██████████████████████████░░░░░░  80% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ⏳ async ⏳ deferred)
-Week 2 Dashboard ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
+Week 2 Dashboard ████████████████░░░░░░░░░░░░░░░░  50% 🔵  (core ✅ merged | polish ⏳)
 Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
 ```
 
@@ -127,6 +133,9 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 | #2.3 XSS | ✅ Merged to `main` (PR #2) — see TODOs | `src/scanner/patterns/xss.js` |
 | #2.4 Insecure crypto | ⏳ Deferred until after dashboard (confirm with user) | — |
 | #2.5 Async footguns | ⏳ Deferred until after dashboard (confirm with user) | — |
+| #4 Dashboard Core | ✅ Merged to `main` (PR #7) | `src/App.jsx`, `src/pages/Dashboard.jsx`, `src/components/`, `src/utils/findings.js` |
+| #5 Dashboard Polish | ⏳ **Next** | dark mode, chart, responsive refinements |
+| #6 Deploy (Vercel) | ⏳ After #5 — needs demo data | — |
 
 ---
 

@@ -1,14 +1,14 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-01  
-**Status:** Week 1 scanners merged (deps, secrets, SQLi, XSS) → Week 2 dashboard next
+**Status:** Scanners + dashboard core merged → Task #5 (dashboard polish) next
 
 ---
 
 ## Overall Progress
 
 ```
-Phase 1 (MVP)      █████░░░░░ 50%  (Scanners merged; dashboard + deploy remaining)
+Phase 1 (MVP)      ██████░░░░ 65%  (Scanners + dashboard core merged; polish + deploy remaining)
 Phase 2 (Polish)   ░░░░░░░░░░  0%  (Queued for Week 3)
 Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDEAS.md)
 ```
@@ -52,8 +52,8 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
-| **#4: Dashboard Core** | 🟡 PR open (`feature/dashboard`) | Table, filters, search, coverage report, expandable rows |
-| **#5: Dashboard Polish** | 🔵 Pending | Dark mode, pie chart, remediation links, responsive |
+| **#4: Dashboard Core** | ✅ Merged (PR #7) | Table, filters, search, coverage report, expandable rows |
+| **#5: Dashboard Polish** | 🔵 **Next** | Dark mode, pie chart, remediation links, responsive |
 
 **Deliverable:** Working React app at `npm run dev`
 
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** Merge Task #4 (Dashboard Core), then Task #5 (Dashboard Polish). Every PR must pass `npm test` + `npm run build`.
+**Next Step:** Task #5 (Dashboard Polish) — see HANDOFF.md START HERE. Every PR must pass `npm test` + `npm run build`.
