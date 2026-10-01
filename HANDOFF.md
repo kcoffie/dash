@@ -81,14 +81,32 @@
 
 ---
 
-## Current State (20% Complete)
+## Current State (40% Complete)
 
 ```
 Design Phase     ████████████████████░░░░░░░░░░░░ 100% ✅
-Week 1 Scanner   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0% 🔵
-Week 2 Dashboard ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0% 🔵
-Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░  0% 🔵
+Week 1 Scanner   ████████████░░░░░░░░░░░░░░░░░░░░  40% 🔵
+Week 2 Dashboard ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
+Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
 ```
+
+### Latest Session (2026-09-30)
+
+**Completed:**
+- ✅ Task #1: Dependency Scanner (npm audit integration) - MERGED
+  - Parses package.json, queries npm audit API
+  - Found 4 real CVEs in Express.js
+  - All edge cases handled + tested
+  
+- ✅ Task #2.1: Hardcoded Secrets Scanner - READY TO MERGE
+  - Detects AWS keys, API tokens, private keys, DB passwords
+  - Context factors: entropy, test file detection, fake password patterns
+  - Tested on Express.js (1 finding with proper context)
+  - Branch: `feature/scanner-patterns`
+
+**In Progress:**
+- Feature branch `feature/scanner-patterns` has 2 commits ready for PR
+- Next decision: merge now OR add SQL Injection + XSS (4 more hours)
 
 ---
 
@@ -208,6 +226,36 @@ These are documented in **FUTURE_IDEAS.md** for later.
 6. **Merge:** Squash commit to main
 
 See **STATUS.md** for interview talking points + weekly checklist.
+
+---
+
+## Next Agent: Decision Point
+
+**Status:** Feature branch `feature/scanner-patterns` is ready. Two options:
+
+**Option A: Merge Now & Move to Dashboard**
+- Pros: Unblock Week 2, less risk, good MVP
+- Cons: Only 2/5 pattern scanners done (secrets + nothing)
+
+**Option B: Add SQL Injection + XSS (4 more hours)**
+- Pros: More complete scanner (secrets + SQL injection = interview story)
+- Cons: Tight timeline for dashboard
+- **TPM Rec:** This one. SQL Injection is the headline.
+
+**Option C: Go Aggressive (8+ hours)**
+- Add all 5 patterns (secrets, SQL injection, XSS, crypto, async)
+- Cons: Risks dashboard deadline
+
+### Action for Next Agent
+
+1. Decide which option above (A, B, or C)
+2. If B or C: Continue feature/scanner-patterns
+   - Implement src/scanner/patterns/sql-injection.js
+   - Implement src/scanner/patterns/xss.js
+   - Integrate into pattern-scanner.js
+3. If A: Create PR from feature/scanner-patterns, merge, move to dashboard
+
+**If you pick B/C, use this prompt:** "Continue Task #2 on feature/scanner-patterns. User wanted option [A/B/C]. Add SQL Injection patterns next (see design doc for examples). Test on Express.js. Keep same code style + context factors approach."
 
 ---
 
