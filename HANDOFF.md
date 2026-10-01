@@ -121,6 +121,7 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 - [ ] **XSS: template injection not detected.** Juice Shop "CSP Bypass" (`routes/userProfile.ts:73`) splices user input into a Pug template string before `pug.compile`. Needs a "template compiled from a dynamic string" pattern (really SSTI, arguably its own scanner).
 - [ ] **XSS: sinks inside string literals are matched.** e.g. Express `test/res.redirect.js:115` — `'javascript:eval(document.body.innerHTML=...)'` is a string, not code.
 - [ ] **XSS: not covered yet** — `javascript:` URLs (`location.href = value`, `<a href>`), `eval`/`setTimeout(string)`, `res.render` with unescaped locals passed from routes (only the template side is checked).
+- [ ] **Run tests before PRs can be merged.** Nothing enforces tests today: no `npm test` script, no `.github/workflows/`, and the "Require status checks" rule in CONTRIBUTING.md isn't set up on GitHub. Plan: add `"test"` to package.json (run each `src/scanner/__tests__/*.test.js`), add a GitHub Actions workflow on `pull_request`, then mark it a required status check in `main`'s branch protection. (This is CI for *this repo* — different from the out-of-scope "CI/CD integration" of the scanner as a product.)
 - [ ] **Hardcoded-secret noise on Juice Shop.** 41 findings, 30 of them "Database Password" in `data/static/` seed data. `lib/insecurity.ts` private key is a real (planted) true positive. Review when tuning false positives.
 
 ---
