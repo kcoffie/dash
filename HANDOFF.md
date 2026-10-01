@@ -3,7 +3,7 @@
 **Last updated:** 2026-10-01 (session 4)
 **Branch:** `main` — PR #2 (secrets + SQLi + XSS) squash-merged as `488951c`; feature branches deleted
 **Status:** Option B scope complete (Secrets ✅, SQL Injection ✅, XSS ✅). Crypto + async scanners deferred.
-**Next step:** Week 2 Dashboard Core (Task #4) — see START HERE
+**Next step:** Merge the Dashboard Core PR (Task #4, branch `feature/dashboard`), then Task #5 polish — see START HERE
 
 ---
 
@@ -31,8 +31,13 @@ Option B (secrets + SQL injection + XSS, then dashboard) is **done and merged to
    ```
    Run scans from a scratch dir — `index.js` writes `scanner-output.json` to the current directory.
 3. ✅ **CI test gate** — `npm test` + `.github/workflows/test.yml`; `main` ruleset requires a PR + passing `test` check (enforced).
-4. **Week 2: Dashboard Core (Task #4)** — branch `feature/dashboard`. Load `scanner-output.json` into the React skeleton (`src/App.jsx`, `src/pages/Dashboard.jsx`): findings table, severity/type filters, search, coverage report, expandable rows showing `context` factors + `remediation`. DOD in STATUS.md and PRD.md Req 5. Use a Juice Shop scan as demo data (it exercises every finding type and severity).
-5. **Later:** Task #5 dashboard polish → Week 3 deploy (Task #6) → #2.4 crypto / #2.5 async scanners and the Open TODOs.
+4. ✅ **Week 2: Dashboard Core (Task #4)** — on `feature/dashboard` (PR open). Run it: `npm run scan /tmp/juice-shop` from the repo root (writes `scanner-output.json`, gitignored), then `npm run dev` → http://localhost:5173. Or use "Load scan file…" with any report.
+   - `src/App.jsx` loads the report (a non-JSON response means "no report": Vite answers missing files with index.html); `src/pages/Dashboard.jsx` composes `src/components/` (SummaryCards, CoverageReport, FilterBar, FindingsTable, FindingDetails, SeverityBadge).
+   - All filter/sort/count logic is plain JS in `src/utils/findings.js`, tested by `src/utils/__tests__/findings.test.js` (10 tests) — keep new logic there so `npm test` covers it.
+   - Verified in Chrome on the Juice Shop scan (138 findings): severity cards filter, search matches snippets, rows expand with factors/fix/links, 390px layout has no horizontal scroll, no console errors.
+   - CI `test` job now also runs `npm ci` and `npm run build`.
+5. **Task #5: Dashboard Polish** — dark mode, severity chart, responsive refinements (STATUS.md DOD). Then Week 3: deploy (Task #6) — needs committed demo data (see Open TODOs).
+6. **Later:** #2.4 crypto / #2.5 async scanners and the Open TODOs.
 
 User confirmed the order (2026-10-01): dashboard before crypto/async scanners.
 
@@ -139,6 +144,11 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 - [ ] **XSS: sinks inside string literals are matched.** e.g. Express `test/res.redirect.js:115` — `'javascript:eval(document.body.innerHTML=...)'` is a string, not code.
 - [ ] **XSS: not covered yet** — `javascript:` URLs (`location.href = value`, `<a href>`), `eval`/`setTimeout(string)`, `res.render` with unescaped locals passed from routes (only the template side is checked).
 - [x] **Run tests before PRs can be merged.** Done (session 4): `npm test` runs every `src/scanner/__tests__/*.test.js` via `node --test`; `.github/workflows/test.yml` runs it on Node 24 for PRs and pushes to `main`. A ruleset on `main` (enforced since the repo went public) requires a PR (0 approvals, squash only) and a passing `test` check, and blocks force pushes and deletion. New test files just need the `.test.js` suffix and a non-zero exit on failure.
+- [ ] **Secret finding ids aren't unique.** Ids are built from the matched text (e.g. `secret-token = "$`), so they collide and contain spaces. The dashboard works around it (keys on type+file+line+index), but ids should be `secret-<file>-<line>` like SQLi/XSS.
+- [ ] **Dependency findings show `@undefined` version.** Context reads "Vulnerable dependency detected: <pkg>@undefined" — the installed version isn't read from npm audit output.
+- [ ] **Secret findings have 1 context factor** (schema wants 3+), and flag Terraform interpolations like `creation_token = "${var.project_name}-…"` as API tokens.
+- [ ] **`npm run lint` is broken** — ESLint 9 needs an `eslint.config.js`; none exists. Add a flat config (React + hooks plugins), then a lint step in CI.
+- [ ] **Deploy needs committed demo data.** `scanner-output.json` is gitignored (any path). For Vercel, commit a demo report under `public/` with a non-ignored name. Juice Shop's report includes snippets of its planted private keys — check GitHub secret scanning won't flag it, or use the DVNA/Express report.
 - [ ] **Hardcoded-secret noise on Juice Shop.** 41 findings, 30 of them "Database Password" in `data/static/` seed data. `lib/insecurity.ts` private key is a real (planted) true positive. Review when tuning false positives.
 
 ---
