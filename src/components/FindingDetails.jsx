@@ -1,10 +1,10 @@
 import { parseFactor, isSafeUrl } from '../utils/findings.js';
 
 const FACTOR_STYLES = {
-  evidence: { icon: '✓', className: 'text-red-700', label: 'Evidence' },
-  warning: { icon: '⚠', className: 'text-amber-700', label: 'Note' },
-  unknown: { icon: '?', className: 'text-gray-500', label: 'Unknown' },
-  note: { icon: '•', className: 'text-gray-500', label: 'Note' },
+  evidence: { icon: '✓', className: 'text-red-700 dark:text-red-400', label: 'Evidence' },
+  warning: { icon: '⚠', className: 'text-amber-700 dark:text-amber-400', label: 'Note' },
+  unknown: { icon: '?', className: 'text-gray-500 dark:text-gray-400', label: 'Unknown' },
+  note: { icon: '•', className: 'text-gray-500 dark:text-gray-400', label: 'Note' },
 };
 
 // Expanded view of one finding: why it was scored this way and how to fix it
@@ -13,18 +13,18 @@ export default function FindingDetails({ finding }) {
 
   return (
     <div className="space-y-4 text-sm">
-      <p className="text-gray-700">{finding.description}</p>
+      <p className="text-gray-700 dark:text-gray-300">{finding.description}</p>
 
       {finding.snippet && (
-        <pre className="overflow-x-auto rounded bg-gray-900 p-3 font-mono text-xs text-gray-100"><code>{finding.snippet}</code></pre>
+        <pre className="overflow-x-auto rounded bg-gray-900 p-3 font-mono text-xs text-gray-100 dark:bg-gray-950 dark:ring-1 dark:ring-gray-700"><code>{finding.snippet}</code></pre>
       )}
 
       {finding.context?.length > 0 && (
         <section>
-          <h4 className="mb-1 font-semibold text-gray-900">
+          <h4 className="mb-1 font-semibold text-gray-900 dark:text-gray-100">
             Why this severity
             {typeof finding.confidence === 'number' && (
-              <span className="font-normal text-gray-500"> · {Math.round(finding.confidence * 100)}% confidence</span>
+              <span className="font-normal text-gray-500 dark:text-gray-400"> · {Math.round(finding.confidence * 100)}% confidence</span>
             )}
           </h4>
           <ul className="space-y-1">
@@ -34,7 +34,7 @@ export default function FindingDetails({ finding }) {
               return (
                 <li key={factor} className="flex gap-2">
                   <span className={`w-4 shrink-0 text-center font-bold ${style.className}`} aria-label={style.label}>{style.icon}</span>
-                  <span className="text-gray-700">{text}</span>
+                  <span className="text-gray-700 dark:text-gray-300">{text}</span>
                 </li>
               );
             })}
@@ -43,21 +43,21 @@ export default function FindingDetails({ finding }) {
       )}
 
       {finding.remediation && (
-        <section className="rounded border border-green-200 bg-green-50 p-3">
-          <h4 className="mb-1 font-semibold text-green-900">How to fix</h4>
-          <p className="whitespace-pre-wrap text-green-900">{finding.remediation}</p>
+        <section className="rounded border border-green-200 bg-green-50 p-3 dark:border-green-900 dark:bg-green-950/50">
+          <h4 className="mb-1 font-semibold text-green-900 dark:text-green-200">How to fix</h4>
+          <p className="whitespace-pre-wrap text-green-900 dark:text-green-100">{finding.remediation}</p>
         </section>
       )}
 
       {(references.length > 0 || finding.tags?.length > 0) && (
         <div className="flex flex-wrap items-center gap-2">
           {references.map((url) => (
-            <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline hover:text-blue-900">
+            <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="text-blue-700 underline hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300">
               {new URL(url).hostname}
             </a>
           ))}
           {finding.tags?.map((tag) => (
-            <span key={tag} className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600">{tag}</span>
+            <span key={tag} className="rounded bg-gray-100 px-2 py-0.5 text-xs text-gray-600 dark:bg-gray-800 dark:text-gray-400">{tag}</span>
           ))}
         </div>
       )}

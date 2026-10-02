@@ -1,6 +1,6 @@
 import { SEVERITIES, typeLabel } from '../utils/findings.js';
 
-const INPUT = 'rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200';
+const INPUT = 'rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 dark:border-gray-700 dark:bg-gray-800 dark:focus:ring-blue-900';
 
 export default function FilterBar({ filters, onChange, types, shown, total }) {
   const update = (field) => (event) => onChange({ ...filters, [field]: event.target.value });
@@ -24,10 +24,10 @@ export default function FilterBar({ filters, onChange, types, shown, total }) {
         <option value="all">All types</option>
         {types.map((type) => <option key={type} value={type}>{typeLabel(type)}</option>)}
       </select>
-      <div className="flex items-center gap-3 text-sm text-gray-600 sm:ml-2">
+      <div className="flex items-center gap-3 text-sm text-gray-600 sm:ml-2 dark:text-gray-400">
         <span className="whitespace-nowrap tabular-nums">{shown} of {total}</span>
         {isFiltered && (
-          <button type="button" onClick={() => onChange({ query: '', severity: 'all', type: 'all' })} className="text-blue-700 hover:underline">
+          <button type="button" onClick={() => onChange({ query: '', severity: 'all', type: 'all' })} className="text-blue-700 hover:underline dark:text-blue-400">
             Clear
           </button>
         )}

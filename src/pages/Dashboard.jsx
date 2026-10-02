@@ -40,7 +40,7 @@ export default function Dashboard({ report }) {
         onSelect={(severity) => setFilters({ ...filters, severity })}
       />
       <CoverageReport coverage={report.coverage} typeCounts={typeCounts} errors={report.errors} />
-      <section className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6">
+      <section className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6 dark:bg-gray-900 dark:ring-gray-800">
         <FilterBar
           filters={filters}
           onChange={setFilters}
