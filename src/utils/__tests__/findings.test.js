@@ -1,5 +1,5 @@
 import {
-  filterFindings, sortFindings, countBySeverity, countByType, parseFactor, normalizeReport, findingKey, location, isSafeUrl,
+  filterFindings, sortFindings, countBySeverity, countByType, severityByType, parseFactor, normalizeReport, findingKey, location, isSafeUrl,
 } from '../findings.js';
 
 function report(name, passed, detail = '') {
@@ -59,6 +59,23 @@ function testCounts() {
   );
 }
 
+function testSeverityByType() {
+  const rows = severityByType(FINDINGS);
+  const xss = rows.find((row) => row.type === 'xss');
+  const ties = rows.slice(1).map((row) => row.type).join();
+  const unknown = severityByType([{ type: 'xss', severity: 'bogus' }, { type: 'xss', severity: 'low' }])[0].segments.map((s) => s.severity).join();
+  return report(
+    'Severity by type: biggest type first, segments most severe first, no empty segments',
+    rows[0].type === 'xss' && xss.total === 2
+      && xss.segments.map((s) => `${s.severity}:${s.count}`).join() === 'critical:1,medium:1'
+      && ties === 'dependency-cve,hardcoded-secret,sql-injection' // ties broken by label
+      && rows.reduce((sum, row) => sum + row.total, 0) === FINDINGS.length
+      && unknown === 'low,bogus' // unknown severities sort last instead of disappearing
+      && severityByType([]).length === 0,
+    JSON.stringify(rows),
+  );
+}
+
 function testParseFactor() {
   const parsed = ['✓ User input used', '⚠ No parameterized query', '? Endpoint unclear', 'plain'].map(parseFactor);
   return report(
@@ -100,6 +117,7 @@ const results = [
   testSortBySeverityThenConfidence(),
   testSortDoesNotMutate(),
   testCounts(),
+  testSeverityByType(),
   testParseFactor(),
   testKeysUniqueWithDuplicateIds(),
   testLocation(),
