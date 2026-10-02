@@ -90,7 +90,7 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 - [x] Search by keyword / file / type
 - [x] Expandable rows show context factors + remediation
 - [x] Responsive (works on mobile, tablet, desktop)
-- [ ] Dark mode (bonus, shows attention to detail)
+- [x] Dark mode (bonus, shows attention to detail) — follows the system preference (Task #5)
 
 **Interview Talking Point:** "The dashboard is designed to let non-technical people understand security findings in 30 seconds."
 
@@ -244,9 +244,9 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 **Goal:** Production-quality, interview-ready
 
 - [ ] Export findings as PDF
-- [ ] Add dark mode
+- [x] Add dark mode — done early in Task #5
 - [ ] Fix false positives based on Phase 1 testing
-- [ ] Add severity pie chart
+- [x] Add severity chart — done early in Task #5 as a findings-by-type bar chart split by severity (bars compare better than pie slices)
 - [ ] Test on 3+ different repos
 - [ ] Write README with screenshots
 

@@ -1,19 +1,19 @@
 # Project Handoff — Security Audit Platform
 
-**Last updated:** 2026-10-01 (end of session 4)
-**Branch:** `main` @ `9116ed3` — everything merged (PRs #2–#7), no open PRs, no other branches
-**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard Core ✅ (PR #7) · repo public, `main` protected
-**Next step:** Task #5 — Dashboard Polish (dark mode, severity chart, responsive refinements) on a new branch `feature/dashboard-polish`
+**Last updated:** 2026-10-02 (session 5)
+**Branch:** `feature/dashboard-polish` — PR #9 open (Task #5), **waiting for the user to merge**. `main` @ `d595528` has everything through PR #8.
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard Core ✅ (PR #7) · Dashboard Polish 🟡 (PR #9) · repo public, `main` protected
+**Next step:** after PR #9 merges — Task #6 Deploy (Vercel). **Ask the user which scan to publish as demo data first.**
 
 ---
 
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
-The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
+The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). Dashboard polish (dark mode, findings-by-type chart, phone layout) is in PR #9. CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
 
 ### Do these, in order
-1. **Setup**
+1. **Setup** (if PR #9 is still open, check with the user before starting new work)
    ```bash
    git checkout main && git pull
    npm ci                                   # node_modules isn't committed; needed for dev/build
@@ -25,26 +25,24 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    `npm ci` warns that esbuild's install script wasn't approved — harmless (the build works; CI is green).
 2. **Verify baseline**
    ```bash
-   npm test                                 # 5 suites: dependency 3/3, secrets 5/5, SQLi 21/21, XSS 22/22, dashboard helpers 10/10
+   npm test                                 # 5 suites: dependency 3/3, secrets 5/5, SQLi 21/21, XSS 22/22, dashboard helpers 12/12
    npm run build                            # must succeed (CI runs it)
    ```
    Scanner counts (run from a scratch dir — `index.js` writes `scanner-output.json` to the cwd):
    Juice Shop 13 SQLi / 19 XSS / 138 total · DVNA 1 SQLi / 10 XSS · Express 0 SQLi / 54 XSS (all low).
 3. **See the dashboard**: from the repo root, `npm run scan /tmp/juice-shop` (writes the gitignored `scanner-output.json` the dev server serves), then `npm run dev` → http://localhost:5173. "Load scan file…" loads any other report.
-4. **Task #5: Dashboard Polish** — new branch `feature/dashboard-polish`, PR when done. DOD (STATUS.md / PRD.md Req 5):
-   - **Dark mode** — the PRD's "bonus" item. Tailwind v4 is set up via `@import "tailwindcss"` in `src/index.css` (no `tailwind.config.js` — v4 doesn't use it). Follow the system preference with `dark:` variants; severity colors in `src/components/SeverityBadge.jsx` (`SEVERITY_STYLES`) and `SummaryCards.jsx` need dark counterparts. Keep contrast readable.
-   - **Severity / type chart** — STATUS.md says "pie chart"; consider a horizontal bar per severity or per type instead (easier to compare). Load the `dataviz` skill before writing chart code. Prefer no new heavy dependency (plain SVG/CSS is fine).
-   - **Responsive refinements** — the 5th summary card ("Info", usually 0) sits alone on phones; consider hiding zero-count cards or a 3-col layout.
-   - Put any new logic in `src/utils/findings.js` with tests in `src/utils/__tests__/findings.test.js`.
-5. **Then Week 3: Deploy (Task #6)** — Vercel. Blocked on committed demo data (see Open TODOs: "Deploy needs committed demo data"). Ask the user which scan to publish.
+4. **Task #5: Dashboard Polish** — ✅ built in PR #9 (`feature/dashboard-polish`); the user merges it. Don't merge PRs yourself.
+5. **Week 3: Deploy (Task #6)** — Vercel. Blocked on committed demo data (see Open TODOs: "Deploy needs committed demo data"). **Ask the user which scan to publish** before committing anything — options: Juice Shop (138 findings, best demo, but includes snippets of its planted private keys → GitHub secret scanning may flag it), DVNA (11, SQLi + XSS only), Express (59, mostly low XSS in tests).
 6. **Later:** fix the scanner TODOs (secret ids, `@undefined` dep versions, secret context factors, ESLint config), then #2.4 crypto / #2.5 async.
 
 ### Dashboard map (Task #4, merged)
 - `src/App.jsx` — loads `/scanner-output.json`; a non-JSON response means "no report" (Vite and static hosts answer missing files with `index.html` + 200). File picker via `normalizeReport()`.
 - `src/pages/Dashboard.jsx` — sorts once, assigns stable row keys on the unfiltered list (so expanded rows survive filtering), filters, composes components.
-- `src/components/` — `SummaryCards` (click = severity filter), `CoverageReport` (`coverage.checked` / `notYetChecked` / `errors`), `FilterBar`, `FindingsTable` (expand/collapse, responsive columns), `FindingDetails` (snippet, ✓/⚠/? factors, fix, links — only `http(s)` URLs are linked), `SeverityBadge`.
-- `src/utils/findings.js` — filter/search/sort/count, `parseFactor`, `findingKey` (scanner ids aren't unique), `isSafeUrl`, `CATEGORY_TYPES`.
-- Manual-testing tips: Claude-in-Chrome's `resize_window` didn't change the viewport here — test phone width by injecting `<iframe src="/" style="width:390px">` via the JS tool. Close tabs and stop the dev server when done.
+- `src/components/` — `SummaryCards` (click = severity filter; empty Info card hidden, 3+2 on phones when all 5 show), `TypeChart` (findings by type split by severity; click a type or segment = filter, hover/focus = tooltip), `CoverageReport` (`coverage.checked` / `notYetChecked` / `errors`), `FilterBar`, `FindingsTable` (expand/collapse, responsive columns), `FindingDetails` (snippet, ✓/⚠/? factors, fix, links — only `http(s)` URLs are linked), `SeverityBadge` (`SEVERITY_STYLES` for badges/cards, `SEVERITY_FILLS` for chart marks).
+- `src/utils/findings.js` — filter/search/sort/count, `severityByType` (chart rows), `summarySeverities` (which cards to show), `parseFactor`, `findingKey` (scanner ids aren't unique), `isSafeUrl`, `CATEGORY_TYPES`.
+- **Dark mode** — Tailwind v4's default `dark:` variant (`prefers-color-scheme`), no toggle. `color-scheme: light dark` in `src/index.css` + `index.html` so native controls match. Every new color class needs a `dark:` partner. Measured contrast (Juice Shop): severity cards ≥ 6.4:1 light, ≥ 10:1 dark.
+- **Chart colors** — `SEVERITY_FILLS` were checked with the dataviz skill's `validate_palette.js` (adjacent pairs, CVD + normal vision) against white and gray-900. Light uses red-700 / orange-500 / amber-400 / sky-600 / gray-400 (red-600 and sky-500 failed the normal-vision floor next to orange / gray). Amber and orange sit below 3:1 on white, so the chart must keep its legend + value labels.
+- Manual-testing tips: Claude-in-Chrome's `resize_window` didn't change the viewport here — test phone width by injecting `<iframe src="/" style="width:390px">` via the JS tool. **Use `npm run build && cp scanner-output.json dist/ && npx vite preview`** for that: the dev server's HMR reloads the page (and drops the iframes) on every file edit, and `SeverityBadge.jsx` exporting constants forces full reloads. To check light mode on a dark-mode machine (or vice versa), rewrite `prefers-color-scheme: dark` in the page's stylesheets via the JS tool; iframes inherit the parent's `color-scheme`. Load a modified report through the file input with a `DataTransfer`. Close tabs and stop servers when done.
 
 ### Working agreements with the user
 - **Commit and push right away** after each logical chunk — user wants to be aggressive about pushing so no work is lost.
@@ -56,6 +54,17 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 - Confirm a new test actually fails against the old code before calling a fix done.
 
 ---
+
+## What We Did in Session 5 (2026-10-02)
+
+- ✅ Baseline matched session 4 exactly (tests, build, Juice Shop 13 SQLi / 19 XSS / 138, DVNA 1 / 10, Express 0 / 54).
+- 🟡 **Dashboard Polish (Task #5, PR #9, awaiting merge)** on `feature/dashboard-polish`:
+  - **Dark mode** following the system preference, all components, contrast measured in-browser.
+  - **Findings-by-type chart** (`TypeChart.jsx`, plain HTML/CSS) — one bar per type, segmented by severity, legend + totals, hover/focus tooltip, click to filter. Chose stacked bars over the planned pie: the cards already give severity totals, and bars compare better.
+  - **Phone layout** — empty Info card hidden (2×2 grid), 3+2 when all five show; severity/type selects side by side; file name no longer breaks mid-word.
+  - Tests: `severityByType`, `summarySeverities` (12/12; both checked to fail against broken code).
+  - Verified in Chrome on a Juice Shop scan: light + dark × desktop + 390px, no horizontal scroll, keyboard focus shows tooltips.
+- ✅ STATUS.md Overall Progress corrected (said 65% for Phase 1; by tasks it was ~48% before this PR, 62% once it merges).
 
 ## What We Did in Session 4 (2026-10-01)
 
@@ -121,7 +130,7 @@ Design decisions: template files (`.html/.ejs/.pug/.hbs/.vue`) are scanned for X
 ```
 Design Phase     ████████████████████████████████ 100% ✅
 Week 1 Scanner   ██████████████████████████░░░░░░  80% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ⏳ async ⏳ deferred)
-Week 2 Dashboard ████████████████░░░░░░░░░░░░░░░░  50% 🔵  (core ✅ merged | polish ⏳)
+Week 2 Dashboard ████████████████████████████░░░░  90% 🟡  (core ✅ merged | polish ✅ PR #9 awaiting merge)
 Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
 ```
 
@@ -134,8 +143,8 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 | #2.4 Insecure crypto | ⏳ Deferred until after dashboard (confirm with user) | — |
 | #2.5 Async footguns | ⏳ Deferred until after dashboard (confirm with user) | — |
 | #4 Dashboard Core | ✅ Merged to `main` (PR #7) | `src/App.jsx`, `src/pages/Dashboard.jsx`, `src/components/`, `src/utils/findings.js` |
-| #5 Dashboard Polish | ⏳ **Next** | dark mode, chart, responsive refinements |
-| #6 Deploy (Vercel) | ⏳ After #5 — needs demo data | — |
+| #5 Dashboard Polish | 🟡 PR #9 open — user merges | `src/components/TypeChart.jsx`, `SummaryCards.jsx`, `dark:` variants throughout |
+| #6 Deploy (Vercel) | ⏳ **Next** after #9 — needs demo data (ask user which scan) | — |
 
 ---
 
@@ -158,6 +167,7 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 - [ ] **Secret findings have 1 context factor** (schema wants 3+), and flag Terraform interpolations like `creation_token = "${var.project_name}-…"` as API tokens.
 - [ ] **`npm run lint` is broken** — ESLint 9 needs an `eslint.config.js`; none exists. Add a flat config (React + hooks plugins), then a lint step in CI.
 - [ ] **Deploy needs committed demo data.** `scanner-output.json` is gitignored (any path). For Vercel, commit a demo report under `public/` with a non-ignored name. Juice Shop's report includes snippets of its planted private keys — check GitHub secret scanning won't flag it, or use the DVNA/Express report.
+- [ ] **PRD.md / DESIGN.md are partly stale** (found session 5; only the Task #5 items were updated in PR #9). PRD: status says "In Design"; Req 1–4 and 6 boxes unchecked though mostly done; Req 1 promises CVSS score + CVE ID (output has neither — npm advisory id + GHSA link); §6 Week 2 boxes unchecked and lists Vercel deploy in Week 2 (now Week 3); Trade-off 2 says "Node.js + minimal Python/Ruby" (everything else says Node.js only). DESIGN: output example uses `sql-injection-pattern` / `pattern` (real: `sql-injection` / `snippet`) and has a JSON typo; coverage mock-up shows "Checked (9 categories)" (the bug fixed in PR #7); lists `requirements.txt`/`go.mod`, CVSS, exploitability + directory filters, confidence distribution — none built; "reduces false positives 80% → 20%" is unmeasured. Ask the user before rewriting.
 - [ ] **Hardcoded-secret noise on Juice Shop.** 41 findings, 30 of them "Database Password" in `data/static/` seed data. `lib/insecurity.ts` private key is a real (planted) true positive. Review when tuning false positives.
 
 ---
@@ -234,7 +244,7 @@ src/scanner/
     ├── sql-injection.test.js
     └── xss.test.js
 ```
-Dashboard skeleton (Week 2, untouched): `src/App.jsx`, `src/pages/Dashboard.jsx`.
+Dashboard files: see "Dashboard map" in START HERE.
 
 ## Key Documents
 

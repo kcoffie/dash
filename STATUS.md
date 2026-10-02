@@ -1,15 +1,15 @@
 # Project Status Dashboard
 
-**Last Updated:** 2026-10-01  
-**Status:** Scanners + dashboard core merged → Task #5 (dashboard polish) next
+**Last Updated:** 2026-10-02  
+**Status:** Scanners + dashboard core merged · Task #5 (dashboard polish) in review (PR #9) → Task #6 (deploy) next
 
 ---
 
 ## Overall Progress
 
 ```
-Phase 1 (MVP)      ██████░░░░ 65%  (Scanners + dashboard core merged; polish + deploy remaining)
-Phase 2 (Polish)   ░░░░░░░░░░  0%  (Queued for Week 3)
+Phase 1 (MVP)      ██████░░░░ 62%  (4⅓ of 7 tasks once PR #9 merges: #1 #2 #4 #5 done, #3 1 of 3 scanners; #6 deploy + #7 docs left)
+Phase 2 (Depth)    ░░░░░░░░░░  0%  (PRD §6 Phase 2 — PDF export, FP tuning, 3+ repos; dark mode + chart pulled into #5)
 Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDEAS.md)
 ```
 
@@ -53,7 +53,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
 | **#4: Dashboard Core** | ✅ Merged (PR #7) | Table, filters, search, coverage report, expandable rows |
-| **#5: Dashboard Polish** | 🔵 **Next** | Dark mode, pie chart, remediation links, responsive |
+| **#5: Dashboard Polish** | 🟡 PR #9 open — awaiting merge | Dark mode ✅, findings-by-type chart ✅ (stacked bars instead of a pie), remediation links ✅ (shipped in #4), responsive ✅ |
 
 **Deliverable:** Working React app at `npm run dev`
 
@@ -61,7 +61,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
-| **#6: Deploy to Vercel** | 🔵 Pending | Live URL, tested on 3+ repos, edge cases handled |
+| **#6: Deploy to Vercel** | 🔵 **Next** — needs a demo report chosen (user's call) | Live URL, tested on 3+ repos, edge cases handled |
 | **#7: Documentation** | 🔵 Pending | README, talking points, git history, portfolio-ready |
 
 **Deliverable:** Live demo + interview story
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** Task #5 (Dashboard Polish) — see HANDOFF.md START HERE. Every PR must pass `npm test` + `npm run build`.
+**Next Step:** Merge PR #9, then Task #6 (Deploy) — see HANDOFF.md START HERE. Every PR must pass `npm test` + `npm run build`.
