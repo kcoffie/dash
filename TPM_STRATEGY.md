@@ -9,7 +9,7 @@
 
 ### I Read the Room
 You wanted to "make the best product" but didn't have:
-- ✅ **Structured Requirements** → Created PRD.md (10 core requirements + acceptance criteria)
+- ✅ **Structured Requirements** → Created PRD.md (6 core requirements + acceptance criteria)
 - ✅ **Tracking System** → Created 7 Phase-1 tasks with clear DOD (Definition of Done)
 - ✅ **Trade-off Analysis** → Documented 4 major trade-offs + reasoning
 - ✅ **Edge Case Hunting** → Listed 7 potential problems + mitigations
@@ -70,15 +70,17 @@ I use the **TPM Framework:**
 - Must demonstrate: depth, architecture, risk communication, real problem-solving
 - Success = "I scanned Express.js and found actual CVEs"
 
-### Tier 2: Active Context (Changes Weekly)
-- Phase 1 focus: Dependency scanner + pattern detection
-- Target repo: Express.js (or similar)
-- Timeline: 3 weeks
+### Tier 2: Active Context (Changes Weekly; as of 2026-10-02)
+- Phase 1 focus: deploy (Task #6) and docs/demo (Task #7). Scanners and dashboard are built.
+- Scan targets: Express.js (real CVEs) + OWASP Juice Shop + DVNA (known answer keys)
+- Timeline: Week 3 of 3. Crypto + async scanners deferred until after deploy.
 
 ### Tier 3: Immediate (Last 48h)
-- Just designed PRD, created 7-task tracking system
+- Dashboard polish (dark mode, findings-by-type chart, phone layout) in PR #9
+- Open decision: demo data for the deploy (user is weighing all three scans with a scan picker)
 - Contextual scoring is the differentiator (don't lose sight)
-- Dashboard must be intuitive (30-second explanation)
+
+Live status: STATUS.md · session detail: HANDOFF.md
 
 ---
 
@@ -90,7 +92,7 @@ If you suggest something that threatens the **core loop** (scanner → JSON → 
 - ❌ "Can we add user authentication?" → No. (Core loop threat; save Phase 2)
 - ❌ "Can we support 10 languages?" → No. (Node.js only, Phase 1; Python later)
 - ✅ "Can we improve error messages?" → Yes. (Makes scanner more usable, protects core loop)
-- ✅ "Should we add a dark mode?" → Yes, but Phase 2. (Polish, doesn't break core loop)
+- ✅ "Should we add a dark mode?" → Yes, after the core loop works. (Polish, doesn't break core loop; shipped in Task #5 once the dashboard core was merged)
 
 ---
 
@@ -168,9 +170,9 @@ You keep me honest by reminding me when I'm:
 
 **Right now, the path is clear:**
 
-1. **This week:** Build dependency scanner + pattern scanners (Tasks #1-3)
-2. **Next week:** Build React dashboard (Tasks #4-5)
-3. **Week 3:** Deploy + interview prep (Tasks #6-7)
+1. ✅ **Week 1:** Build dependency scanner + pattern scanners (Tasks #1-3; crypto + async deferred)
+2. ✅ **Week 2:** Build React dashboard (Tasks #4-5)
+3. **Week 3:** Deploy + interview prep (Tasks #6-7) ← here
 
 **You own strategy; I own execution + foresight.**
 

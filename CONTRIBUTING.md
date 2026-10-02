@@ -3,10 +3,10 @@
 ## Branch Strategy (Git Flow Lite)
 
 ### Main Branches
-- **`main`** — Production-ready, always deployable
-  - Only receives PRs from `feature/*` branches
-  - All commits are tagged with issue numbers
-  - All commits trigger deploy to Vercel
+- **`main`** — Production-ready, always deployable. Protected: changes land only through PRs (see Branch Protection).
+  - Receives PRs from `feature/*` (code) and `docs/*` (docs-only) branches
+  - All commits are tagged with a plan task number like `(#4)`
+  - Vercel auto-deploy on merge is planned (Task #6), not set up yet
 
 ### Feature Branches
 - **`feature/scanner-deps`** — Dependency scanner (Task #1)
@@ -14,8 +14,9 @@
 - **`feature/dashboard-core`** — Dashboard core (Task #4)
 - **`feature/dashboard-polish`** — Dashboard polish (Task #5)
 - **`feature/deploy`** — Vercel deploy setup (Task #6)
+- **`docs/<topic>`**: docs-only changes (e.g. `docs/session-4-handoff`)
 
-**Naming pattern:** `feature/<task-short-name>`
+**Naming pattern:** `feature/<task-short-name>` or `docs/<topic>`
 
 ---
 
@@ -24,10 +25,12 @@
 ### All Commits (Docs + Code)
 
 ```
-<type>: <description> (#issue)
+<type>: <description> (#task)
 
 <optional detailed body>
 ```
+
+`#task` is the plan task number (STATUS.md), not a GitHub issue; the repo doesn't use issues. No `Co-Authored-By:` or other AI attribution lines in commits or PR descriptions.
 
 **Types:**
 - `feat:` — New feature (scanner, dashboard component)
@@ -43,7 +46,7 @@
 feat: implement npm audit dependency scanner (#1)
 
 Query npm audit API for each dependency in package.json.
-Returns CVE findings with CVSS scores and patched versions.
+Returns advisory findings with severity and patched versions.
 
 Handles edge cases:
 - Missing packages (skip gracefully)
@@ -68,22 +71,18 @@ Now skips dependency scan and continues with pattern scanner.
 
 ---
 
-## Workflow: Option C (Docs → Direct Commits | Code → PRs)
+## Workflow: Everything Through PRs
 
-### For Docs/Chores (README, DESIGN.md, etc.)
-**Direct commit to main:**
-```bash
-git commit -m "docs: update README with scanner usage (#1)"
-```
+`main` is protected, so direct pushes are rejected, docs included. Docs-only changes go on a `docs/*` branch, or ride along in the feature PR they describe.
 
-### For Code Changes (scanner, dashboard, tests)
-**Create PR, self-review, then merge:**
+### For Code Changes (scanner, dashboard, tests) and Docs
+**Create PR, self-review, wait for the `test` check, then squash-merge:**
 
 ```bash
 # 1. Create feature branch
 git checkout -b feature/scanner-deps
 
-# 2. Make commits (each references issue)
+# 2. Make commits (each references its task number)
 git commit -m "feat: parse package.json (#1)"
 git commit -m "feat: query npm audit API (#1)"
 git commit -m "test: add npm audit integration tests (#1)"
@@ -98,8 +97,8 @@ git push -u origin feature/scanner-deps
 # 5. Self-review on GitHub (diff view catches things commits don't)
 # Look for: error handling, edge cases, code style
 
-# 6. Merge PR (squash or merge commit, your choice)
-# Closes #1
+# 6. Squash-merge once the `test` check passes (the only merge method allowed)
+# 7. Delete the branch (GitHub button), then locally: git fetch --prune && git branch -D feature/scanner-deps
 ```
 
 ---
@@ -123,25 +122,24 @@ This is the first scanner module.
 - Handle edge cases: missing packages, network timeouts, malformed JSON
 
 ## Testing
+- [x] `npm test` and `npm run build` pass (CI runs both)
 - [x] Tested on Express.js repo (finds 3+ real CVEs)
 - [x] Tested on repo with no package.json (graceful skip)
-- [x] Tested network timeout (fallback to cache)
 
 ## Definition of Done
 - [x] Parses package.json correctly
 - [x] Queries npm audit API reliably
-- [x] Returns findings with CVSS score + CVE ID
+- [x] Returns findings with severity + patched version
 - [x] Handles edge cases gracefully
-- [x] Output matches scanner-output.json schema
+- [x] Output matches scanner-output.json schema (PRD.md §3)
 - [x] No console.log() or debug code left
 
 ## Notes
 - Uses npm audit API (free, no auth required)
-- Falls back to cached results on network timeout
-- Skips private packages gracefully
-
-Closes #1
+- Squash merge per CONTRIBUTING.md
 ```
+
+(No `Closes #N`, because there are no GitHub issues. Reference the task number in the title instead.)
 
 ---
 
@@ -173,9 +171,9 @@ After squash (1 commit on main):
 
 ---
 
-## Issue Linking
+## Task Linking
 
-Every commit must reference an issue:
+Every commit references its plan task number (see STATUS.md):
 
 ```bash
 git commit -m "feat: parse package.json (#1)"
@@ -183,7 +181,6 @@ git commit -m "feat: parse package.json (#1)"
 
 **Why?**
 - Connects code to requirements (traceability)
-- Closes issues automatically when PR merges
 - Git log tells the story ("what changed and why")
 
 ---
@@ -191,7 +188,7 @@ git commit -m "feat: parse package.json (#1)"
 ## Deployment Flow
 
 ```
-Code commit → PR → Self-review → Merge to main → Auto-deploy to Vercel
+Code commit → PR → `test` check (npm ci, npm test, npm run build) → Self-review → Squash-merge to main → Auto-deploy to Vercel (after Task #6)
 ```
 
 ---
@@ -224,10 +221,10 @@ For **this project**, focus review on:
 
 | What | Where | How |
 |------|-------|-----|
-| Docs change | Direct | `git commit -m "docs: ... (#N)"` → `git push` |
-| Code feature | PR | `git checkout -b feature/...` → PR → merge |
-| Bug fix | PR | `git checkout -b feature/...` → PR → merge |
-| Chore | Direct | `git commit -m "chore: ... (#N)"` → `git push` |
+| Docs change | PR | `git checkout -b docs/...` → PR → squash-merge |
+| Code feature | PR | `git checkout -b feature/...` → PR → squash-merge |
+| Bug fix | PR | `git checkout -b feature/...` → PR → squash-merge |
+| Chore | PR | branch → PR → squash-merge |
 
 ---
 
@@ -254,8 +251,7 @@ git push -u origin feature/scanner-deps
 # Self-review: Check diff on GitHub
 # Make sure: no console.log, error handling, tests pass
 
-# Merge: "Squash and merge"
-# → Closes #1 automatically
+# Merge: "Squash and merge" after the `test` check passes, then delete the branch
 ```
 
 Done. Clean, traceable history. Ready for interviews.
