@@ -1,7 +1,7 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-02  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · Task #6 deploy prep in review (PR #10) → Vercel import (user) → Task #7 docs
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) → Vercel import (user) → Task #7 docs
 
 ---
 
@@ -61,7 +61,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
-| **#6: Deploy to Vercel** | 🟡 PR #10: demo data for all three scans + picker. Then the user imports the repo in Vercel | Live URL, tested on 3+ repos (Express, Juice Shop, DVNA ✅), edge cases handled |
+| **#6: Deploy to Vercel** | 🟡 Demo data for all three scans + picker merged (PR #10). Next: the user imports the repo in Vercel | Live URL, tested on 3+ repos (Express, Juice Shop, DVNA ✅), edge cases handled |
 | **#7: Documentation** | 🔵 Pending | README, talking points, git history, portfolio-ready |
 
 **Deliverable:** Live demo + interview story
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** Merge PR #10, import the repo in Vercel (HANDOFF.md START HERE step 5), then Task #7 (README + demo). Every PR must pass `npm test` + `npm run build`.
+**Next Step:** Import the repo in Vercel (HANDOFF.md START HERE step 5), then Task #7 (README + demo). Every PR must pass `npm test` + `npm run build`.
