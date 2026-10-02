@@ -2,6 +2,8 @@
 
 These are stretch ideas to explore after MVP. Save for later iterations.
 
+Deferred Phase 1 / Phase 2 work (insecure crypto + async scanners, PDF export, false-positive tuning, template-injection detection) is tracked in PRD.md §6 and the Open TODOs in HANDOFF.md, not here.
+
 ## 2. AI Code Detector
 Flag likely AI-generated sections by detecting:
 - Unusual variable naming patterns
@@ -44,8 +46,8 @@ Go beyond "here's the problem" → "run this refactor":
 
 ## Priority for Next Iteration (After Phase 1 MVP)
 
-1. **Contextual scoring** (Phase 1) ← START HERE
-2. **Coverage report** (Phase 1 extension)
+1. ✅ **Contextual scoring** (Phase 1, built for SQLi + XSS)
+2. ✅ **Coverage report** (Phase 1, built)
 3. **AI code detector** (Phase 2)
 4. **Trend report** (Phase 3)
 5. **Fix templates** (Phase 3+)

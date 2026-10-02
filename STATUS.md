@@ -1,15 +1,15 @@
 # Project Status Dashboard
 
-**Last Updated:** 2026-10-01  
-**Status:** Scanners + dashboard core merged → Task #5 (dashboard polish) next
+**Last Updated:** 2026-10-02  
+**Status:** Scanners + dashboard core merged · Task #5 (dashboard polish) in review (PR #9) → Task #6 (deploy) next
 
 ---
 
 ## Overall Progress
 
 ```
-Phase 1 (MVP)      ██████░░░░ 65%  (Scanners + dashboard core merged; polish + deploy remaining)
-Phase 2 (Polish)   ░░░░░░░░░░  0%  (Queued for Week 3)
+Phase 1 (MVP)      ██████░░░░ 62%  (4⅓ of 7 tasks once PR #9 merges: #1 #2 #4 #5 done, #3 1 of 3 scanners; #6 deploy + #7 docs left)
+Phase 2 (Depth)    ░░░░░░░░░░  0%  (PRD §6 Phase 2 — PDF export, FP tuning, 3+ repos; dark mode + chart pulled into #5)
 Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDEAS.md)
 ```
 
@@ -18,7 +18,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 ## What's DONE (Design Phase)
 
 ✅ **Strategy & Vision**
-- [x] PRD.md (10 core requirements with acceptance criteria)
+- [x] PRD.md (6 core requirements with acceptance criteria)
 - [x] DESIGN.md (contextual scoring architecture)
 - [x] TechPM.md (partnership framework)
 - [x] TPM_STRATEGY.md (how we'll work together)
@@ -28,7 +28,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 - [x] Git repo initialized
 - [x] Folder structure created (src/scanner, src/components, src/pages, src/utils)
 - [x] package.json configured (React, Vite, Tailwind)
-- [x] Dashboard skeleton (App.jsx, Dashboard.jsx, index.html)
+- [x] Dashboard skeleton (App.jsx, Dashboard.jsx, index.html), since replaced by the full dashboard (#4, #5)
 
 ✅ **Task Tracking**
 - [x] 7 Phase-1 tasks created with DOD (Definition of Done)
@@ -53,7 +53,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
 | **#4: Dashboard Core** | ✅ Merged (PR #7) | Table, filters, search, coverage report, expandable rows |
-| **#5: Dashboard Polish** | 🔵 **Next** | Dark mode, pie chart, remediation links, responsive |
+| **#5: Dashboard Polish** | 🟡 PR #9 open — awaiting merge | Dark mode ✅, findings-by-type chart ✅ (stacked bars instead of a pie), remediation links ✅ (shipped in #4), responsive ✅ |
 
 **Deliverable:** Working React app at `npm run dev`
 
@@ -61,7 +61,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
-| **#6: Deploy to Vercel** | 🔵 Pending | Live URL, tested on 3+ repos, edge cases handled |
+| **#6: Deploy to Vercel** | 🔵 **Next**. Needs demo data; the user is weighing all three scans with a scan picker | Live URL, tested on 3+ repos (Express, Juice Shop, DVNA ✅), edge cases handled |
 | **#7: Documentation** | 🔵 Pending | README, talking points, git history, portfolio-ready |
 
 **Deliverable:** Live demo + interview story
@@ -107,9 +107,9 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 > "I built a real security vulnerability scanner that audits codebases and displays findings with contextual scoring. The differentiator: I don't just flag patterns—I score exploitability based on multiple factors (is input sanitized? is endpoint public?). This shows threat modeling, not just regex matching. I scanned Express.js, found actual CVEs, and built a dashboard that explains risk to non-technical people."
 
 **The Demo (3 minutes):**
-1. Show scanner output (Express.js findings)
-2. Explain contextual scoring (why HIGH not CRITICAL?)
-3. Walk dashboard (filters, search, remediation links)
+1. Show scanner output (Juice Shop: the login SQLi scored CRITICAL; Express for real CVEs)
+2. Explain contextual scoring (why HIGH not CRITICAL? why is the same pattern LOW in a training snippet?)
+3. Walk dashboard (severity cards, findings-by-type chart, filters, search, "Why this severity", remediation links)
 4. Explain trade-offs (why Node.js only? why contextual? why this approach?)
 
 **The Code (5 minutes):**
@@ -148,10 +148,10 @@ When Phase 1 is DONE, you should be able to:
 2. **Can I explain this in 3 minutes to an interviewer?**
 3. **Is the code clean + understandable?**
 4. **Are there any edge cases I haven't thought of?**
-5. **Am I on pace for Phase 1 by end of Week 2?**
+5. **Am I on pace for Phase 1 by end of Week 3?** (deploy slipped from Week 2 to Week 3)
 
 If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** Task #5 (Dashboard Polish) — see HANDOFF.md START HERE. Every PR must pass `npm test` + `npm run build`.
+**Next Step:** Merge PR #9, then Task #6 (Deploy) — see HANDOFF.md START HERE. Every PR must pass `npm test` + `npm run build`.

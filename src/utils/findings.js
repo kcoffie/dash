@@ -68,6 +68,32 @@ export function countByType(findings) {
   return counts;
 }
 
+// Summary cards to show. Info is almost always 0 (only npm audit emits it), and a lone empty card wastes a row
+// on phones, so hide it when empty unless it's the active filter.
+export function summarySeverities(counts, selected = 'all') {
+  return SEVERITIES.filter((severity) => severity !== 'info' || counts.info > 0 || selected === 'info');
+}
+
+// Chart rows: one per finding type, biggest first, each split into severity segments (most severe first, empty ones dropped)
+export function severityByType(findings) {
+  const rows = new Map();
+  for (const finding of findings) {
+    if (!rows.has(finding.type)) rows.set(finding.type, { type: finding.type, total: 0, counts: {} });
+    const row = rows.get(finding.type);
+    row.total++;
+    row.counts[finding.severity] = (row.counts[finding.severity] ?? 0) + 1;
+  }
+  return [...rows.values()]
+    .sort((a, b) => b.total - a.total || typeLabel(a.type).localeCompare(typeLabel(b.type)))
+    .map(({ type, total, counts }) => ({
+      type,
+      total,
+      segments: Object.keys(counts)
+        .sort((a, b) => severityRank(a) - severityRank(b))
+        .map((severity) => ({ severity, count: counts[severity] })),
+    }));
+}
+
 // Scanner context factors start with ✓ (evidence found), ⚠ (risk or mitigation note), or ? (unknown)
 export function parseFactor(text) {
   const match = text.match(/^\s*(✓|⚠|\?)\s*(.*)$/s);

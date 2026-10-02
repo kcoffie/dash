@@ -1,8 +1,10 @@
 # Security Audit Platform — Product Requirements Document (PRD)
 
-**Version:** 1.0  
-**Last Updated:** 2026-10-01  
-**Status:** In Design (Ready for Phase 1)
+**Version:** 1.1  
+**Last Updated:** 2026-10-02  
+**Status:** Phase 1 in progress: scanners and dashboard built, deploy (Week 3) next. Live progress is in STATUS.md.
+
+Checkboxes below show what's built. Notes in *italics* mark where the build differs from the original requirement.
 
 ---
 
@@ -29,13 +31,13 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 ## 2. Core Requirements
 
 ### Req 1: Dependency Vulnerability Scanning
-**What:** Parse package.json/requirements.txt/go.mod → query CVE database  
+**What:** Parse package.json → query CVE database (*requirements.txt / go.mod are Phase 2; Node.js only for MVP*)  
 **Why:** 80% of vulnerabilities are in dependencies, not custom code  
 **Acceptance Criteria:**
-- [ ] Parses package.json and extracts dependencies + versions
-- [ ] Queries npm audit API (or GitHub Advisory Database)
-- [ ] Returns findings with CVSS score, CVE ID, patched version
-- [ ] Handles missing/non-existent packages gracefully
+- [x] Parses package.json and extracts dependencies + versions (*the installed version shows as `@undefined`; open TODO*)
+- [x] Queries npm audit API (or GitHub Advisory Database)
+- [ ] Returns findings with CVSS score, CVE ID, patched version (*patched version ✅; the id is npm's advisory number and the GHSA link is in `references`. No CVSS score or CVE ID yet*)
+- [x] Handles missing/non-existent packages gracefully (no package.json → dependency scan skipped, pattern scan continues)
 
 **Interview Talking Point:** "I started with dependency scanning because that's where the low-hanging fruit is. 80% of security debt comes from outdated packages."
 
@@ -45,12 +47,12 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 **What:** Grep + regex patterns for anti-patterns  
 **Why:** Catches local code issues (hardcoded secrets, basic XSS, SQL injection)  
 **Acceptance Criteria:**
-- [ ] Detects hardcoded secrets (AWS keys, API tokens, DB passwords)
-- [ ] Detects SQL injection patterns (string concatenation in queries)
-- [ ] Detects XSS patterns (unsanitized DOM manipulation)
-- [ ] Detects insecure crypto (MD5/SHA1 for passwords, hardcoded keys)
-- [ ] Detects async footguns (unhandled promises, fire-and-forget fetch)
-- [ ] False positive rate < 40% (tolerable for MVP)
+- [x] Detects hardcoded secrets (AWS keys, API tokens, DB passwords)
+- [x] Detects SQL injection patterns (string concatenation and template literals, multi-line). Recall 3/3 on Juice Shop + DVNA
+- [x] Detects XSS patterns (DOM sinks, Angular/React bypasses, unescaped template output, `res.send` of HTML). Recall 8/9 Juice Shop challenges, 3/3 DVNA
+- [ ] Detects insecure crypto (MD5/SHA1 for passwords, hardcoded keys) (*deferred until after deploy*)
+- [ ] Detects async footguns (unhandled promises, fire-and-forget fetch) (*deferred until after deploy*)
+- [ ] False positive rate < 40% (tolerable for MVP) (*not measured yet. Juice Shop secrets are noisy: 30 of 41 are seed-data "passwords"*)
 
 **Interview Talking Point:** "Pattern detection is noisy, so I focused on high-confidence patterns and added contextual factors to reduce false positives."
 
@@ -60,10 +62,10 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 **What:** Score exploitability = pattern + multiple context factors  
 **Why:** Reduces false positives, shows threat modeling knowledge  
 **Acceptance Criteria:**
-- [ ] Each finding includes 3+ context factors
-- [ ] Severity can be adjusted (MEDIUM → HIGH if context confirms)
-- [ ] Factors are readable + defensible ("Why is this HIGH not CRITICAL?")
-- [ ] Dashboard explains factors to non-technical audience
+- [ ] Each finding includes 3+ context factors (*SQLi, XSS, dependencies ✅ (4+); secrets have 1, an open TODO*)
+- [x] Severity can be adjusted (MEDIUM → HIGH if context confirms) (*SQLi and XSS. Secret and dependency severity is fixed by pattern / npm audit*)
+- [x] Factors are readable + defensible ("Why is this HIGH not CRITICAL?")
+- [x] Dashboard explains factors to non-technical audience (expanded row → "Why this severity", ✓ evidence / ⚠ note / ? unknown)
 
 **Interview Talking Point:** "I implemented contextual scoring because real exploits need multiple conditions. This shows I understand threat modeling, not just pattern matching."
 
@@ -73,9 +75,9 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 **What:** Show what was checked, even if nothing found  
 **Why:** Demonstrates thoroughness, builds confidence  
 **Acceptance Criteria:**
-- [ ] Dashboard shows all 9 check categories (hardcoded secrets, SQL injection, XSS, crypto, CORS, async, permissions, logging PII, CVEs)
-- [ ] Collapsible section (doesn't clutter main view)
-- [ ] Shows # of findings per category
+- [x] Dashboard shows all 9 check categories (hardcoded secrets, SQL injection, XSS, crypto, CORS, async, permissions, logging PII, CVEs) (*4 as "checked", 5 as "not yet checked", so a 0 never pretends to be "clean"*)
+- [x] Collapsible section (doesn't clutter main view)
+- [x] Shows # of findings per category
 
 **Interview Talking Point:** "Coverage report shows I think about security as a checklist, not just a bug hunt."
 
@@ -90,7 +92,8 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 - [x] Search by keyword / file / type
 - [x] Expandable rows show context factors + remediation
 - [x] Responsive (works on mobile, tablet, desktop)
-- [ ] Dark mode (bonus, shows attention to detail)
+- [x] Findings-by-type chart split by severity (Task #5; replaces the planned pie chart)
+- [x] Dark mode (bonus, shows attention to detail) — follows the system preference (Task #5)
 
 **Interview Talking Point:** "The dashboard is designed to let non-technical people understand security findings in 30 seconds."
 
@@ -100,13 +103,18 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 **What:** For each finding, explain how to fix it  
 **Why:** "Here's the problem" is table stakes; "here's how to fix it" gets the job  
 **Acceptance Criteria:**
-- [ ] Each finding has a remediation section
-- [ ] Remediation is actionable (not just "use parameterized queries" — show example)
-- [ ] Includes link to OWASP / CVE reference
+- [x] Each finding has a remediation section
+- [x] Remediation is actionable (not just "use parameterized queries" — show example) (*SQLi/XSS show before/after code; dependencies say which version to upgrade to*)
+- [x] Includes link to OWASP / CVE reference (OWASP for patterns, GitHub advisory for dependencies; only http(s) links are rendered)
 
 ---
 
 ## 3. Data Schema (Scanner Output)
+
+This is the canonical schema; DESIGN.md points here. Notes:
+- Dependency findings also carry `package` and `patchedVersions`, use npm's numeric advisory id as `id`, and have `"line": null`.
+- `errors` (array of strings) is present only when a scanner failed. The dashboard shows it in the coverage panel.
+- Ids are not guaranteed unique: secret ids are derived from the matched text (open TODO).
 
 ```json
 {
@@ -172,7 +180,7 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 ---
 
 ### Trade-off 2: Multiple Languages vs. Node.js Only
-**Decision:** **Node.js + minimal Python/Ruby** (MVP phase)  
+**Decision:** **Node.js only** (MVP phase)  
 **Reasoning:**
 - Node.js dependency scanning is easiest (npm audit API)
 - Adding Python/Ruby adds 2-3 days of complexity
@@ -215,8 +223,8 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 
 ## 6. Milestones & Phases
 
-### Phase 1: MVP (Weeks 1-2, ~8 days)
-**Goal:** Functioning scanner + basic dashboard
+### Phase 1: MVP (Weeks 1-3)
+**Goal:** Functioning scanner + dashboard, deployed. (*Originally Weeks 1-2. Deploy moved to Week 3, and dashboard polish (dark mode, chart) moved up from Phase 2 into Week 2.*)
 
 **Week 1:**
 - [x] Dependency scanner (parse + npm audit API)
@@ -226,29 +234,35 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 - [x] Test on 1 real repo (Express.js) — plus OWASP Juice Shop + DVNA as known answer keys
 
 **Week 2:**
-- [ ] React dashboard (table, filters, search)
-- [ ] Coverage report
-- [ ] Remediation sections
-- [ ] Deploy to Vercel
+- [x] React dashboard (table, filters, search) (Task #4, PR #7)
+- [x] Coverage report
+- [x] Remediation sections
+- [x] Dashboard polish: dark mode, findings-by-type chart, phone layout (Task #5, PR #9)
+
+**Week 3:**
+- [ ] Deploy to Vercel with committed demo data (Task #6)
+- [ ] README, talking points, demo (Task #7)
 
 **Definition of Done (Phase 1):**
-- ✅ Scanner runs without errors on Express.js repo
-- ✅ Dashboard displays findings accurately
-- ✅ Findings have context factors + remediation
-- ✅ Code is readable + documented
-- ✅ Can explain findings in 3 minutes
+- [x] Scanner runs without errors on Express.js repo (also Juice Shop and DVNA)
+- [x] Dashboard displays findings accurately
+- [x] Findings have context factors + remediation
+- [x] Code is readable + documented
+- [ ] Deployed (live URL)
+- [ ] Can explain findings in 3 minutes (rehearse with the live demo)
 
 ---
 
-### Phase 2: Polish & Depth (Week 3, ~3 days)
+### Phase 2: Polish & Depth (after deploy)
 **Goal:** Production-quality, interview-ready
 
 - [ ] Export findings as PDF
-- [ ] Add dark mode
-- [ ] Fix false positives based on Phase 1 testing
-- [ ] Add severity pie chart
-- [ ] Test on 3+ different repos
+- [x] Add dark mode (done early, Task #5)
+- [ ] Fix false positives based on Phase 1 testing (open TODOs in HANDOFF.md)
+- [x] Add severity chart (done early, Task #5, as a findings-by-type bar chart split by severity, since bars compare better than pie slices)
+- [x] Test on 3+ different repos (Express, Juice Shop, DVNA)
 - [ ] Write README with screenshots
+- [ ] Insecure crypto + async footgun scanners (deferred from Week 1)
 
 **Definition of Done (Phase 2):**
 - ✅ No obvious UX friction
@@ -313,9 +327,9 @@ See `FUTURE_IDEAS.md`
 ## 10. Communication & Updates
 
 **Weekly Sync Points:**
-- End of Week 1: Dependency scanner + pattern scanners working on real repo
-- End of Week 2: Dashboard functional, deployed to Vercel
-- End of Week 3: Polished, ready for interviews
+- End of Week 1: Dependency scanner + pattern scanners working on real repo ✅
+- End of Week 2: Dashboard functional and polished ✅ (deploy moved to Week 3)
+- End of Week 3: Deployed, documented, ready for interviews
 
 **If Stuck:**
 - Reassess scope (cut features, don't extend timeline)

@@ -1,6 +1,12 @@
-Markdown · security-audit-platform-overview.md
-
 # Security Audit Platform — Build Overview
+
+> **This is the original project brief, kept for reference.** What's actually built and planned now is in STATUS.md, PRD.md, and DESIGN.md (updated 2026-10-02). Main differences from this brief:
+> - **Node.js only.** No `requirements.txt` / `go.mod`, Python, or Ruby (Phase 2).
+> - **Scanners built:** dependency CVEs, hardcoded secrets, SQL injection, XSS. Insecure crypto is deferred. CORS is not planned for Phase 1.
+> - **JavaScript, not TypeScript**, for the dashboard. **No Recharts:** the chart is a plain HTML/CSS stacked bar per finding type, not a pie.
+> - **Dark mode and responsive layout** shipped in Week 2 (Task #5), not Phase 2.
+> - **Not built yet:** PDF export, compliance mapping / CVSS scores, dynamic analysis.
+> - **Scan targets:** Express.js plus OWASP Juice Shop and DVNA (known answer keys).
 
 **Portfolio Project for Senior Eng + Solutions Engineering Interviews**
 

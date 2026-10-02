@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Native controls (selects, scrollbars, the file input) follow the system theme too */
+:root {
+  color-scheme: light dark;
+}
+
 body {
   font-family: system-ui, -apple-system, sans-serif;
 }
