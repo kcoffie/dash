@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { shouldSkipFile, walkDir } from '../file-utils.js';
 
-const PATTERNS = [
+export const PATTERNS = [
   {
     name: 'AWS Access Key',
     regex: /AKIA[0-9A-Z]{16}/g,
