@@ -241,7 +241,7 @@ This is the canonical schema; DESIGN.md points here. Notes:
 - [x] Dashboard polish: dark mode, findings-by-type chart, phone layout (Task #5, PR #9)
 
 **Week 3:**
-- [ ] Deploy to Vercel with committed demo data (Task #6). Demo data for Juice Shop, DVNA, and Express + picker ✅ (PR #10); Vercel import pending
+- [ ] Deploy to Vercel with committed demo data (Task #6). Demo data for Juice Shop, DVNA, and Express + picker ✅ (PR #10, merged); Vercel import pending
 - [ ] README, talking points, demo (Task #7)
 
 **Definition of Done (Phase 1):**
