@@ -1,5 +1,5 @@
 import {
-  filterFindings, sortFindings, countBySeverity, countByType, severityByType, summarySeverities, parseFactor, normalizeReport, findingKey, location, isSafeUrl,
+  filterFindings, sortFindings, countBySeverity, countByType, severityByType, summarySeverities, parseFactor, normalizeReport, findingKey, location, isSafeUrl, normalizeDemoManifest, sourceLink,
 } from '../findings.js';
 
 function report(name, passed, detail = '') {
@@ -123,6 +123,39 @@ function testIsSafeUrl() {
   return report('Only http(s) reference URLs are linkable', safe && !unsafe);
 }
 
+function testNormalizeDemoManifest() {
+  const scans = normalizeDemoManifest({
+    scans: [
+      { id: 'juice-shop', label: 'OWASP Juice Shop', file: 'juice-shop.json' },
+      { id: 'escape', label: 'Path', file: '../secrets.json' },
+      { id: 'remote', label: 'URL', file: 'https://evil.example/x.json' },
+      { id: 'nested', label: 'Dir', file: 'a/b.json' },
+      { label: 'No id', file: 'x.json' },
+      null,
+    ],
+  });
+  return report(
+    'Demo manifest keeps only entries with an id, label, and plain .json file name',
+    scans.map((scan) => scan.id).join() === 'juice-shop'
+      && normalizeDemoManifest(null).length === 0 && normalizeDemoManifest({ scans: 'nope' }).length === 0,
+    JSON.stringify(scans),
+  );
+}
+
+function testSourceLink() {
+  const full = sourceLink({ targetPath: 'juice-shop', source: { repo: 'https://github.com/juice-shop/juice-shop', commit: '1618a61' } });
+  const noCommit = sourceLink({ targetPath: 'dvna', source: { repo: 'https://github.com/appsecco/dvna', commit: 'not a sha' } });
+  const unsafe = sourceLink({ targetPath: 'x', source: { repo: 'javascript:alert(1)', commit: '1618a61' } });
+  const local = sourceLink({ targetPath: '/tmp/juice-shop' });
+  return report(
+    'Source link points at the scanned commit; unsafe or missing repos give no link',
+    full.href === 'https://github.com/juice-shop/juice-shop/tree/1618a61' && full.label === 'juice-shop @ 1618a61'
+      && noCommit.href === 'https://github.com/appsecco/dvna' && noCommit.label === 'dvna'
+      && unsafe === null && local === null,
+    JSON.stringify({ full, noCommit, unsafe, local }),
+  );
+}
+
 const results = [
   testFilterBySeverityAndType(),
   testSearchAcrossFields(),
@@ -136,6 +169,8 @@ const results = [
   testLocation(),
   testNormalizeReport(),
   testIsSafeUrl(),
+  testNormalizeDemoManifest(),
+  testSourceLink(),
 ];
 
 console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
