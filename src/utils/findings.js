@@ -127,3 +127,22 @@ export const CATEGORY_TYPES = {
   'Insecure Crypto Usage': 'crypto-misuse',
   'Async Footguns': 'async-footgun',
 };
+
+// Demo manifest (public/demo/index.json, written by npm run demo:export). Entries name files to fetch,
+// so only plain file names are accepted — no paths, no URLs.
+export function normalizeDemoManifest(data) {
+  const scans = Array.isArray(data?.scans) ? data.scans : [];
+  return scans.filter((scan) => typeof scan?.id === 'string' && typeof scan.label === 'string'
+    && /^[a-z0-9-]+\.json$/.test(scan.file ?? ''));
+}
+
+// Where a demo report came from: "juice-shop @ 1618a61" linking to that commit, when the repo URL is safe
+export function sourceLink(report) {
+  const { source } = report ?? {};
+  if (!source?.repo || !isSafeUrl(source.repo)) return null;
+  const commit = typeof source.commit === 'string' && /^[0-9a-f]{4,40}$/.test(source.commit) ? source.commit : null;
+  return {
+    href: commit ? `${source.repo}/tree/${commit}` : source.repo,
+    label: commit ? `${report.targetPath} @ ${commit}` : report.targetPath,
+  };
+}

@@ -115,6 +115,7 @@ This is the canonical schema; DESIGN.md points here. Notes:
 - Dependency findings also carry `package` and `patchedVersions`, use npm's numeric advisory id as `id`, and have `"line": null`.
 - `errors` (array of strings) is present only when a scanner failed. The dashboard shows it in the coverage panel.
 - Ids are not guaranteed unique: secret ids are derived from the matched text (open TODO).
+- **Demo reports** (`public/demo/*.json`, from `npm run demo:export`) add `"source": { "repo": "<GitHub URL>", "commit": "<short sha>" }`, use the repo name as `targetPath`, and replace secret snippets with `"[redacted in demo report]"` and secret ids with `secret-<file>-<line>`. `public/demo/index.json` lists them: `{ "scans": [{ "id", "label", "description", "file", "repo", "commit", "total" }] }`.
 
 ```json
 {
@@ -240,7 +241,7 @@ This is the canonical schema; DESIGN.md points here. Notes:
 - [x] Dashboard polish: dark mode, findings-by-type chart, phone layout (Task #5, PR #9)
 
 **Week 3:**
-- [ ] Deploy to Vercel with committed demo data (Task #6)
+- [ ] Deploy to Vercel with committed demo data (Task #6). Demo data for Juice Shop, DVNA, and Express + picker ✅ (PR #10); Vercel import pending
 - [ ] README, talking points, demo (Task #7)
 
 **Definition of Done (Phase 1):**

@@ -5,6 +5,7 @@
   "description": "Real vulnerability scanner + interactive dashboard for portfolio",
   "scripts": {
     "scan": "node src/scanner/index.js",
+    "demo:export": "node scripts/export-demo.js",
     "test": "node --test 'src/**/__tests__/*.test.js'",
     "dev": "vite",
     "build": "vite build",
