@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import SummaryCards from '../components/SummaryCards.jsx';
+import TypeChart from '../components/TypeChart.jsx';
 import CoverageReport from '../components/CoverageReport.jsx';
 import FilterBar from '../components/FilterBar.jsx';
 import FindingsTable from '../components/FindingsTable.jsx';
@@ -38,6 +39,11 @@ export default function Dashboard({ report }) {
         counts={severityCounts}
         selected={filters.severity}
         onSelect={(severity) => setFilters({ ...filters, severity })}
+      />
+      <TypeChart
+        findings={report.findings}
+        filters={filters}
+        onSelect={(selection) => setFilters({ ...filters, ...selection })}
       />
       <CoverageReport coverage={report.coverage} typeCounts={typeCounts} errors={report.errors} />
       <section className="rounded-lg bg-white p-4 shadow-sm ring-1 ring-gray-200 sm:p-6 dark:bg-gray-900 dark:ring-gray-800">
