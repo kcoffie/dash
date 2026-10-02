@@ -19,6 +19,10 @@ Validated against intentionally vulnerable apps with known answers: SQL injectio
 Scanner (Node.js) → JSON Output → React Dashboard
 ```
 
+## Demo
+
+The deployed dashboard opens a committed scan of **OWASP Juice Shop**. Use the "Demo scan" picker to switch to **DVNA** or **Express**. Secret values are redacted in the demo data. *(Live URL: coming with the Vercel deploy.)*
+
 ## Getting Started
 
 ```bash
@@ -26,6 +30,7 @@ npm ci
 npm run scan <target-repo-path>  # writes scanner-output.json to the current directory
 npm run dev                       # dashboard at http://localhost:5173 (loads scanner-output.json)
 npm test                          # scanner + dashboard helper tests
+npm run demo:export               # regenerate public/demo/ (needs the three targets cloned under /tmp)
 npm run build                     # production build
 ```
 
@@ -48,7 +53,8 @@ src/
 - [ ] Deferred: Pattern scanner (insecure crypto, async footguns)
 - [x] Week 2: React dashboard with table, search, filtering, coverage report
 - [x] Week 2: Severity visualization, dark mode, phone layout
-- [ ] Week 3: Deploy (Vercel) with demo data, README screenshots
+- [x] Week 3: Demo data for three scans with a picker
+- [ ] Week 3: Deploy (Vercel), README screenshots
 - [ ] Later: PDF export, false-positive tuning
 
 Status and docs: [STATUS.md](STATUS.md) · [PRD.md](PRD.md) · [DESIGN.md](DESIGN.md) · [CONTRIBUTING.md](CONTRIBUTING.md)

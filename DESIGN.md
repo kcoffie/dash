@@ -132,7 +132,13 @@ Scan errors, if any, appear here too.
 ### 6. Theme & Layout
 - Dark mode follows the system preference (no toggle)
 - Responsive down to 390px with no horizontal scroll
-- Loads `scanner-output.json`, or any report through "Load scan file…"
+
+### 7. Report Sources
+- Local `scanner-output.json` first (dev), else the first committed demo (deployed site)
+- "Demo scan" picker: OWASP Juice Shop (default), DVNA, Express. The target links to the scanned commit.
+- "Load scan file…" for any other report
+
+**Demo data** (`npm run demo:export` → `public/demo/`): the repo is public and Juice Shop plants real-looking private keys, so the export replaces secret findings' snippets and ids with a redaction marker, and it refuses to write a report that still contains an AWS key, private-key header, GitHub/GitLab token, or Slack/Discord webhook anywhere. The finding itself (file, line, severity, factors, fix) stays, so the demo still shows what was found.
 
 *(not built)* confidence distribution, PDF export.
 

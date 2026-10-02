@@ -13,7 +13,7 @@
 - **`feature/scanner-patterns`** — Pattern scanners (Tasks #2-3)
 - **`feature/dashboard-core`** — Dashboard core (Task #4)
 - **`feature/dashboard-polish`** — Dashboard polish (Task #5)
-- **`feature/deploy`** — Vercel deploy setup (Task #6)
+- **`feature/deploy`**: demo data + Vercel deploy setup (Task #6)
 - **`docs/<topic>`**: docs-only changes (e.g. `docs/session-4-handoff`)
 
 **Naming pattern:** `feature/<task-short-name>` or `docs/<topic>`

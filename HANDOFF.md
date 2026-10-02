@@ -1,9 +1,9 @@
 # Project Handoff — Security Audit Platform
 
 **Last updated:** 2026-10-02 (session 5)
-**Branch:** `feature/dashboard-polish` — PR #9 open (Task #5), **waiting for the user to merge**. `main` @ `d595528` has everything through PR #8.
-**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard Core ✅ (PR #7) · Dashboard Polish 🟡 (PR #9) · repo public, `main` protected
-**Next step:** after PR #9 merges — Task #6 Deploy (Vercel). **Ask the user which scan to publish as demo data first.**
+**Branch:** `feature/deploy`. PR #10 is open (Task #6, demo data + picker) and **waiting for the user to merge**. `main` @ `cd52fc1` has everything through PR #9.
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · Deploy prep 🟡 (PR #10) · repo public, `main` protected
+**Next step:** after PR #10 merges, the **user** imports the repo in Vercel (needs their login; steps in START HERE step 5). Then add the live URL to README/STATUS, and start Task #7 (README screenshots, talking points).
 
 ---
 
@@ -13,7 +13,7 @@
 The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). Dashboard polish (dark mode, findings-by-type chart, phone layout) is in PR #9. CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
 
 ### Do these, in order
-1. **Setup** (if PR #9 is still open, check with the user before starting new work)
+1. **Setup** (if PR #10 is still open, check with the user before starting new work)
    ```bash
    git checkout main && git pull
    npm ci                                   # node_modules isn't committed; needed for dev/build
@@ -25,18 +25,23 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    `npm ci` warns that esbuild's install script wasn't approved — harmless (the build works; CI is green).
 2. **Verify baseline**
    ```bash
-   npm test                                 # 5 suites: dependency 3/3, secrets 5/5, SQLi 21/21, XSS 22/22, dashboard helpers 12/12
+   npm test                                 # 6 suites: demo export 5/5, dependency 3/3, secrets 5/5, SQLi 21/21, XSS 22/22, dashboard helpers 14/14
    npm run build                            # must succeed (CI runs it)
    ```
    Scanner counts (run from a scratch dir — `index.js` writes `scanner-output.json` to the cwd):
    Juice Shop 13 SQLi / 19 XSS / 138 total · DVNA 1 SQLi / 10 XSS · Express 0 SQLi / 54 XSS (all low).
-3. **See the dashboard**: from the repo root, `npm run scan /tmp/juice-shop` (writes the gitignored `scanner-output.json` the dev server serves), then `npm run dev` → http://localhost:5173. "Load scan file…" loads any other report.
-4. **Task #5: Dashboard Polish** — ✅ built in PR #9 (`feature/dashboard-polish`); the user merges it. Don't merge PRs yourself.
-5. **Week 3: Deploy (Task #6)** — Vercel. Blocked on committed demo data (see Open TODOs: "Deploy needs committed demo data"). **Ask the user which scan(s) to publish** before committing anything. The user asked about using all three. The sketch: commit `public/demo/{juice-shop,dvna,express}.json` plus a small `public/demo/index.json` manifest, and add a "Demo scan" picker next to "Load scan file…". About 235 KB in total. Juice Shop's report includes snippets of its planted private keys, so redact `hardcoded-secret` snippets in the demo export (or confirm GitHub secret scanning doesn't flag them). Not decided yet.
+3. **See the dashboard**: from the repo root, `npm run scan /tmp/juice-shop` (writes the gitignored `scanner-output.json` the dev server serves), then `npm run dev` → http://localhost:5173. Without a local report, the dashboard opens the committed Juice Shop demo. The "Demo scan" picker switches demos; "Load scan file…" loads any other report.
+4. **Task #5: Dashboard Polish**: ✅ merged (PR #9). Don't merge PRs yourself; the user does.
+5. **Week 3: Deploy (Task #6)**. Demo data and picker are in PR #10 (user's decision: all three scans). What's left needs the **user's** Vercel login, so don't try it yourself:
+   - vercel.com → Add New → Project → import `kcoffie/dash`. Vite is auto-detected (build `npm run build`, output `dist`); no `vercel.json` or env vars needed.
+   - Production branch `main`; each merge then redeploys, and PRs get preview URLs.
+   - After the first deploy, check: the Juice Shop demo opens, the picker switches to DVNA / Express, dark mode works, and `/scanner-output.json` 404s (expected; the app falls back to the demo).
+   - Then put the live URL in README.md and STATUS.md.
+   - **Regenerating demo data:** re-clone the targets (step 1), run `npm run demo:export`, review the diff, and commit `public/demo/`. The export redacts secret snippets and ids and **fails** if any finding still contains an AWS key, private-key header, GitHub/GitLab token, or Slack/Discord webhook.
 6. **Later:** fix the scanner TODOs (secret ids, `@undefined` dep versions, secret context factors, ESLint config), then #2.4 crypto / #2.5 async.
 
-### Dashboard map (Task #4, merged)
-- `src/App.jsx` — loads `/scanner-output.json`; a non-JSON response means "no report" (Vite and static hosts answer missing files with `index.html` + 200). File picker via `normalizeReport()`.
+### Dashboard map
+- `src/App.jsx`: loads `/scanner-output.json` first, otherwise the first scan in `/demo/index.json`. A non-JSON response means "not there" (Vite and static hosts answer missing files with `index.html` + 200). "Demo scan" picker (manifest validated by `normalizeDemoManifest()`), file picker via `normalizeReport()`, target linked to the scanned commit via `sourceLink()`.
 - `src/pages/Dashboard.jsx` — sorts once, assigns stable row keys on the unfiltered list (so expanded rows survive filtering), filters, composes components.
 - `src/components/` — `SummaryCards` (click = severity filter; empty Info card hidden, 3+2 on phones when all 5 show), `TypeChart` (findings by type split by severity; click a type or segment = filter, hover/focus = tooltip), `CoverageReport` (`coverage.checked` / `notYetChecked` / `errors`), `FilterBar`, `FindingsTable` (expand/collapse, responsive columns), `FindingDetails` (snippet, ✓/⚠/? factors, fix, links — only `http(s)` URLs are linked), `SeverityBadge` (`SEVERITY_STYLES` for badges/cards, `SEVERITY_FILLS` for chart marks).
 - `src/utils/findings.js` — filter/search/sort/count, `severityByType` (chart rows), `summarySeverities` (which cards to show), `parseFactor`, `findingKey` (scanner ids aren't unique), `isSafeUrl`, `CATEGORY_TYPES`.
@@ -65,6 +70,13 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
   - Tests: `severityByType`, `summarySeverities` (12/12; both checked to fail against broken code).
   - Verified in Chrome on a Juice Shop scan: light + dark × desktop + 390px, no horizontal scroll, keyboard focus shows tooltips.
 - ✅ STATUS.md Overall Progress corrected (said 65% for Phase 1; by tasks it was ~48% before this PR, 62% once it merges).
+- ✅ Docs refresh (in PR #9): PRD, DESIGN, README, CONTRIBUTING, STATUS, TPM_STRATEGY, FUTURE_IDEAS now match the build. **PR #9 merged** by the user.
+- 🟡 **Deploy prep (Task #6, PR #10, awaiting merge)** on `feature/deploy`:
+  - `scanTarget()` (`src/scanner/report.js`) split out of the CLI. Reports were identical before and after for all three targets.
+  - `toDemoReport()` (`src/scanner/demo-export.js`) redacts secret snippets and ids, replaces the `/tmp` path with the repo name, records `source: { repo, commit }`, and throws on leftover key formats. 5 tests, each mutation-checked.
+  - `npm run demo:export` → `public/demo/{juice-shop,dvna,express}.json` + `index.json` (≈235 KB). Committed at juice-shop `1618a61`, dvna `9ba473a`, express `7ef9844`. Checked by hand for local paths, personal info, and key formats before committing.
+  - Dashboard: a "Demo scan" picker; deployed builds open Juice Shop. Verified in a `vite preview` build for the deploy case, the local-report case, no manifest, and nothing at all, plus 390px.
+  - GitHub secret scanning is **disabled** on this repo (the API says so), so the exporter's own check is the only guard. Suggested to the user: enable secret scanning + push protection (Settings → Code security). The user decides; don't change repo settings.
 
 ## What We Did in Session 4 (2026-10-01)
 
@@ -130,8 +142,8 @@ Design decisions: template files (`.html/.ejs/.pug/.hbs/.vue`) are scanned for X
 ```
 Design Phase     ████████████████████████████████ 100% ✅
 Week 1 Scanner   ██████████████████████████░░░░░░  80% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ⏳ async ⏳ deferred)
-Week 2 Dashboard ████████████████████████████░░░░  90% 🟡  (core ✅ merged | polish ✅ PR #9 awaiting merge)
-Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0% ⏳
+Week 2 Dashboard ████████████████████████████████ 100% ✅  (core ✅ PR #7 | polish ✅ PR #9)
+Week 3 Deploy    ████████████░░░░░░░░░░░░░░░░░░░░  40% 🟡  (demo data + picker 🟡 PR #10 | Vercel import ⏳ user | README/demo ⏳)
 ```
 
 | Task | Status | Where |
@@ -143,8 +155,9 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 | #2.4 Insecure crypto | ⏳ Deferred until after dashboard (confirm with user) | — |
 | #2.5 Async footguns | ⏳ Deferred until after dashboard (confirm with user) | — |
 | #4 Dashboard Core | ✅ Merged to `main` (PR #7) | `src/App.jsx`, `src/pages/Dashboard.jsx`, `src/components/`, `src/utils/findings.js` |
-| #5 Dashboard Polish | 🟡 PR #9 open — user merges | `src/components/TypeChart.jsx`, `SummaryCards.jsx`, `dark:` variants throughout |
-| #6 Deploy (Vercel) | ⏳ **Next** after #9 — needs demo data (ask user which scan) | — |
+| #5 Dashboard Polish | ✅ Merged to `main` (PR #9) | `src/components/TypeChart.jsx`, `SummaryCards.jsx`, `dark:` variants throughout |
+| #6 Deploy (Vercel) | 🟡 PR #10 (demo data + picker) → user imports in Vercel | `scripts/export-demo.js`, `src/scanner/demo-export.js`, `public/demo/` |
+| #7 Documentation | ⏳ After the live URL exists | README screenshots, talking points |
 
 ---
 
@@ -166,7 +179,8 @@ Week 3 Deploy    ░░░░░░░░░░░░░░░░░░░░░
 - [ ] **Dependency findings show `@undefined` version.** Context reads "Vulnerable dependency detected: <pkg>@undefined" — the installed version isn't read from npm audit output.
 - [ ] **Secret findings have 1 context factor** (schema wants 3+), and flag Terraform interpolations like `creation_token = "${var.project_name}-…"` as API tokens.
 - [ ] **`npm run lint` is broken** — ESLint 9 needs an `eslint.config.js`; none exists. Add a flat config (React + hooks plugins), then a lint step in CI.
-- [ ] **Deploy needs committed demo data.** `scanner-output.json` is gitignored (any path). For Vercel, commit demo reports under `public/` with non-ignored names. Juice Shop's report includes snippets of its planted private keys: redact them, or check GitHub secret scanning won't flag them. Option under discussion: all three scans + a picker (see START HERE step 5).
+- [x] **Deploy needs committed demo data.** Done in PR #10: all three scans under `public/demo/`, generated by `npm run demo:export` with secret snippets redacted, and a picker in the dashboard.
+- [ ] **Demo data is a snapshot.** It's pinned to the target commits above, so it won't change when the scanners improve. Re-run `npm run demo:export` after scanner changes (e.g. the secret-noise or `@undefined` fixes) and commit the diff.
 - [x] **PRD.md / DESIGN.md were partly stale.** Fixed in session 5 (PR #9). PRD checkboxes now match the build, with italic notes where it differs; DESIGN describes the scoring model and dashboard as built and marks *(not built)* ideas; README, CONTRIBUTING (everything goes through PRs; task numbers, not issues), TPM_STRATEGY, and FUTURE_IDEAS refreshed; the original brief (`security-audit-platform-overview.md`) is kept as-is with a "what changed" note.
 - [ ] **Hardcoded-secret noise on Juice Shop.** 41 findings, 30 of them "Database Password" in `data/static/` seed data. `lib/insecurity.ts` private key is a real (planted) true positive. Review when tuning false positives.
 
@@ -230,6 +244,8 @@ See **PRD.md Section 5** for full edge case list.
 ```
 src/scanner/
 ├── index.js                  ← CLI: node src/scanner/index.js <repo> → scanner-output.json
+├── report.js                 ← scanTarget(): runs every scanner, builds the report (CLI + demo export)
+├── demo-export.js            ← toDemoReport(): redact secrets, record source, refuse key material
 ├── dependency-scanner.js     ← Task #1
 ├── npm-audit-client.js       ← Task #1
 ├── pattern-scanner.js        ← runs each pattern scanner (crypto/async TODOs here)
@@ -239,12 +255,13 @@ src/scanner/
 │   ├── sql-injection.js      ← Task #2.2
 │   └── xss.js                ← Task #2.3
 └── __tests__/
+    ├── demo-export.test.js
     ├── dependency-scanner.test.js
     ├── hardcoded-secrets.test.js
     ├── sql-injection.test.js
     └── xss.test.js
 ```
-Dashboard files: see "Dashboard map" in START HERE.
+`scripts/export-demo.js` (`npm run demo:export`) regenerates `public/demo/`. Dashboard files: see "Dashboard map" in START HERE.
 
 ## Key Documents
 
