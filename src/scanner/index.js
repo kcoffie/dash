@@ -8,9 +8,7 @@
  */
 
 import fs from 'fs';
-import path from 'path';
-import { scanDependencies } from './dependency-scanner.js';
-import { scanPatterns } from './pattern-scanner.js';
+import { scanTarget } from './report.js';
 
 const targetPath = process.argv[2];
 
@@ -25,83 +23,9 @@ if (!fs.existsSync(targetPath)) {
 }
 
 async function scan() {
-  const findings = [];
-  const scanErrors = [];
-
   console.log(`\n🔍 Scanning ${targetPath}...\n`);
-
-  // Dependency scanning
-  try {
-    const { findings: depFindings, errors: depErrors } = await scanDependencies(targetPath);
-    findings.push(...depFindings);
-    scanErrors.push(...depErrors);
-    if (depFindings.length > 0) {
-      console.log(`✓ Dependency scanning: ${depFindings.length} CVE(s) found`);
-    } else {
-      console.log('✓ Dependency scanning: no vulnerabilities');
-    }
-  } catch (error) {
-    scanErrors.push(`Dependency scanning failed: ${error.message}`);
-    console.error(`✗ Dependency scanning failed: ${error.message}`);
-  }
-
-  // Pattern scanning
-  try {
-    const { findings: patternFindings, errors: patternErrors } = await scanPatterns(targetPath);
-    findings.push(...patternFindings);
-    scanErrors.push(...patternErrors);
-    if (patternFindings.length > 0) {
-      console.log(`✓ Pattern scanning: ${patternFindings.length} finding(s) detected`);
-    } else {
-      console.log('✓ Pattern scanning: no issues found');
-    }
-  } catch (error) {
-    scanErrors.push(`Pattern scanning failed: ${error.message}`);
-    console.error(`✗ Pattern scanning failed: ${error.message}`);
-  }
-
-  // Compute summary
-  const summary = {
-    total: findings.length,
-    critical: findings.filter((f) => f.severity === 'critical').length,
-    high: findings.filter((f) => f.severity === 'high').length,
-    medium: findings.filter((f) => f.severity === 'medium').length,
-    low: findings.filter((f) => f.severity === 'low').length,
-    info: findings.filter((f) => f.severity === 'info').length,
-  };
-
-  const report = {
-    timestamp: new Date().toISOString(),
-    targetPath,
-    findings,
-    coverage: {
-      // Only categories with a scanner behind them count as checked
-      checked: [
-        'Dependency CVEs',
-        'Hardcoded Secrets',
-        'SQL Injection Patterns',
-        'XSS Vulnerabilities',
-      ],
-      checkedCount: 4,
-      notYetChecked: [
-        'Insecure Crypto Usage',
-        'CORS Misconfiguration',
-        'Async Footguns',
-        'Permission Creep',
-        'Logging PII',
-      ],
-      findingsByType: {
-        'dependency-cve': findings.filter((f) => f.type === 'dependency-cve').length,
-        'hardcoded-secret': findings.filter((f) => f.type === 'hardcoded-secret').length,
-        'sql-injection': findings.filter((f) => f.type === 'sql-injection').length,
-        'xss': findings.filter((f) => f.type === 'xss').length,
-        'crypto-misuse': findings.filter((f) => f.type === 'crypto-misuse').length,
-        'async-footgun': findings.filter((f) => f.type === 'async-footgun').length,
-      },
-    },
-    summary,
-    ...(scanErrors.length > 0 && { errors: scanErrors }),
-  };
+  const report = await scanTarget(targetPath);
+  const { summary } = report;
 
   const outputPath = 'scanner-output.json';
   fs.writeFileSync(outputPath, JSON.stringify(report, null, 2));
