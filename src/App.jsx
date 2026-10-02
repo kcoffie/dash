@@ -57,7 +57,7 @@ export default function App() {
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 {report.targetPath && <>Target <span className="font-mono">{report.targetPath}</span> · </>}
                 {report.timestamp && <>scanned {new Date(report.timestamp).toLocaleString()} · </>}
-                {source}
+                <span className="whitespace-nowrap">{source}</span>
               </p>
             )}
           </div>

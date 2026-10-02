@@ -68,6 +68,12 @@ export function countByType(findings) {
   return counts;
 }
 
+// Summary cards to show. Info is almost always 0 (only npm audit emits it), and a lone empty card wastes a row
+// on phones, so hide it when empty unless it's the active filter.
+export function summarySeverities(counts, selected = 'all') {
+  return SEVERITIES.filter((severity) => severity !== 'info' || counts.info > 0 || selected === 'info');
+}
+
 // Chart rows: one per finding type, biggest first, each split into severity segments (most severe first, empty ones dropped)
 export function severityByType(findings) {
   const rows = new Map();
