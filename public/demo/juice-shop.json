@@ -1,0 +1,3683 @@
+{
+  "timestamp": "2026-10-02T20:35:00.583Z",
+  "targetPath": "juice-shop",
+  "findings": [
+    {
+      "id": 1121296,
+      "type": "dependency-cve",
+      "title": "@cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "@cyclonedx/cyclonedx-npm",
+      "patchedVersions": "2.0.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: @cyclonedx/cyclonedx-npm@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: @cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument",
+        "✓ Fix available: upgrade to 2.0.0"
+      ],
+      "remediation": "Update @cyclonedx/cyclonedx-npm to 2.0.0. See https://github.com/advisories/GHSA-v75r-vx73-82pj for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-v75r-vx73-82pj"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-78"
+      ]
+    },
+    {
+      "id": 1224698,
+      "type": "dependency-cve",
+      "title": "@cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument on Windows",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "@cyclonedx/cyclonedx-npm",
+      "patchedVersions": "2.0.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: @cyclonedx/cyclonedx-npm@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: @cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument on Windows",
+        "✓ Fix available: upgrade to 2.0.0"
+      ],
+      "remediation": "Update @cyclonedx/cyclonedx-npm to 2.0.0. See https://github.com/advisories/GHSA-q69g-4hcv-6jg4 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-q69g-4hcv-6jg4"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-78"
+      ]
+    },
+    {
+      "id": 1119438,
+      "type": "dependency-cve",
+      "title": "@tootallnate/once vulnerable to Incorrect Control Flow Scoping",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "@tootallnate/once",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: @tootallnate/once@undefined",
+        "⚠ Severity: low",
+        "✓ Vulnerability: @tootallnate/once vulnerable to Incorrect Control Flow Scoping",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update @tootallnate/once to 6.0.1. See https://github.com/advisories/GHSA-vpq2-c234-7xj6 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-vpq2-c234-7xj6"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-705"
+      ]
+    },
+    {
+      "id": 1091792,
+      "type": "dependency-cve",
+      "title": "Out-of-bounds Read in base64url",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "base64url",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: base64url@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Out-of-bounds Read in base64url",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update base64url to 9.0.3. See https://github.com/advisories/GHSA-rvg8-pwq2-xj7q for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-rvg8-pwq2-xj7q"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-125"
+      ]
+    },
+    {
+      "id": 1103907,
+      "type": "dependency-cve",
+      "title": "cookie accepts cookie name, path, and domain with out of bounds characters",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "cookie",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: cookie@undefined",
+        "⚠ Severity: low",
+        "✓ Vulnerability: cookie accepts cookie name, path, and domain with out of bounds characters",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update cookie to 4.8.4. See https://github.com/advisories/GHSA-pxg6-pf52-xh8x for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-pxg6-pf52-xh8x"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-74"
+      ]
+    },
+    {
+      "id": 1096365,
+      "type": "dependency-cve",
+      "title": "crypto-js PBKDF2 1,000 times weaker than specified in 1993 and 1.3M times weaker than current standard",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "crypto-js",
+      "patchedVersions": "0.20.2",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: crypto-js@undefined",
+        "⚠ Severity: critical",
+        "✓ Vulnerability: crypto-js PBKDF2 1,000 times weaker than specified in 1993 and 1.3M times weaker than current standard",
+        "✓ Fix available: upgrade to 0.20.2"
+      ],
+      "remediation": "Update crypto-js to 0.20.2. See https://github.com/advisories/GHSA-xwcq-pm8m-c4vf for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-xwcq-pm8m-c4vf"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-327"
+      ]
+    },
+    {
+      "id": 1138770,
+      "type": "dependency-cve",
+      "title": "crypto-js: Insufficient Entropy in Cryptographic Secret Generation via Vulnerable CryptoJS Dependency Chain",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "crypto-js",
+      "patchedVersions": "0.20.2",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: crypto-js@undefined",
+        "⚠ Severity: critical",
+        "✓ Vulnerability: crypto-js: Insufficient Entropy in Cryptographic Secret Generation via Vulnerable CryptoJS Dependency Chain",
+        "✓ Fix available: upgrade to 0.20.2"
+      ],
+      "remediation": "Update crypto-js to 0.20.2. See https://github.com/advisories/GHSA-rg76-677x-56q9 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-rg76-677x-56q9"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-331"
+      ]
+    },
+    {
+      "id": 1147955,
+      "type": "dependency-cve",
+      "title": "decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "decode-uri-component",
+      "patchedVersions": "4.4.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: decode-uri-component@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input",
+        "✓ Fix available: upgrade to 4.4.3"
+      ],
+      "remediation": "Update decode-uri-component to 4.4.3. See https://github.com/advisories/GHSA-vcc3-ghjq-m6fr for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-vcc3-ghjq-m6fr"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": 1122670,
+      "type": "dependency-cve",
+      "title": "Decompress: Archive extraction can create files and links outside of the target directory",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "decompress",
+      "patchedVersions": "4.4.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: decompress@undefined",
+        "⚠ Severity: critical",
+        "✓ Vulnerability: Decompress: Archive extraction can create files and links outside of the target directory",
+        "✓ Fix available: upgrade to 4.4.3"
+      ],
+      "remediation": "Update decompress to 4.4.3. See https://github.com/advisories/GHSA-mp2f-45pm-3cg9 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-mp2f-45pm-3cg9"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1130126,
+      "type": "dependency-cve",
+      "title": "decompress: Arbitrary File Write via Archive Extraction (Zip Slip)",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "decompress",
+      "patchedVersions": "4.4.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: decompress@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: decompress: Arbitrary File Write via Archive Extraction (Zip Slip)",
+        "✓ Fix available: upgrade to 4.4.3"
+      ],
+      "remediation": "Update decompress to 4.4.3. See https://github.com/advisories/GHSA-h39j-r5qq-r9mm for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-h39j-r5qq-r9mm"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1139405,
+      "type": "dependency-cve",
+      "title": "decompress allows arbitrary hardlink creation during archive extraction",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "decompress",
+      "patchedVersions": "4.4.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: decompress@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: decompress allows arbitrary hardlink creation during archive extraction",
+        "✓ Fix available: upgrade to 4.4.3"
+      ],
+      "remediation": "Update decompress to 4.4.3. See https://github.com/advisories/GHSA-jwp9-9v96-94mx for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-jwp9-9v96-94mx"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-59"
+      ]
+    },
+    {
+      "id": 1240094,
+      "type": "dependency-cve",
+      "title": "@xhmikosr/decompress: Path traversal via symlink chain",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "decompress",
+      "patchedVersions": "4.4.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: decompress@undefined",
+        "⚠ Severity: critical",
+        "✓ Vulnerability: @xhmikosr/decompress: Path traversal via symlink chain",
+        "✓ Fix available: upgrade to 4.4.3"
+      ],
+      "remediation": "Update decompress to 4.4.3. See https://github.com/advisories/GHSA-hrh2-vp3x-79xf for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-hrh2-vp3x-79xf"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1089525,
+      "type": "dependency-cve",
+      "title": "Uncaught exception in engine.io",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "engine.io",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: engine.io@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Uncaught exception in engine.io",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update engine.io to 4.8.4. See https://github.com/advisories/GHSA-r7qp-cfhv-p84w for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-r7qp-cfhv-p84w"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-248"
+      ]
+    },
+    {
+      "id": 1123943,
+      "type": "dependency-cve",
+      "title": "Socket.IO: Engine.IO Polling Transport Connection Exhaustion",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "engine.io",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: engine.io@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Socket.IO: Engine.IO Polling Transport Connection Exhaustion",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update engine.io to 4.8.4. See https://github.com/advisories/GHSA-r635-g3xr-vw7x for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-r635-g3xr-vw7x"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-404"
+      ]
+    },
+    {
+      "id": 1090200,
+      "type": "dependency-cve",
+      "title": "Authorization bypass in express-jwt",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "express-jwt",
+      "patchedVersions": "8.5.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: express-jwt@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Authorization bypass in express-jwt",
+        "✓ Fix available: upgrade to 8.5.1"
+      ],
+      "remediation": "Update express-jwt to 8.5.1. See https://github.com/advisories/GHSA-6g6m-m6h5-w9gf for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-6g6m-m6h5-w9gf"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-285"
+      ]
+    },
+    {
+      "id": 1114301,
+      "type": "dependency-cve",
+      "title": "file-type affected by infinite loop in ASF parser on malformed input with zero-size sub-header",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "file-type",
+      "patchedVersions": "22.1.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: file-type@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: file-type affected by infinite loop in ASF parser on malformed input with zero-size sub-header",
+        "✓ Fix available: upgrade to 22.1.1"
+      ],
+      "remediation": "Update file-type to 22.1.1. See https://github.com/advisories/GHSA-5v7r-6r5c-r473 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-5v7r-6r5c-r473"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-835"
+      ]
+    },
+    {
+      "id": 1088948,
+      "type": "dependency-cve",
+      "title": "Got allows a redirect to a UNIX socket",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "got",
+      "patchedVersions": "4.4.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: got@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Got allows a redirect to a UNIX socket",
+        "✓ Fix available: upgrade to 4.4.3"
+      ],
+      "remediation": "Update got to 4.4.3. See https://github.com/advisories/GHSA-pfrx-2q88-qq97 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-pfrx-2q88-qq97"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "vulnerability"
+      ]
+    },
+    {
+      "id": 1102456,
+      "type": "dependency-cve",
+      "title": "http-cache-semantics vulnerable to Regular Expression Denial of Service",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "http-cache-semantics",
+      "patchedVersions": "4.4.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: http-cache-semantics@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: http-cache-semantics vulnerable to Regular Expression Denial of Service",
+        "✓ Fix available: upgrade to 4.4.3"
+      ],
+      "remediation": "Update http-cache-semantics to 4.4.3. See https://github.com/advisories/GHSA-rc47-6667-2j5j for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-rc47-6667-2j5j"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1333"
+      ]
+    },
+    {
+      "id": 1090918,
+      "type": "dependency-cve",
+      "title": "Verification Bypass in jsonwebtoken",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "jsonwebtoken",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: jsonwebtoken@undefined",
+        "⚠ Severity: critical",
+        "✓ Vulnerability: Verification Bypass in jsonwebtoken",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update jsonwebtoken to 9.0.3. See https://github.com/advisories/GHSA-c7hr-j4mj-j2w6 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-c7hr-j4mj-j2w6"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-20"
+      ]
+    },
+    {
+      "id": 1097690,
+      "type": "dependency-cve",
+      "title": "jsonwebtoken unrestricted key type could lead to legacy keys usage ",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "jsonwebtoken",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: jsonwebtoken@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: jsonwebtoken unrestricted key type could lead to legacy keys usage ",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update jsonwebtoken to 9.0.3. See https://github.com/advisories/GHSA-8cf7-32gw-wr33 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-8cf7-32gw-wr33"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-327"
+      ]
+    },
+    {
+      "id": 1097694,
+      "type": "dependency-cve",
+      "title": "jsonwebtoken's insecure implementation of key retrieval function could lead to Forgeable Public/Private Tokens from RSA to HMAC",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "jsonwebtoken",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: jsonwebtoken@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: jsonwebtoken's insecure implementation of key retrieval function could lead to Forgeable Public/Private Tokens from RSA to HMAC",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update jsonwebtoken to 9.0.3. See https://github.com/advisories/GHSA-hjrf-2m68-5959 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-hjrf-2m68-5959"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-287"
+      ]
+    },
+    {
+      "id": 1102458,
+      "type": "dependency-cve",
+      "title": "jsonwebtoken vulnerable to signature validation bypass due to insecure default algorithm in jwt.verify()",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "jsonwebtoken",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: jsonwebtoken@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: jsonwebtoken vulnerable to signature validation bypass due to insecure default algorithm in jwt.verify()",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update jsonwebtoken to 9.0.3. See https://github.com/advisories/GHSA-qwph-4952-7xr6 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-qwph-4952-7xr6"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-287"
+      ]
+    },
+    {
+      "id": 1087397,
+      "type": "dependency-cve",
+      "title": "Forgeable Public/Private Tokens in jws",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "jws",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: jws@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Forgeable Public/Private Tokens in jws",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update jws to 9.0.3. See https://github.com/advisories/GHSA-gjcw-v447-2w7q for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-gjcw-v447-2w7q"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "vulnerability"
+      ]
+    },
+    {
+      "id": 1111244,
+      "type": "dependency-cve",
+      "title": "auth0/node-jws Improperly Verifies HMAC Signature",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "jws",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: jws@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: auth0/node-jws Improperly Verifies HMAC Signature",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update jws to 9.0.3. See https://github.com/advisories/GHSA-869p-cjfg-cm3x for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-869p-cjfg-cm3x"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-347"
+      ]
+    },
+    {
+      "id": 1106900,
+      "type": "dependency-cve",
+      "title": "Prototype Pollution in lodash",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "lodash",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: lodash@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Prototype Pollution in lodash",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-fvqr-27wr-82fm for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-fvqr-27wr-82fm"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-471"
+      ]
+    },
+    {
+      "id": 1106913,
+      "type": "dependency-cve",
+      "title": "Command Injection in lodash",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "lodash",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: lodash@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Command Injection in lodash",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-35jh-r3h4-6jhm for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-35jh-r3h4-6jhm"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-77"
+      ]
+    },
+    {
+      "id": 1106914,
+      "type": "dependency-cve",
+      "title": "Prototype Pollution in lodash",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "lodash",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: lodash@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Prototype Pollution in lodash",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-4xc9-xhrj-v574 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-4xc9-xhrj-v574"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": 1106918,
+      "type": "dependency-cve",
+      "title": "Prototype Pollution in lodash",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "lodash",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: lodash@undefined",
+        "⚠ Severity: critical",
+        "✓ Vulnerability: Prototype Pollution in lodash",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-jf85-cpcp-j695 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-jf85-cpcp-j695"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-20"
+      ]
+    },
+    {
+      "id": 1115810,
+      "type": "dependency-cve",
+      "title": "lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit`",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "lodash",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: lodash@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit`",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-f23m-r3pf-42rh for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-f23m-r3pf-42rh"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1321"
+      ]
+    },
+    {
+      "id": 1086801,
+      "type": "dependency-cve",
+      "title": "Command Injection in marsdb",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "marsdb",
+      "patchedVersions": "Unknown",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: marsdb@undefined",
+        "⚠ Severity: critical",
+        "✓ Vulnerability: Command Injection in marsdb",
+        "⚠ No automatic fix"
+      ],
+      "remediation": "Update marsdb to latest version. See https://github.com/advisories/GHSA-5mrr-rgp6-x4gr for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-5mrr-rgp6-x4gr"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-77"
+      ]
+    },
+    {
+      "id": 1113459,
+      "type": "dependency-cve",
+      "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "minimatch",
+      "patchedVersions": "0.2.2",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: minimatch@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
+        "✓ Fix available: upgrade to 0.2.2"
+      ],
+      "remediation": "Update minimatch to 0.2.2. See https://github.com/advisories/GHSA-3ppc-4f35-3m26 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-3ppc-4f35-3m26"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1333"
+      ]
+    },
+    {
+      "id": 1113538,
+      "type": "dependency-cve",
+      "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "minimatch",
+      "patchedVersions": "0.2.2",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: minimatch@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
+        "✓ Fix available: upgrade to 0.2.2"
+      ],
+      "remediation": "Update minimatch to 0.2.2. See https://github.com/advisories/GHSA-7r86-cg39-jmmj for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-7r86-cg39-jmmj"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-407"
+      ]
+    },
+    {
+      "id": 1113546,
+      "type": "dependency-cve",
+      "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "minimatch",
+      "patchedVersions": "0.2.2",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: minimatch@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
+        "✓ Fix available: upgrade to 0.2.2"
+      ],
+      "remediation": "Update minimatch to 0.2.2. See https://github.com/advisories/GHSA-23c5-xmqv-rm74 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-23c5-xmqv-rm74"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1333"
+      ]
+    },
+    {
+      "id": 1091022,
+      "type": "dependency-cve",
+      "title": "Regular Expression Denial of Service in moment",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "moment",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: moment@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Regular Expression Denial of Service in moment",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update moment to 9.0.3. See https://github.com/advisories/GHSA-87vv-r9j6-g5qv for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-87vv-r9j6-g5qv"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": 1091723,
+      "type": "dependency-cve",
+      "title": "Regular Expression Denial of Service in moment",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "moment",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: moment@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Regular Expression Denial of Service in moment",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update moment to 9.0.3. See https://github.com/advisories/GHSA-446m-mv8f-q348 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-446m-mv8f-q348"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": 1109571,
+      "type": "dependency-cve",
+      "title": "Path Traversal: 'dir/../../filename' in moment.locale",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "moment",
+      "patchedVersions": "9.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: moment@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Path Traversal: 'dir/../../filename' in moment.locale",
+        "✓ Fix available: upgrade to 9.0.3"
+      ],
+      "remediation": "Update moment to 9.0.3. See https://github.com/advisories/GHSA-8hfj-j24r-96c4 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-8hfj-j24r-96c4"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1088750,
+      "type": "dependency-cve",
+      "title": "Sandbox escape in notevil and argencoders-notevil",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "notevil",
+      "patchedVersions": "Unknown",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: notevil@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Sandbox escape in notevil and argencoders-notevil",
+        "⚠ No automatic fix"
+      ],
+      "remediation": "Update notevil to latest version. See https://github.com/advisories/GHSA-8g4m-cjm2-96wq for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-8g4m-cjm2-96wq"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1321"
+      ]
+    },
+    {
+      "id": 1107224,
+      "type": "dependency-cve",
+      "title": "parse-uri Regular expression Denial of Service (ReDoS)",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "parseuri",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: parseuri@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: parse-uri Regular expression Denial of Service (ReDoS)",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update parseuri to 4.8.4. See https://github.com/advisories/GHSA-6fx8-h7jm-663j for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-6fx8-h7jm-663j"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-185"
+      ]
+    },
+    {
+      "id": 1089955,
+      "type": "dependency-cve",
+      "title": "Improper Input Validation in sanitize-html",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "sanitize-html",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: sanitize-html@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Improper Input Validation in sanitize-html",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-mjxr-4v3x-q3m4 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-mjxr-4v3x-q3m4"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-20"
+      ]
+    },
+    {
+      "id": 1090842,
+      "type": "dependency-cve",
+      "title": "Cross-Site Scripting in sanitize-html",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "sanitize-html",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: sanitize-html@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Cross-Site Scripting in sanitize-html",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-3j7m-hmh3-9jmp for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-3j7m-hmh3-9jmp"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-79"
+      ]
+    },
+    {
+      "id": 1091789,
+      "type": "dependency-cve",
+      "title": "Improper Input Validation in sanitize-html",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "sanitize-html",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: sanitize-html@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Improper Input Validation in sanitize-html",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-rjqq-98f6-6j3r for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-rjqq-98f6-6j3r"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-20"
+      ]
+    },
+    {
+      "id": 1093595,
+      "type": "dependency-cve",
+      "title": "Cross-Site Scripting in sanitize-html",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "sanitize-html",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: sanitize-html@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Cross-Site Scripting in sanitize-html",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-xc6g-ggrc-qq4r for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-xc6g-ggrc-qq4r"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-79"
+      ]
+    },
+    {
+      "id": 1097161,
+      "type": "dependency-cve",
+      "title": "Sanitize-html Vulnerable To REDoS Attacks",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "sanitize-html",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: sanitize-html@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Sanitize-html Vulnerable To REDoS Attacks",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-cgfm-xwp7-2cvr for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-cgfm-xwp7-2cvr"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1333"
+      ]
+    },
+    {
+      "id": 1107530,
+      "type": "dependency-cve",
+      "title": "sanitize-html is vulnerable to XSS through incomprehensive sanitization",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "sanitize-html",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: sanitize-html@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: sanitize-html is vulnerable to XSS through incomprehensive sanitization",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-qhxp-v273-g94h for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-qhxp-v273-g94h"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-79"
+      ]
+    },
+    {
+      "id": 1115182,
+      "type": "dependency-cve",
+      "title": "sanitize-html Information Exposure vulnerability",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "sanitize-html",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: sanitize-html@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: sanitize-html Information Exposure vulnerability",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-rm97-x556-q36h for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-rm97-x556-q36h"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-200"
+      ]
+    },
+    {
+      "id": 1164821,
+      "type": "dependency-cve",
+      "title": "ApostropheCMS: Mutation-XSS / allowedTags bypass via literal `</textarea/>` solidus close",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "sanitize-html",
+      "patchedVersions": "2.18.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: sanitize-html@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: ApostropheCMS: Mutation-XSS / allowedTags bypass via literal `</textarea/>` solidus close",
+        "✓ Fix available: upgrade to 2.18.0"
+      ],
+      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-jxwj-j7wr-gfrw for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-jxwj-j7wr-gfrw"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-79"
+      ]
+    },
+    {
+      "id": 1239740,
+      "type": "dependency-cve",
+      "title": "socket.io has an unhandled 'error' event",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "socket.io",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: socket.io@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: socket.io has an unhandled 'error' event",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update socket.io to 4.8.4. See https://github.com/advisories/GHSA-25hc-qcg6-38wj for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-25hc-qcg6-38wj"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-20"
+      ]
+    },
+    {
+      "id": 1100541,
+      "type": "dependency-cve",
+      "title": "Insufficient validation when decoding a Socket.IO packet",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "socket.io-parser",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: socket.io-parser@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Insufficient validation when decoding a Socket.IO packet",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update socket.io-parser to 4.8.4. See https://github.com/advisories/GHSA-cqmj-92xf-r6r9 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-cqmj-92xf-r6r9"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-20"
+      ]
+    },
+    {
+      "id": 1115154,
+      "type": "dependency-cve",
+      "title": "socket.io allows an unbounded number of binary attachments",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "socket.io-parser",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: socket.io-parser@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: socket.io allows an unbounded number of binary attachments",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update socket.io-parser to 4.8.4. See https://github.com/advisories/GHSA-677m-j7p3-52f9 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-677m-j7p3-52f9"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-754"
+      ]
+    },
+    {
+      "id": 1130713,
+      "type": "dependency-cve",
+      "title": "Socket.IO: Zero-attachment Memory Exhaustion",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "socket.io-parser",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: socket.io-parser@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Socket.IO: Zero-attachment Memory Exhaustion",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update socket.io-parser to 4.8.4. See https://github.com/advisories/GHSA-2m8v-j782-fhvr for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-2m8v-j782-fhvr"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-20"
+      ]
+    },
+    {
+      "id": 1112659,
+      "type": "dependency-cve",
+      "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-34x7-hfp2-rc4v for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-34x7-hfp2-rc4v"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1113300,
+      "type": "dependency-cve",
+      "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-8qq5-rm4j-mr97 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-8qq5-rm4j-mr97"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1113375,
+      "type": "dependency-cve",
+      "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-83g3-92jg-28cx for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-83g3-92jg-28cx"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1114200,
+      "type": "dependency-cve",
+      "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-qffp-2rhf-9h96 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-qffp-2rhf-9h96"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1114302,
+      "type": "dependency-cve",
+      "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-9ppj-qmqm-q256 for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-9ppj-qmqm-q256"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1114680,
+      "type": "dependency-cve",
+      "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-r6q2-hw4h-h46w for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-r6q2-hw4h-h46w"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-176"
+      ]
+    },
+    {
+      "id": 1120782,
+      "type": "dependency-cve",
+      "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-vmf3-w455-68vh for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-vmf3-w455-68vh"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-436"
+      ]
+    },
+    {
+      "id": 1123939,
+      "type": "dependency-cve",
+      "title": "node-tar: Process crash via PAX numeric path type confusion",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: node-tar: Process crash via PAX numeric path type confusion",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-w8wr-v893-vjvp for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-w8wr-v893-vjvp"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-704"
+      ]
+    },
+    {
+      "id": 1123940,
+      "type": "dependency-cve",
+      "title": "node-tar: Decompression/parse DoS via unlimited input",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: critical",
+        "✓ Vulnerability: node-tar: Decompression/parse DoS via unlimited input",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-23hp-3jrh-7fpw for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-23hp-3jrh-7fpw"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-770"
+      ]
+    },
+    {
+      "id": 1123941,
+      "type": "dependency-cve",
+      "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: node-tar: Negative tar entry size causes infinite loop in archive replace",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-8x88-c5mf-7j5w for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-8x88-c5mf-7j5w"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-835"
+      ]
+    },
+    {
+      "id": 1123942,
+      "type": "dependency-cve",
+      "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-gvwx-54wh-qm9j for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-gvwx-54wh-qm9j"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-248"
+      ]
+    },
+    {
+      "id": 1145647,
+      "type": "dependency-cve",
+      "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "tar",
+      "patchedVersions": "6.0.1",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: tar@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+        "✓ Fix available: upgrade to 6.0.1"
+      ],
+      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-r292-9mhp-454m for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-r292-9mhp-454m"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": 1119441,
+      "type": "dependency-cve",
+      "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "uuid",
+      "patchedVersions": "3.30.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: uuid@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+        "✓ Fix available: upgrade to 3.30.0"
+      ],
+      "remediation": "Update uuid to 3.30.0. See https://github.com/advisories/GHSA-w5hq-g745-h8pq for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-w5hq-g745-h8pq"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-787"
+      ]
+    },
+    {
+      "id": 1118729,
+      "type": "dependency-cve",
+      "title": "ws affected by a DoS when handling a request with many HTTP headers",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "ws",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: ws@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: ws affected by a DoS when handling a request with many HTTP headers",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update ws to 4.8.4. See https://github.com/advisories/GHSA-3h5v-q93c-6h6q for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-3h5v-q93c-6h6q"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-476"
+      ]
+    },
+    {
+      "id": 1123260,
+      "type": "dependency-cve",
+      "title": "ws: Memory exhaustion DoS from tiny fragments and data chunks",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "ws",
+      "patchedVersions": "4.8.4",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: ws@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: ws: Memory exhaustion DoS from tiny fragments and data chunks",
+        "✓ Fix available: upgrade to 4.8.4"
+      ],
+      "remediation": "Update ws to 4.8.4. See https://github.com/advisories/GHSA-96hv-2xvq-fx4p for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-96hv-2xvq-fx4p"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/iacLeakedKeyChallenge_1.tf-249",
+      "type": "hardcoded-secret",
+      "title": "API Token/Key",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Potential API key or access token detected",
+      "file": "data/static/codefixes/iacLeakedKeyChallenge_1.tf",
+      "line": 249,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/iacLeakedKeyChallenge_2.tf-249",
+      "type": "hardcoded-secret",
+      "title": "API Token/Key",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Potential API key or access token detected",
+      "file": "data/static/codefixes/iacLeakedKeyChallenge_2.tf",
+      "line": 249,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/iacLeakedKeyChallenge_3_correct.tf-249",
+      "type": "hardcoded-secret",
+      "title": "API Token/Key",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Potential API key or access token detected",
+      "file": "data/static/codefixes/iacLeakedKeyChallenge_3_correct.tf",
+      "line": 249,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/loginAdminChallenge_1.ts-18",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/codefixes/loginAdminChallenge_1.ts",
+      "line": 18,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/loginAdminChallenge_2.ts-15",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/codefixes/loginAdminChallenge_2.ts",
+      "line": 15,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/loginBenderChallenge_1.ts-18",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/codefixes/loginBenderChallenge_1.ts",
+      "line": 18,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/loginBenderChallenge_3.ts-15",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/codefixes/loginBenderChallenge_3.ts",
+      "line": 15,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/loginBenderChallenge_4.ts-15",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/codefixes/loginBenderChallenge_4.ts",
+      "line": 15,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/loginJimChallenge_2.ts-15",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/codefixes/loginJimChallenge_2.ts",
+      "line": 15,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/codefixes/loginJimChallenge_4.ts-18",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/codefixes/loginJimChallenge_4.ts",
+      "line": 18,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-3",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 3,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-31",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 31,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-63",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 63,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-88",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 88,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)",
+        "✓ High entropy (4.7) - likely real secret"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-107",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 107,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)",
+        "✓ High entropy (5.4) - likely real secret"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-115",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 115,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)",
+        "✓ High entropy (5.0) - likely real secret"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-123",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 123,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-132",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 132,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-141",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 141,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)",
+        "✓ High entropy (4.9) - likely real secret"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-150",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 150,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)",
+        "✓ High entropy (4.7) - likely real secret"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-159",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 159,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)",
+        "⚠ Low entropy (2.5) - may be test/placeholder"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-168",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 168,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-178",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 178,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-188",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 188,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-197",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 197,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-206",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 206,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "? In or near comment (may be example/documentation)",
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-239",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 239,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)",
+        "✓ High entropy (5.0) - likely real secret"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-245",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 245,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)",
+        "✓ High entropy (4.7) - likely real secret"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-251",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 251,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-261",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 261,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-272",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 272,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-277",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 277,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)",
+        "✓ High entropy (5.9) - likely real secret"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-data/static/users.yml-286",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "data/static/users.yml",
+      "line": 286,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-frontend/src/app/complaint/complaint.component.ts-45",
+      "type": "hardcoded-secret",
+      "title": "API Token/Key",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Potential API key or access token detected",
+      "file": "frontend/src/app/complaint/complaint.component.ts",
+      "line": 45,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-frontend/src/app/login/login.component.ts-63",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "frontend/src/app/login/login.component.ts",
+      "line": 63,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-infrastructure/terraform/networking.tf-171",
+      "type": "hardcoded-secret",
+      "title": "Private Key",
+      "severity": "critical",
+      "confidence": 0.8,
+      "description": "Private cryptographic key detected",
+      "file": "infrastructure/terraform/networking.tf",
+      "line": 171,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-infrastructure/terraform/networking.tf-250",
+      "type": "hardcoded-secret",
+      "title": "API Token/Key",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Potential API key or access token detected",
+      "file": "infrastructure/terraform/networking.tf",
+      "line": 250,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-lib/insecurity.ts-21",
+      "type": "hardcoded-secret",
+      "title": "Private Key",
+      "severity": "critical",
+      "confidence": 0.8,
+      "description": "Private cryptographic key detected",
+      "file": "lib/insecurity.ts",
+      "line": 21,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-routes/login.ts-34",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "routes/login.ts",
+      "line": 34,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "? In or near comment (may be example/documentation)",
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-terraform/networking.tf-171",
+      "type": "hardcoded-secret",
+      "title": "Private Key",
+      "severity": "critical",
+      "confidence": 0.8,
+      "description": "Private cryptographic key detected",
+      "file": "terraform/networking.tf",
+      "line": 171,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "secret-terraform/networking.tf-250",
+      "type": "hardcoded-secret",
+      "title": "API Token/Key",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Potential API key or access token detected",
+      "file": "terraform/networking.tf",
+      "line": 250,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_dbSchemaChallenge_1_ts-5",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL String Concatenation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by concatenating a variable into the query string",
+      "file": "data/static/codefixes/dbSchemaChallenge_1.ts",
+      "line": 5,
+      "snippet": "models.sequelize.query(\"SELECT * FROM Products WHERE ((name LIKE '%\"+criteria+\"%' OR description LIKE '%\"+criteria+\"%') ",
+      "context": [
+        "✓ String concatenation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) read nearby — likely flows into query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query('SELECT * FROM users WHERE id = ?', [userId])  // instead of '... WHERE id = ' + userId. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_dbSchemaChallenge_3_ts-11",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/dbSchemaChallenge_3.ts",
+      "line": 11,
+      "snippet": "models.sequelize.query(`SELECT * FROM Products WHERE ((name LIKE '%${criteria}%' OR description LIKE '%${criteria}%') AN",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) read nearby — likely flows into query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_loginAdminChallenge_1_ts-18",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/loginAdminChallenge_1.ts",
+      "line": 18,
+      "snippet": "models.sequelize.query(`SELECT * FROM Users WHERE email = '${req.body.email || ''}' AND password = '${security.hash(req.",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) used directly in query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_loginAdminChallenge_2_ts-15",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/loginAdminChallenge_2.ts",
+      "line": 15,
+      "snippet": "models.sequelize.query(`SELECT * FROM Users WHERE email = $1 AND password = '${security.hash(req.body.password || '')}' ",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ Query also uses placeholders (partially parameterized)",
+        "✓ User input (req.*) used directly in query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_loginBenderChallenge_1_ts-18",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/loginBenderChallenge_1.ts",
+      "line": 18,
+      "snippet": "models.sequelize.query(`SELECT * FROM Users WHERE email = '${req.body.email || ''}' AND password = '${security.hash(req.",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) used directly in query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_loginBenderChallenge_3_ts-15",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/loginBenderChallenge_3.ts",
+      "line": 15,
+      "snippet": "models.sequelize.query(`SELECT * FROM Users WHERE email = :mail AND password = '${security.hash(req.body.password || '')",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ Query also uses placeholders (partially parameterized)",
+        "✓ User input (req.*) used directly in query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_loginBenderChallenge_4_ts-15",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/loginBenderChallenge_4.ts",
+      "line": 15,
+      "snippet": "models.sequelize.query(`SELECT * FROM Users WHERE email = '${req.body.email || ''}' AND password = '${security.hash(req.",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) used directly in query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_loginJimChallenge_2_ts-15",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/loginJimChallenge_2.ts",
+      "line": 15,
+      "snippet": "models.sequelize.query(`SELECT * FROM Users WHERE email = '${req.body.email || ''}' AND password = '${security.hash(req.",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) used directly in query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_loginJimChallenge_4_ts-18",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/loginJimChallenge_4.ts",
+      "line": 18,
+      "snippet": "models.sequelize.query(`SELECT * FROM Users WHERE email = '${req.body.email || ''}' AND password = '${security.hash(req.",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) used directly in query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_unionSqlInjectionChallenge_1_ts-6",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/unionSqlInjectionChallenge_1.ts",
+      "line": 6,
+      "snippet": "models.sequelize.query(`SELECT * FROM Products WHERE ((name LIKE '%${criteria}%' OR description LIKE '%${criteria}%') AN",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) read nearby — likely flows into query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-data_static_codefixes_unionSqlInjectionChallenge_3_ts-10",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "data/static/codefixes/unionSqlInjectionChallenge_3.ts",
+      "line": 10,
+      "snippet": "models.sequelize.query(`SELECT * FROM Products WHERE ((name LIKE '%${criteria}%' OR description LIKE '%${criteria}%') AN",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) read nearby — likely flows into query",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-routes_login_ts-34",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "critical",
+      "confidence": 0.9,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "routes/login.ts",
+      "line": 34,
+      "snippet": "models.sequelize.query(`SELECT * FROM Users WHERE email = '${req.body.email || ''}' AND password = '${security.hash(req.",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) used directly in query",
+        "⚠ Inside a route handler (reachable over HTTP)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "sqli-routes_search_ts-23",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL Template Literal Interpolation)",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "SQL query built by interpolating a variable into a template literal",
+      "file": "routes/search.ts",
+      "line": 23,
+      "snippet": "models.sequelize.query(`SELECT * FROM Products WHERE ((name LIKE '%${criteria}%' OR description LIKE '%${criteria}%') AN",
+      "context": [
+        "✓ Template literal interpolation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) read nearby — likely flows into query",
+        "⚠ Inside a route handler (reachable over HTTP)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query(`SELECT * FROM users WHERE id = ?`, [userId])  // instead of `... WHERE id = ${userId}`. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "xss-data_static_codefixes_localXssChallenge_1_ts-6",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "data/static/codefixes/localXssChallenge_1.ts",
+      "line": 6,
+      "snippet": "this.searchValue = this.sanitizer.bypassSecurityTrustResourceUrl(queryParam)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ URL / storage value read nearby (attacker-controllable in the browser)",
+        "⚠ Runs in the browser (DOM-based XSS)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-data_static_codefixes_localXssChallenge_3_ts-6",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "data/static/codefixes/localXssChallenge_3.ts",
+      "line": 6,
+      "snippet": "this.searchValue = this.sanitizer.bypassSecurityTrustScript(queryParam)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ URL / storage value read nearby (attacker-controllable in the browser)",
+        "⚠ Runs in the browser (DOM-based XSS)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-data_static_codefixes_localXssChallenge_4_ts-6",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "data/static/codefixes/localXssChallenge_4.ts",
+      "line": 6,
+      "snippet": "this.searchValue = this.sanitizer.bypassSecurityTrustStyle(queryParam)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ URL / storage value read nearby (attacker-controllable in the browser)",
+        "⚠ Runs in the browser (DOM-based XSS)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-data_static_codefixes_restfulXssChallenge_3_ts-46",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "data/static/codefixes/restfulXssChallenge_3.ts",
+      "line": 46,
+      "snippet": "product.description = this.sanitizer.bypassSecurityTrustHtml(product.description)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-data_static_codefixes_restfulXssChallenge_4_ts-46",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "data/static/codefixes/restfulXssChallenge_4.ts",
+      "line": 46,
+      "snippet": "tableData[i].description = this.sanitizer.bypassSecurityTrustScript(tableData[i].description)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-data_static_codefixes_xssBonusChallenge_2_ts-6",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "data/static/codefixes/xssBonusChallenge_2.ts",
+      "line": 6,
+      "snippet": "this.searchValue = this.sanitizer.bypassSecurityTrustResourceUrl(queryParam)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ URL / storage value read nearby (attacker-controllable in the browser)",
+        "⚠ Runs in the browser (DOM-based XSS)",
+        "⚠ Non-executed code snippet (training/fixture file, not run by the app)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_about_about_component_ts-120",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "frontend/src/app/about/about.component.ts",
+      "line": 120,
+      "snippet": "feedbacks[i].comment = this.sanitizer.bypassSecurityTrustHtml(",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_administration_administration_component_ts-74",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "frontend/src/app/administration/administration.component.ts",
+      "line": 74,
+      "snippet": "user.email = this.sanitizer.bypassSecurityTrustHtml(`<span class=\"${this.doesUserHaveAnActiveSession(user) ? 'confirmati",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_administration_administration_component_ts-92",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "frontend/src/app/administration/administration.component.ts",
+      "line": 92,
+      "snippet": "feedback.comment = this.sanitizer.bypassSecurityTrustHtml(feedback.comment)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_data_export_data_export_component_ts-58",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "frontend/src/app/data-export/data-export.component.ts",
+      "line": 58,
+      "snippet": "this.captcha = this.sanitizer.bypassSecurityTrustHtml(data.image)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ URL / storage value read nearby (attacker-controllable in the browser)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_data_export_data_export_component_ts-72",
+      "type": "xss",
+      "title": "Potential XSS (DOM HTML Write)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is parsed as HTML by the browser, so any markup or script in it runs",
+      "file": "frontend/src/app/data-export/data-export.component.ts",
+      "line": 72,
+      "snippet": "window.open('', '_blank', 'width=500')?.document.write(this.userData)",
+      "context": [
+        "✓ Value written into the page as HTML (document.write / insertAdjacentHTML / .html())",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Insert text, not HTML: el.textContent = value  // instead of el.innerHTML = value. If HTML is required, sanitize it first: el.innerHTML = DOMPurify.sanitize(value).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "dom"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_last_login_ip_last_login_ip_component_ts-40",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "frontend/src/app/last-login-ip/last-login-ip.component.ts",
+      "line": 40,
+      "snippet": "this.lastLoginIp = this.sanitizer.bypassSecurityTrustHtml(`<small>${payload.data.lastLoginIp}</small>`)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ URL / storage value read nearby (attacker-controllable in the browser)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_score_board_score_board_component_ts-83",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "frontend/src/app/score-board/score-board.component.ts",
+      "line": 83,
+      "snippet": "description: this.sanitizer.bypassSecurityTrustHtml(challenge.description as string)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_search_result_search_result_component_ts-111",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "frontend/src/app/search-result/search-result.component.ts",
+      "line": 111,
+      "snippet": "tableData[i].description = this.sanitizer.bypassSecurityTrustHtml(tableData[i].description) // vuln-code-snippet vuln-li",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ URL / storage value read nearby (attacker-controllable in the browser)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_search_result_search_result_component_ts-144",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "frontend/src/app/search-result/search-result.component.ts",
+      "line": 144,
+      "snippet": "this.searchValue = this.sanitizer.bypassSecurityTrustHtml(queryParam) // vuln-code-snippet vuln-line localXssChallenge x",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ URL / storage value read nearby (attacker-controllable in the browser)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_app_track_result_track_result_component_ts-49",
+      "type": "xss",
+      "title": "Potential XSS (Angular Sanitizer Bypass)",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "Value is marked as trusted HTML, so Angular renders it without sanitizing",
+      "file": "frontend/src/app/track-result/track-result.component.ts",
+      "line": 49,
+      "snippet": "this.results.orderNo = this.sanitizer.bypassSecurityTrustHtml(`<code>${results.data[0].orderId}</code>`)",
+      "context": [
+        "✓ Angular sanitization explicitly bypassed (bypassSecurityTrust*)",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ URL / storage value read nearby (attacker-controllable in the browser)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Don't mark untrusted data as trusted. Render it as text ({{ value }} in Angular, {value} in React); if it must contain HTML, sanitize it first: sanitizer.bypassSecurityTrustHtml(DOMPurify.sanitize(value)) / dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(value) }}.",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "framework-bypass"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_assets_private_three_js-11375",
+      "type": "xss",
+      "title": "Potential XSS (DOM innerHTML Assignment)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is parsed as HTML by the browser, so any markup or script in it runs",
+      "file": "frontend/src/assets/private/three.js",
+      "line": 11375,
+      "snippet": "this.statusDomElement.innerHTML = message;",
+      "context": [
+        "✓ Value assigned to innerHTML/outerHTML",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Insert text, not HTML: el.textContent = value  // instead of el.innerHTML = value. If HTML is required, sanitize it first: el.innerHTML = DOMPurify.sanitize(value).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "dom"
+      ]
+    },
+    {
+      "id": "xss-frontend_src_hacking_instructor_index_ts-126",
+      "type": "xss",
+      "title": "Potential XSS (DOM innerHTML Assignment)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is parsed as HTML by the browser, so any markup or script in it runs",
+      "file": "frontend/src/hacking-instructor/index.ts",
+      "line": 126,
+      "snippet": "textBox.innerHTML = snarkdown(hint.text)",
+      "context": [
+        "✓ Value assigned to innerHTML/outerHTML",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Insert text, not HTML: el.textContent = value  // instead of el.innerHTML = value. If HTML is required, sanitize it first: el.innerHTML = DOMPurify.sanitize(value).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "dom"
+      ]
+    },
+    {
+      "id": "xss-routes_videoHandler_ts-72",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "routes/videoHandler.ts",
+      "line": 72,
+      "snippet": "res.send(compiledTemplate)",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "? Endpoint access level unclear (check routes)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    }
+  ],
+  "coverage": {
+    "checked": [
+      "Dependency CVEs",
+      "Hardcoded Secrets",
+      "SQL Injection Patterns",
+      "XSS Vulnerabilities"
+    ],
+    "checkedCount": 4,
+    "notYetChecked": [
+      "Insecure Crypto Usage",
+      "CORS Misconfiguration",
+      "Async Footguns",
+      "Permission Creep",
+      "Logging PII"
+    ],
+    "findingsByType": {
+      "dependency-cve": 65,
+      "hardcoded-secret": 41,
+      "sql-injection": 13,
+      "xss": 19,
+      "crypto-misuse": 0,
+      "async-footgun": 0
+    }
+  },
+  "summary": {
+    "total": 138,
+    "critical": 12,
+    "high": 72,
+    "medium": 35,
+    "low": 19,
+    "info": 0
+  },
+  "source": {
+    "repo": "https://github.com/juice-shop/juice-shop",
+    "commit": "1618a61"
+  }
+}

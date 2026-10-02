@@ -1,0 +1,349 @@
+{
+  "timestamp": "2026-10-02T20:35:00.752Z",
+  "targetPath": "dvna",
+  "findings": [
+    {
+      "id": "sqli-core_appHandler_js-10",
+      "type": "sql-injection",
+      "title": "Potential SQL Injection (SQL String Concatenation)",
+      "severity": "critical",
+      "confidence": 0.9,
+      "description": "SQL query built by concatenating a variable into the query string",
+      "file": "core/appHandler.js",
+      "line": 10,
+      "snippet": "var query = \"SELECT name,id FROM Users WHERE login='\" + req.body.login + \"'\";",
+      "context": [
+        "✓ String concatenation in SQL query detected",
+        "⚠ No parameterized query visible",
+        "✓ User input (req.*) used directly in query",
+        "⚠ Inside a route handler (reachable over HTTP)"
+      ],
+      "remediation": "Use a parameterized query so the driver handles escaping: db.query('SELECT * FROM users WHERE id = ?', [userId])  // instead of '... WHERE id = ' + userId. For dynamic identifiers (table/column names), validate against an allowlist.",
+      "references": [
+        "https://owasp.org/www-community/attacks/SQL_Injection",
+        "https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "injection",
+        "sql",
+        "copy-paste-vulnerable"
+      ]
+    },
+    {
+      "id": "xss-views_app_adminusers_ejs-40",
+      "type": "xss",
+      "title": "Potential XSS (DOM innerHTML Assignment)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is parsed as HTML by the browser, so any markup or script in it runs",
+      "file": "views/app/adminusers.ejs",
+      "line": 40,
+      "snippet": "c_id.innerHTML = users[i].id;",
+      "context": [
+        "✓ Value assigned to innerHTML/outerHTML",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Insert text, not HTML: el.textContent = value  // instead of el.innerHTML = value. If HTML is required, sanitize it first: el.innerHTML = DOMPurify.sanitize(value).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "dom"
+      ]
+    },
+    {
+      "id": "xss-views_app_adminusers_ejs-41",
+      "type": "xss",
+      "title": "Potential XSS (DOM innerHTML Assignment)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is parsed as HTML by the browser, so any markup or script in it runs",
+      "file": "views/app/adminusers.ejs",
+      "line": 41,
+      "snippet": "c_name.innerHTML = users[i].name;",
+      "context": [
+        "✓ Value assigned to innerHTML/outerHTML",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Insert text, not HTML: el.textContent = value  // instead of el.innerHTML = value. If HTML is required, sanitize it first: el.innerHTML = DOMPurify.sanitize(value).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "dom"
+      ]
+    },
+    {
+      "id": "xss-views_app_adminusers_ejs-42",
+      "type": "xss",
+      "title": "Potential XSS (DOM innerHTML Assignment)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is parsed as HTML by the browser, so any markup or script in it runs",
+      "file": "views/app/adminusers.ejs",
+      "line": 42,
+      "snippet": "c_email.innerHTML = users[i].email;",
+      "context": [
+        "✓ Value assigned to innerHTML/outerHTML",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Insert text, not HTML: el.textContent = value  // instead of el.innerHTML = value. If HTML is required, sanitize it first: el.innerHTML = DOMPurify.sanitize(value).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "dom"
+      ]
+    },
+    {
+      "id": "xss-views_app_products_ejs-20",
+      "type": "xss",
+      "title": "Potential XSS (Unescaped Template Output)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Template renders the value as raw HTML instead of escaping it",
+      "file": "views/app/products.ejs",
+      "line": 20,
+      "snippet": "Listing products with <strong>search query: </strong> <%- output.searchTerm %>",
+      "context": [
+        "✓ Template outputs a value without HTML escaping",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "? Template — check which route renders it and with what data"
+      ],
+      "remediation": "Use the escaping form of the template tag: <%= value %> instead of <%- value %> (EJS), {{ value }} instead of {{{ value }}} (Handlebars), #{value} instead of !{value} (Pug), {{ value }} instead of v-html (Vue).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "template"
+      ]
+    },
+    {
+      "id": "xss-views_app_products_ejs-49",
+      "type": "xss",
+      "title": "Potential XSS (Unescaped Template Output)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Template renders the value as raw HTML instead of escaping it",
+      "file": "views/app/products.ejs",
+      "line": 49,
+      "snippet": "<td><%- output.products[i].id %></td>",
+      "context": [
+        "✓ Template outputs a value without HTML escaping",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "? Template — check which route renders it and with what data"
+      ],
+      "remediation": "Use the escaping form of the template tag: <%= value %> instead of <%- value %> (EJS), {{ value }} instead of {{{ value }}} (Handlebars), #{value} instead of !{value} (Pug), {{ value }} instead of v-html (Vue).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "template"
+      ]
+    },
+    {
+      "id": "xss-views_app_products_ejs-50",
+      "type": "xss",
+      "title": "Potential XSS (Unescaped Template Output)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Template renders the value as raw HTML instead of escaping it",
+      "file": "views/app/products.ejs",
+      "line": 50,
+      "snippet": "<td><%- output.products[i].name %></td>",
+      "context": [
+        "✓ Template outputs a value without HTML escaping",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "? Template — check which route renders it and with what data"
+      ],
+      "remediation": "Use the escaping form of the template tag: <%= value %> instead of <%- value %> (EJS), {{ value }} instead of {{{ value }}} (Handlebars), #{value} instead of !{value} (Pug), {{ value }} instead of v-html (Vue).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "template"
+      ]
+    },
+    {
+      "id": "xss-views_app_products_ejs-51",
+      "type": "xss",
+      "title": "Potential XSS (Unescaped Template Output)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Template renders the value as raw HTML instead of escaping it",
+      "file": "views/app/products.ejs",
+      "line": 51,
+      "snippet": "<td><%- output.products[i].code %></td>",
+      "context": [
+        "✓ Template outputs a value without HTML escaping",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "? Template — check which route renders it and with what data"
+      ],
+      "remediation": "Use the escaping form of the template tag: <%= value %> instead of <%- value %> (EJS), {{ value }} instead of {{{ value }}} (Handlebars), #{value} instead of !{value} (Pug), {{ value }} instead of v-html (Vue).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "template"
+      ]
+    },
+    {
+      "id": "xss-views_app_products_ejs-52",
+      "type": "xss",
+      "title": "Potential XSS (Unescaped Template Output)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Template renders the value as raw HTML instead of escaping it",
+      "file": "views/app/products.ejs",
+      "line": 52,
+      "snippet": "<td><%- output.products[i].tags %></td>",
+      "context": [
+        "✓ Template outputs a value without HTML escaping",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "? Template — check which route renders it and with what data"
+      ],
+      "remediation": "Use the escaping form of the template tag: <%= value %> instead of <%- value %> (EJS), {{ value }} instead of {{{ value }}} (Handlebars), #{value} instead of !{value} (Pug), {{ value }} instead of v-html (Vue).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "template"
+      ]
+    },
+    {
+      "id": "xss-views_app_products_ejs-53",
+      "type": "xss",
+      "title": "Potential XSS (Unescaped Template Output)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Template renders the value as raw HTML instead of escaping it",
+      "file": "views/app/products.ejs",
+      "line": 53,
+      "snippet": "<td><%- output.products[i].description %></td>",
+      "context": [
+        "✓ Template outputs a value without HTML escaping",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "? Template — check which route renders it and with what data"
+      ],
+      "remediation": "Use the escaping form of the template tag: <%= value %> instead of <%- value %> (EJS), {{ value }} instead of {{{ value }}} (Handlebars), #{value} instead of !{value} (Pug), {{ value }} instead of v-html (Vue).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "template"
+      ]
+    },
+    {
+      "id": "xss-views_common_footer_ejs-7",
+      "type": "xss",
+      "title": "Potential XSS (DOM HTML Write)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Value is parsed as HTML by the browser, so any markup or script in it runs",
+      "file": "views/common/footer.ejs",
+      "line": 7,
+      "snippet": "$(val).html(converter.makeHtml(txt));",
+      "context": [
+        "✓ Value written into the page as HTML (document.write / insertAdjacentHTML / .html())",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)"
+      ],
+      "remediation": "Insert text, not HTML: el.textContent = value  // instead of el.innerHTML = value. If HTML is required, sanitize it first: el.innerHTML = DOMPurify.sanitize(value).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "dom"
+      ]
+    }
+  ],
+  "coverage": {
+    "checked": [
+      "Dependency CVEs",
+      "Hardcoded Secrets",
+      "SQL Injection Patterns",
+      "XSS Vulnerabilities"
+    ],
+    "checkedCount": 4,
+    "notYetChecked": [
+      "Insecure Crypto Usage",
+      "CORS Misconfiguration",
+      "Async Footguns",
+      "Permission Creep",
+      "Logging PII"
+    ],
+    "findingsByType": {
+      "dependency-cve": 0,
+      "hardcoded-secret": 0,
+      "sql-injection": 1,
+      "xss": 10,
+      "crypto-misuse": 0,
+      "async-footgun": 0
+    }
+  },
+  "summary": {
+    "total": 11,
+    "critical": 1,
+    "high": 0,
+    "medium": 10,
+    "low": 0,
+    "info": 0
+  },
+  "source": {
+    "repo": "https://github.com/appsecco/dvna",
+    "commit": "9ba473a"
+  }
+}

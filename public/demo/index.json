@@ -1,0 +1,31 @@
+{
+  "scans": [
+    {
+      "id": "juice-shop",
+      "label": "OWASP Juice Shop",
+      "description": "Intentionally vulnerable Angular + Express shop",
+      "file": "juice-shop.json",
+      "repo": "https://github.com/juice-shop/juice-shop",
+      "commit": "1618a61",
+      "total": 138
+    },
+    {
+      "id": "dvna",
+      "label": "DVNA",
+      "description": "Damn Vulnerable Node Application",
+      "file": "dvna.json",
+      "repo": "https://github.com/appsecco/dvna",
+      "commit": "9ba473a",
+      "total": 11
+    },
+    {
+      "id": "express",
+      "label": "Express",
+      "description": "Popular web framework: real dependency CVEs, no SQL",
+      "file": "express.json",
+      "repo": "https://github.com/expressjs/express",
+      "commit": "7ef9844",
+      "total": 59
+    }
+  ]
+}

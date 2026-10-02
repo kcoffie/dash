@@ -1,0 +1,1740 @@
+{
+  "timestamp": "2026-10-02T20:35:01.574Z",
+  "targetPath": "express",
+  "findings": [
+    {
+      "id": 1112706,
+      "type": "dependency-cve",
+      "title": "jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "diff",
+      "patchedVersions": "12.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: diff@undefined",
+        "⚠ Severity: low",
+        "✓ Vulnerability: jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch",
+        "✓ Fix available: upgrade to 12.0.3"
+      ],
+      "remediation": "Update diff to 12.0.3. See https://github.com/advisories/GHSA-73rr-hh4g-fpgx for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-73rr-hh4g-fpgx"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": 1113686,
+      "type": "dependency-cve",
+      "title": "Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString()",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "serialize-javascript",
+      "patchedVersions": "12.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: serialize-javascript@undefined",
+        "⚠ Severity: high",
+        "✓ Vulnerability: Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString()",
+        "✓ Fix available: upgrade to 12.0.3"
+      ],
+      "remediation": "Update serialize-javascript to 12.0.3. See https://github.com/advisories/GHSA-5c6j-r48x-rmvq for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-5c6j-r48x-rmvq"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-96"
+      ]
+    },
+    {
+      "id": 1119440,
+      "type": "dependency-cve",
+      "title": "Serialize JavaScript has CPU Exhaustion Denial of Service via crafted array-like objects",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "serialize-javascript",
+      "patchedVersions": "12.0.3",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: serialize-javascript@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: Serialize JavaScript has CPU Exhaustion Denial of Service via crafted array-like objects",
+        "✓ Fix available: upgrade to 12.0.3"
+      ],
+      "remediation": "Update serialize-javascript to 12.0.3. See https://github.com/advisories/GHSA-qj8w-gfj5-8c6v for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-qj8w-gfj5-8c6v"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": 1119441,
+      "type": "dependency-cve",
+      "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Known vulnerability in dependency",
+      "package": "uuid",
+      "patchedVersions": "18.0.0",
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ Vulnerable dependency detected: uuid@undefined",
+        "⚠ Severity: moderate",
+        "✓ Vulnerability: uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+        "✓ Fix available: upgrade to 18.0.0"
+      ],
+      "remediation": "Update uuid to 18.0.0. See https://github.com/advisories/GHSA-w5hq-g745-h8pq for details.",
+      "references": [
+        "https://github.com/advisories/GHSA-w5hq-g745-h8pq"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-787"
+      ]
+    },
+    {
+      "id": "secret-examples/auth/index.js-50",
+      "type": "hardcoded-secret",
+      "title": "Database Password",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "Database password in configuration detected",
+      "file": "examples/auth/index.js",
+      "line": 50,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "⚠ Matches common test password pattern (likely fake)",
+        "✓ Active code (not in comment)"
+      ],
+      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "references": [
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "critical",
+        "secrets-detection"
+      ]
+    },
+    {
+      "id": "xss-examples_auth_views_login_ejs-5",
+      "type": "xss",
+      "title": "Potential XSS (Unescaped Template Output)",
+      "severity": "low",
+      "confidence": 0.45,
+      "description": "Template renders the value as raw HTML instead of escaping it",
+      "file": "examples/auth/views/login.ejs",
+      "line": 5,
+      "snippet": "<%- message %>",
+      "context": [
+        "✓ Template outputs a value without HTML escaping",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "? Template — check which route renders it and with what data",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Use the escaping form of the template tag: <%= value %> instead of <%- value %> (EJS), {{ value }} instead of {{{ value }}} (Handlebars), #{value} instead of !{value} (Pug), {{ value }} instead of v-html (Vue).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "template"
+      ]
+    },
+    {
+      "id": "xss-examples_content_negotiation_index_js-12",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.5,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/content-negotiation/index.js",
+      "line": 12,
+      "snippet": "res.send('<ul>' + users.map(function(user){",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_content_negotiation_users_js-6",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.5,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/content-negotiation/users.js",
+      "line": 6,
+      "snippet": "res.send('<ul>' + users.map(function(user){",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_cookies_index_js-28",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.65,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/cookies/index.js",
+      "line": 28,
+      "snippet": "res.send('<form method=\"post\"><p>Check to <label>' + '<input type=\"checkbox\" name=\"remember\"/> remember me</label> ' + '",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) read nearby — likely flows into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_downloads_index_js-16",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.5,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/downloads/index.js",
+      "line": 16,
+      "snippet": "res.send('<ul>' + '<li>Download <a href=\"/files/notes/groceries.txt\">notes/groceries.txt</a>.</li>' + '<li>Download <a h",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_online_index_js-53",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.5,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/online/index.js",
+      "line": 53,
+      "snippet": "res.send('<p>Users online: ' + ids.length + '</p>' + list(ids));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_resource_index_js-46",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/resource/index.js",
+      "line": 46,
+      "snippet": "res.send(users[req.params.id] || { error: 'Cannot find user' });",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_resource_index_js-64",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.5,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/resource/index.js",
+      "line": 64,
+      "snippet": "res.send(html);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_route_map_index_js-37",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/route-map/index.js",
+      "line": 37,
+      "snippet": "res.send('user ' + escapeHtml(req.params.uid))",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ Value passes through an encoder/sanitizer (may be mitigated)",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_route_map_index_js-47",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/route-map/index.js",
+      "line": 47,
+      "snippet": "res.send('user ' + escapeHtml(req.params.uid) + '\\'s pets')",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ Value passes through an encoder/sanitizer (may be mitigated)",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_route_map_index_js-51",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/route-map/index.js",
+      "line": 51,
+      "snippet": "res.send('delete ' + escapeHtml(req.params.uid) + '\\'s pet ' + escapeHtml(req.params.pid))",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ Value passes through an encoder/sanitizer (may be mitigated)",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_session_index_js-30",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.5,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/session/index.js",
+      "line": 30,
+      "snippet": "res.send(body + '<p>viewed <strong>' + req.session.views + '</strong> times.</p>');",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_session_redis_js-35",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.5,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/session/redis.js",
+      "line": 35,
+      "snippet": "res.send(body + '<p>viewed <strong>' + req.session.views + '</strong> times.</p>');",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-examples_vhost_index_js-30",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "examples/vhost/index.js",
+      "line": 30,
+      "snippet": "res.send('requested ' + req.params.sub);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_param_js-128",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.param.js",
+      "line": 128,
+      "snippet": "res.send(req.params.user);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_param_js-149",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.param.js",
+      "line": 149,
+      "snippet": "res.send(req.params.user);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_route_js-47",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.route.js",
+      "line": 47,
+      "snippet": "res.send(req.params.foo);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-22",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 22,
+      "snippet": "res.send(req.params.id);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-99",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 99,
+      "snippet": "res.send(req.params.name);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-111",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 111,
+      "snippet": "res.send(req.params.name);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-123",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 123,
+      "snippet": "res.send(req.params.name);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-135",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 135,
+      "snippet": "res.send(req.params.name);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-293",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 293,
+      "snippet": "res.send(req.params);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-309",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 309,
+      "snippet": "res.send(keys.map(function (k) { return [k, req.params[k]] }));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-325",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 325,
+      "snippet": "res.send(keys.map(function (k) { return [k, req.params[k]] }));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-341",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 341,
+      "snippet": "res.send(keys.map(function (k) { return [k, req.params[k]] }));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-357",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 357,
+      "snippet": "res.send(keys.map(function (k) { return [k, req.params[k]] }));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-373",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 373,
+      "snippet": "res.send(keys.map(function (k) { return [k, req.params[k]] }));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-389",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 389,
+      "snippet": "res.send(keys.map(function (k) { return [k, req.params[k]] }));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-413",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 413,
+      "snippet": "res.send(keys.map(function (k) { return [k, req.params[k]] }));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-597",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 597,
+      "snippet": "res.end(req.params.user);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-609",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 609,
+      "snippet": "res.end(req.params.user);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-621",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 621,
+      "snippet": "res.end(req.params.op + 'ing ' + req.params.user);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-634",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 634,
+      "snippet": "res.end(req.params.op + 'ing ' + req.params.user + (req.url.startsWith('/users') ? ' (old)' : ''));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-650",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 650,
+      "snippet": "res.end(req.params.op + 'ing ' + req.params.user);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-663",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 663,
+      "snippet": "res.end('poking ' + req.params.user);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-682",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 682,
+      "snippet": "res.end(op + 'ing ' + req.params.user);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-695",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 695,
+      "snippet": "res.end(op + 'ing ' + req.params.user);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-709",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 709,
+      "snippet": "res.end(req.params.user[0])",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-721",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 721,
+      "snippet": "res.end(req.params.user.join('/'))",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-733",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 733,
+      "snippet": "res.end(req.params.user)",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-747",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 747,
+      "snippet": "res.end(req.params.user[0])",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-759",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 759,
+      "snippet": "res.end(req.params.user.join('/'))",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-771",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 771,
+      "snippet": "res.end(req.params.user)",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-786",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 786,
+      "snippet": "res.end(req.params.name + ' as ' + req.params.format);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-805",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 805,
+      "snippet": "res.end(req.params.name + ' as ' + (req.params.format || 'html'));",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_app_router_js-1107",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/app.router.js",
+      "line": 1107,
+      "snippet": "res.send('editing user ' + req.params.id);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_express_json_js-730",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/express.json.js",
+      "line": 730,
+      "snippet": "res.send(String(req.headers['x-error-property']",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_express_raw_js-499",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/express.raw.js",
+      "line": 499,
+      "snippet": "res.send(String(req.headers['x-error-property']",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_express_text_js-556",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/express.text.js",
+      "line": 556,
+      "snippet": "res.send(String(req.headers['x-error-property']",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_express_urlencoded_js-812",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/express.urlencoded.js",
+      "line": 812,
+      "snippet": "res.send(String(req.headers['x-error-property']",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_req_query_js-102",
+      "type": "xss",
+      "title": "Potential XSS (HTML Response from Variable)",
+      "severity": "low",
+      "confidence": 0.75,
+      "description": "HTML response built from a variable without encoding it first",
+      "file": "test/req.query.js",
+      "line": 102,
+      "snippet": "res.send(req.query);",
+      "context": [
+        "✓ Dynamic HTML sent in an HTTP response",
+        "⚠ No HTML encoding or sanitization visible",
+        "✓ User input (req.*) flows directly into the HTML",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Encode before building HTML: res.send(`<p>${escapeHtml(name)}</p>`)  // instead of '<p>' + name + '</p>'. Better: render through an auto-escaping template (res.render) or return data with res.json().",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "response"
+      ]
+    },
+    {
+      "id": "xss-test_res_redirect_js-115",
+      "type": "xss",
+      "title": "Potential XSS (DOM innerHTML Assignment)",
+      "severity": "low",
+      "confidence": 0.5,
+      "description": "Value is parsed as HTML by the browser, so any markup or script in it runs",
+      "file": "test/res.redirect.js",
+      "line": 115,
+      "snippet": "var xss = 'javascript:eval(document.body.innerHTML=`<p>XSS</p>`);';",
+      "context": [
+        "✓ Value assigned to innerHTML/outerHTML",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Inside a route handler (reachable over HTTP)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Insert text, not HTML: el.textContent = value  // instead of el.innerHTML = value. If HTML is required, sanitize it first: el.innerHTML = DOMPurify.sanitize(value).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "dom"
+      ]
+    },
+    {
+      "id": "xss-test_res_redirect_js-116",
+      "type": "xss",
+      "title": "Potential XSS (DOM innerHTML Assignment)",
+      "severity": "low",
+      "confidence": 0.45,
+      "description": "Value is parsed as HTML by the browser, so any markup or script in it runs",
+      "file": "test/res.redirect.js",
+      "line": 116,
+      "snippet": "var encodedXss = 'javascript:eval(document.body.innerHTML=%60%3Cp%3EXSS%3C/p%3E%60);';",
+      "context": [
+        "✓ Value assigned to innerHTML/outerHTML",
+        "⚠ No HTML encoding or sanitization visible",
+        "? Value source unclear (API or database data → possible stored XSS)",
+        "⚠ Runs in the browser (DOM-based XSS)",
+        "⚠ In test/example file (lower real-world risk)"
+      ],
+      "remediation": "Insert text, not HTML: el.textContent = value  // instead of el.innerHTML = value. If HTML is required, sanitize it first: el.innerHTML = DOMPurify.sanitize(value).",
+      "references": [
+        "https://owasp.org/www-community/attacks/xss/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/DOM_based_XSS_Prevention_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "xss",
+        "injection",
+        "dom"
+      ]
+    }
+  ],
+  "coverage": {
+    "checked": [
+      "Dependency CVEs",
+      "Hardcoded Secrets",
+      "SQL Injection Patterns",
+      "XSS Vulnerabilities"
+    ],
+    "checkedCount": 4,
+    "notYetChecked": [
+      "Insecure Crypto Usage",
+      "CORS Misconfiguration",
+      "Async Footguns",
+      "Permission Creep",
+      "Logging PII"
+    ],
+    "findingsByType": {
+      "dependency-cve": 4,
+      "hardcoded-secret": 1,
+      "sql-injection": 0,
+      "xss": 54,
+      "crypto-misuse": 0,
+      "async-footgun": 0
+    }
+  },
+  "summary": {
+    "total": 59,
+    "critical": 0,
+    "high": 2,
+    "medium": 2,
+    "low": 55,
+    "info": 0
+  },
+  "source": {
+    "repo": "https://github.com/expressjs/express",
+    "commit": "7ef9844"
+  }
+}
