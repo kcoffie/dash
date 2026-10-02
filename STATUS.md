@@ -1,7 +1,7 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-02  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) → Vercel import (user) → Task #7 docs
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · repo secret scanning on → **Vercel import (user)** → Task #7 docs
 
 ---
 

@@ -1,16 +1,16 @@
 # Project Handoff — Security Audit Platform
 
-**Last updated:** 2026-10-02 (session 5)
-**Branch:** `main` @ `c93d38f` has everything through PR #10 (demo data + picker). Small docs PR #11 (`docs/secret-scanning-note`) is open.
-**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · Deploy prep ✅ (PR #10) · repo public, `main` protected
-**Next step:** the **user** imports the repo in Vercel (needs their login; steps in START HERE step 5). Then check the live site, add the URL to README/STATUS, and start Task #7 (README screenshots, talking points).
+**Last updated:** 2026-10-02 (end of session 5)
+**Branch:** `main` @ `a7143e1` has everything through PR #11. This wrap-up is PR #12 (`docs/session-5-wrap`, docs only); if it's still open, the user merges it. No other branches.
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · Deploy prep ✅ (PR #10: demo data + picker) · repo public, `main` protected, **repo secret scanning + push protection on** (user enabled them at the end of session 5)
+**Next step:** **Vercel import (user's login).** Ask the user whether it's done and for the URL. If it isn't done, walk them through START HERE step 5. Once there's a URL, verify the live site, put the URL in README/STATUS, then Task #7 (README screenshots, talking points).
 
 ---
 
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
-The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). Dashboard polish (dark mode, findings-by-type chart, phone layout) is in PR #9. CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
+The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). Dashboard polish (dark mode, findings-by-type chart, phone layout) is merged (PR #9). Demo data for all three scan targets (redacted) plus a "Demo scan" picker is merged (PR #10), so a static deploy has something to show. **The only thing between here and a live URL is the user importing the repo in Vercel.** CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
 
 ### Do these, in order
 1. **Setup** (if a PR is still open, check with the user before starting new work)
@@ -31,7 +31,12 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    Scanner counts (run from a scratch dir — `index.js` writes `scanner-output.json` to the cwd):
    Juice Shop 13 SQLi / 19 XSS / 138 total · DVNA 1 SQLi / 10 XSS · Express 0 SQLi / 54 XSS (all low).
 3. **See the dashboard**: from the repo root, `npm run scan /tmp/juice-shop` (writes the gitignored `scanner-output.json` the dev server serves), then `npm run dev` → http://localhost:5173. Without a local report, the dashboard opens the committed Juice Shop demo. The "Demo scan" picker switches demos; "Load scan file…" loads any other report.
-4. **Task #5: Dashboard Polish**: ✅ merged (PR #9). Don't merge PRs yourself; the user does.
+4. **Check secret scanning** (enabled by the user at the end of session 5; the first scan of history can take a while):
+   ```bash
+   gh api repos/kcoffie/dash --jq .security_and_analysis        # secret_scanning + push_protection: enabled
+   gh api repos/kcoffie/dash/secret-scanning/alerts --jq 'length' # was 0 at end of session 5
+   ```
+   If alerts show up, list them (`--jq '.[] | {number, secret_type_display_name, state, path: .first_location_detected.path}'`) and tell the user before doing anything. They're most likely the fake keys in test fixtures (`src/scanner/__tests__/hardcoded-secrets.test.js` uses AWS's documented example key). The demo files were checked and contain no key formats. Don't dismiss alerts yourself; that's the user's call.
 5. **Week 3: Deploy (Task #6)**. Demo data and picker are merged (PR #10; user's decision: all three scans). What's left needs the **user's** Vercel login, so don't try it yourself:
    - vercel.com → Add New → Project → import `kcoffie/dash`. Vite is auto-detected (build `npm run build`, output `dist`); no `vercel.json` or env vars needed.
    - Production branch `main`; each merge then redeploys, and PRs get preview URLs.
@@ -62,13 +67,15 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 
 ## What We Did in Session 5 (2026-10-02)
 
+- **Session 5 in one line:** Task #5 (dashboard polish) shipped, all docs brought up to date, Task #6 deploy prep shipped (redacted demo data for three scans + picker). The user turned on repo secret scanning. PRs #9, #10, #11 were merged by the user; #12 is this wrap-up.
 - ✅ Baseline matched session 4 exactly (tests, build, Juice Shop 13 SQLi / 19 XSS / 138, DVNA 1 / 10, Express 0 / 54).
-- 🟡 **Dashboard Polish (Task #5, PR #9, awaiting merge)** on `feature/dashboard-polish`:
+- ✅ **Dashboard Polish (Task #5, PR #9, merged by the user)**:
   - **Dark mode** following the system preference, all components, contrast measured in-browser.
   - **Findings-by-type chart** (`TypeChart.jsx`, plain HTML/CSS) — one bar per type, segmented by severity, legend + totals, hover/focus tooltip, click to filter. Chose stacked bars over the planned pie: the cards already give severity totals, and bars compare better.
   - **Phone layout** — empty Info card hidden (2×2 grid), 3+2 when all five show; severity/type selects side by side; file name no longer breaks mid-word.
   - Tests: `severityByType`, `summarySeverities` (12/12; both checked to fail against broken code).
   - Verified in Chrome on a Juice Shop scan: light + dark × desktop + 390px, no horizontal scroll, keyboard focus shows tooltips.
+- ✅ PR #11 (docs): corrected the secret-scanning note. It had been pushed to `feature/deploy` after #10 merged, so it was carried over on a new branch. **Lesson: run `gh pr view <n> --json state` before pushing more to a PR branch.**
 - ✅ STATUS.md Overall Progress corrected (said 65% for Phase 1; by tasks it was ~48% before this PR, 62% once it merges).
 - ✅ Docs refresh (in PR #9): PRD, DESIGN, README, CONTRIBUTING, STATUS, TPM_STRATEGY, FUTURE_IDEAS now match the build. **PR #9 merged** by the user.
 - ✅ **Deploy prep (Task #6, PR #10, merged by the user)**:
@@ -76,7 +83,7 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
   - `toDemoReport()` (`src/scanner/demo-export.js`) redacts secret snippets and ids, replaces the `/tmp` path with the repo name, records `source: { repo, commit }`, and throws on leftover key formats. 5 tests, each mutation-checked.
   - `npm run demo:export` → `public/demo/{juice-shop,dvna,express}.json` + `index.json` (≈235 KB). Committed at juice-shop `1618a61`, dvna `9ba473a`, express `7ef9844`. Checked by hand for local paths, personal info, and key formats before committing.
   - Dashboard: a "Demo scan" picker; deployed builds open Juice Shop. Verified in a `vite preview` build for the deploy case, the local-report case, no manifest, and nothing at all, plus 390px.
-  - GitHub settings: the user's **account-level "Push protection for yourself" is on**, so pushes the user makes to public repos are blocked if they contain secrets GitHub recognizes (the demo-data push passed it). **Repo-level** secret scanning (alerts across all history) and repo push protection are **off** (`gh api repos/kcoffie/dash --jq .security_and_analysis`). Suggested to the user: turn on repo-level secret scanning in the repo's Settings → Advanced Security. The user decides; don't change repo settings.
+  - GitHub settings: the user's account-level "Push protection for yourself" was already on. After PR #11, the user also turned on **repo-level secret scanning + push protection** for `dash` (verified via the API; 0 alerts at end of session). Validity checks and non-provider patterns are still off.
 
 ## What We Did in Session 4 (2026-10-01)
 
