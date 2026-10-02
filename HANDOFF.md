@@ -76,7 +76,7 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
   - `toDemoReport()` (`src/scanner/demo-export.js`) redacts secret snippets and ids, replaces the `/tmp` path with the repo name, records `source: { repo, commit }`, and throws on leftover key formats. 5 tests, each mutation-checked.
   - `npm run demo:export` → `public/demo/{juice-shop,dvna,express}.json` + `index.json` (≈235 KB). Committed at juice-shop `1618a61`, dvna `9ba473a`, express `7ef9844`. Checked by hand for local paths, personal info, and key formats before committing.
   - Dashboard: a "Demo scan" picker; deployed builds open Juice Shop. Verified in a `vite preview` build for the deploy case, the local-report case, no manifest, and nothing at all, plus 390px.
-  - GitHub secret scanning is **disabled** on this repo (the API says so), so the exporter's own check is the only guard. Suggested to the user: enable secret scanning + push protection (Settings → Code security). The user decides; don't change repo settings.
+  - GitHub settings: the user's **account-level "Push protection for yourself" is on**, so pushes the user makes to public repos are blocked if they contain secrets GitHub recognizes (the demo-data push passed it). **Repo-level** secret scanning (alerts across all history) and repo push protection are **off** (`gh api repos/kcoffie/dash --jq .security_and_analysis`). Suggested to the user: turn on repo-level secret scanning in the repo's Settings → Advanced Security. The user decides; don't change repo settings.
 
 ## What We Did in Session 4 (2026-10-01)
 
