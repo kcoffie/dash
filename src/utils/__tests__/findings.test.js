@@ -1,5 +1,5 @@
 import {
-  filterFindings, sortFindings, countBySeverity, countByType, severityByType, parseFactor, normalizeReport, findingKey, location, isSafeUrl,
+  filterFindings, sortFindings, countBySeverity, countByType, severityByType, summarySeverities, parseFactor, normalizeReport, findingKey, location, isSafeUrl,
 } from '../findings.js';
 
 function report(name, passed, detail = '') {
@@ -76,6 +76,18 @@ function testSeverityByType() {
   );
 }
 
+function testSummarySeverities() {
+  const empty = { critical: 0, high: 2, medium: 0, low: 1, info: 0 };
+  const hidden = summarySeverities(empty).join();
+  const selected = summarySeverities(empty, 'info').join();
+  const present = summarySeverities({ ...empty, info: 3 }).join();
+  return report(
+    'Summary cards hide an empty Info card unless it is selected; other zero cards stay',
+    hidden === 'critical,high,medium,low' && selected === 'critical,high,medium,low,info' && present === selected,
+    JSON.stringify({ hidden, selected, present }),
+  );
+}
+
 function testParseFactor() {
   const parsed = ['✓ User input used', '⚠ No parameterized query', '? Endpoint unclear', 'plain'].map(parseFactor);
   return report(
@@ -118,6 +130,7 @@ const results = [
   testSortDoesNotMutate(),
   testCounts(),
   testSeverityByType(),
+  testSummarySeverities(),
   testParseFactor(),
   testKeysUniqueWithDuplicateIds(),
   testLocation(),
