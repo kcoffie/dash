@@ -1,14 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 
+// Matched against paths relative to the scan target, so the folders the target itself lives in
+// (e.g. ~/build/my-app) never cause it to be skipped
 const SKIPPED_PATHS = [
-  /node_modules/,
-  /\.git/,
-  /dist\//,
-  /build\//,
-  /\.test\./,
-  /\.spec\./,
-  /README/,
+  /(^|\/)node_modules(\/|$)/,
+  /(^|\/)\.git(\/|$)/,
+  /(^|\/)(dist|build)(\/|$)/,
+  /(^|\/)README[^/]*$/,
   /\.md$/,
   /\.lock$/,
   /\.svg$/,
@@ -17,11 +16,15 @@ const SKIPPED_PATHS = [
   /\.min\.js$/,
 ];
 
+const TEST_FILE = /\.(test|spec)\./;
+
 const SOURCE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx']);
 const TEMPLATE_EXTENSIONS = new Set(['.html', '.htm', '.ejs', '.pug', '.jade', '.hbs', '.handlebars', '.mustache', '.vue']);
 
-export function shouldSkipFile(filePath) {
-  return SKIPPED_PATHS.some((pattern) => pattern.test(filePath));
+// `relativePath` is relative to the scan target. Test files are skipped unless `includeTests`.
+export function shouldSkipFile(relativePath, { includeTests = false } = {}) {
+  if (!includeTests && TEST_FILE.test(relativePath)) return true;
+  return SKIPPED_PATHS.some((pattern) => pattern.test(relativePath));
 }
 
 export function isSourceFile(filePath) {
@@ -69,25 +72,31 @@ export const USER_INPUT = /\breq\.(query|params|body|headers|cookies)\b|\bctx\.(
 // `(req: Request, res: Response) =>`).
 export const ROUTE_HANDLER = /\b(app|router|server)\.(get|post|put|patch|delete|all|use)\s*\(|\(\s*req\b[^,()]*,\s*res\b/;
 
-export function walkDir(dir, files = []) {
-  try {
-    const entries = fs.readdirSync(dir, { withFileTypes: true });
+// Every file under `root` that isn't skipped (see shouldSkipFile), as absolute paths
+export function walkDir(root, options = {}) {
+  const files = [];
+
+  function visit(dir) {
+    let entries;
+    try {
+      entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch {
+      return; // Skip directories we can't read
+    }
 
     for (const entry of entries) {
       const fullPath = path.join(dir, entry.name);
+      if (shouldSkipFile(path.relative(root, fullPath), options)) continue;
 
       if (entry.isDirectory()) {
-        if (!shouldSkipFile(fullPath)) {
-          walkDir(fullPath, files);
-        }
+        visit(fullPath);
       } else {
-        files.push(fullPath);
+        files.push(fullPath); // Symlinks included; unreadable entries are skipped by the scanners
       }
     }
-  } catch (error) {
-    // Skip directories we can't read
   }
 
+  visit(root);
   return files;
 }
 

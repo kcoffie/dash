@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { shouldSkipFile, walkDir } from '../file-utils.js';
+import { walkDir } from '../file-utils.js';
 
 export const PATTERNS = [
   {
@@ -102,8 +102,6 @@ export async function scanForSecrets(targetPath) {
     const files = walkDir(targetPath);
 
     for (const file of files) {
-      if (shouldSkipFile(file)) continue;
-
       try {
         const content = fs.readFileSync(file, 'utf-8');
         const lines = content.split('\n');
