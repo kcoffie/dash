@@ -29,7 +29,7 @@ export async function scanDependencies(targetPath) {
     const auditFindings = parseAuditResults(audit, packageJson);
     findings.push(...auditFindings);
   } catch (error) {
-    errors.push(`npm audit failed: ${error.message}`);
+    errors.push(`Dependency scan failed: ${error.message}`);
   }
 
   return { findings, errors };

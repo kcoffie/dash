@@ -25,13 +25,23 @@ export function parseAuditJson(stdout) {
   return data;
 }
 
+// npm's own explanation from stderr ("code E404 · 404 Not Found - GET …"), without the
+// "A complete log of this run…" line, which names a path in the user's home directory
+export function npmErrorSummary(stderr) {
+  const lines = (stderr ?? '').split('\n')
+    .map((line) => line.replace(/^npm (error|ERR!)\s*/, '').trim())
+    .filter((line) => line && !/complete log of this run|_logs\//i.test(line));
+  return lines.slice(0, 2).join(' · ') || 'no details from npm';
+}
+
+// `npm audit` exits non-zero when it finds vulnerabilities and still prints its JSON, so
+// only audit output is accepted from a failed run
 function npm(args, cwd) {
   try {
     return execFileSync('npm', args, { cwd, encoding: 'utf-8', stdio: ['ignore', 'pipe', 'pipe'], maxBuffer: MAX_OUTPUT });
   } catch (error) {
-    // npm audit exits non-zero when it finds vulnerabilities; its JSON is still on stdout
-    if (error.stdout) return error.stdout;
-    throw new Error(`npm ${args[0]} failed: ${error.stderr?.trim().split('\n').pop() || error.message}`);
+    if (args[0] === 'audit' && error.stdout) return error.stdout;
+    throw new Error(`npm ${args[0]} failed: ${npmErrorSummary(error.stderr)}`);
   }
 }
 
@@ -63,8 +73,12 @@ export function runNpmAudit(targetPath, packageJson) {
       // Findings still report; they just can't be marked runtime vs dev-only
     }
 
-    const lockfilePath = path.join(auditDir, lockName ?? 'package-lock.json');
-    const lockfile = JSON.parse(fs.readFileSync(lockfilePath, 'utf-8'));
+    let lockfile = null;
+    try {
+      lockfile = JSON.parse(fs.readFileSync(path.join(auditDir, lockName ?? 'package-lock.json'), 'utf-8'));
+    } catch {
+      // Findings still report; installed versions show as unknown
+    }
 
     return {
       all,

@@ -35,6 +35,17 @@ export const PATTERNS = [
     description: 'Webhook URL (Slack/Discord) detected in code',
   },
   {
+    // KEY=value in .env files, usually unquoted. The key must end in a secret word, so
+    // TOKEN_TTL=3600 and PASSWORD_MIN_LENGTH=12 aren't matched. Commented-out lines count (still leaked).
+    name: 'Env File Secret',
+    kind: 'generic',
+    envOnly: true,
+    regex: /^\s*(?:#\s*)?(?:export\s+)?([A-Za-z0-9_]*(?:PASSWORD|PASSWD|PWD|SECRET|SECRET_KEY|TOKEN|API_?KEY|ACCESS_KEY|PRIVATE_KEY))\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s#"']+))/gi,
+    value: (match) => match[2] ?? match[3] ?? match[4],
+    severity: 'high',
+    description: 'Secret in an environment file detected',
+  },
+  {
     name: 'API Token/Key',
     kind: 'generic',
     regex: /(api[_-]?key|apikey|access[_-]?token|token)['"]?\s*[=:]\s*['"`]([^'"`]{20,})['"`]/gi,
@@ -94,6 +105,16 @@ function isTranslationFile(filePath) {
   return /(^|\/)(i18n|l10n|locales?|translations?|lang)\//.test(filePath);
 }
 
+// .env, .env.production, deploy/prod.env
+export function isEnvFile(filePath) {
+  return /(^|\/)\.env(\.[\w-]+)?$|\.env$/.test(filePath);
+}
+
+// .env.example, .env.sample: committed on purpose, with placeholder values
+function isEnvExampleFile(filePath) {
+  return /(^|\/)\.env\.(example|sample|template|dist|defaults)$/.test(filePath);
+}
+
 function isCommentLine(line) {
   return /^\s*(\/\/|\/\*|\*|#|<!--|--)/.test(line);
 }
@@ -103,7 +124,7 @@ function assessSecret(pattern, value, keyName, line, filePath) {
   const factors = [];
   let severity = pattern.severity;
   let confidence;
-  const inTestOrExample = isTestOrExampleFile(filePath);
+  const inTestOrExample = isTestOrExampleFile(filePath) || isEnvExampleFile(filePath);
   const inSnippet = isCodeSnippetFile(filePath);
 
   if (pattern.kind === 'provider') {
@@ -161,8 +182,8 @@ function assessSecret(pattern, value, keyName, line, filePath) {
     factors.push('✓ Active code (not in a comment)');
   }
 
-  if (/(^|\/)\.env(\.|$)/.test(filePath)) {
-    factors.push('? In a .env file: check that it isn\'t committed');
+  if (isEnvFile(filePath) && !isEnvExampleFile(filePath)) {
+    factors.push('? In a .env file: check that it isn\'t committed (it belongs in .gitignore)');
   }
 
   return { severity, confidence: Math.round(Math.max(0.1, confidence) * 100) / 100, factors };
@@ -177,16 +198,17 @@ function wholeIdentifier(line, start, matchedKey) {
 
 // Matches on one line, specific provider formats first; a generic match overlapping a
 // provider match (api_key = "ghp_...") is the same secret and is dropped
-function matchLine(line, { genericAllowed = true } = {}) {
+function matchLine(line, { genericAllowed = true, envFile = false } = {}) {
   const matches = [];
   for (const pattern of PATTERNS) {
     if (pattern.kind === 'generic' && !genericAllowed) continue;
+    if (pattern.envOnly && !envFile) continue;
     pattern.regex.lastIndex = 0;
     let match;
     while ((match = pattern.regex.exec(line)) !== null) {
       const start = match.index;
       const end = start + match[0].length;
-      const value = pattern.kind === 'generic' ? match[2] : match[0];
+      const value = pattern.kind === 'provider' ? match[0] : (pattern.value ? pattern.value(match) : match[2]);
       if (pattern.kind === 'generic' && INTERPOLATED.test(value)) continue;
       if (matches.some((other) => start < other.end && other.start < end)) continue;
       matches.push({ pattern, start, end, value, keyName: pattern.kind === 'generic' ? wholeIdentifier(line, start, match[1]) : null });
@@ -216,10 +238,11 @@ export async function scanForSecrets(targetPath) {
       // Test files are scanned for provider keys only: their generic passwords are test fixtures
       // (user decision; Juice Shop has 160+ like `const password = '123456'`)
       const genericAllowed = !isTranslationFile(relFile) && !isTestFile(relFile);
+      const envFile = isEnvFile(relFile);
 
       for (let lineNum = 0; lineNum < lines.length; lineNum++) {
         const line = lines[lineNum];
-        const matches = matchLine(line, { genericAllowed });
+        const matches = matchLine(line, { genericAllowed, envFile });
 
         matches.forEach((match, index) => {
           const { severity, confidence, factors } = assessSecret(match.pattern, match.value, match.keyName, line, relFile);
