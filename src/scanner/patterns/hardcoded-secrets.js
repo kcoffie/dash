@@ -1,149 +1,247 @@
 import fs from 'fs';
 import path from 'path';
-import { walkDir } from '../file-utils.js';
+import { walkDir, isTestFile, isTestOrExampleFile, isCodeSnippetFile } from '../file-utils.js';
 
+// Provider formats are specific enough that a match is a key whatever the value looks like.
+// Generic patterns (a password or token assigned a string) capture the value in group 2,
+// and are scored by what that value and its file look like. The key may be quoted (JSON).
 export const PATTERNS = [
   {
     name: 'AWS Access Key',
-    regex: /AKIA[0-9A-Z]{16}/g,
+    kind: 'provider',
+    regex: /\b(AKIA|ASIA)[0-9A-Z]{16}\b/g,
     severity: 'critical',
     description: 'Hardcoded AWS access key detected',
   },
   {
     name: 'Private Key',
-    regex: /-----BEGIN (RSA|DSA|EC|OPENSSH|PGP) PRIVATE KEY/g,
+    kind: 'provider',
+    regex: /-----BEGIN ((RSA|DSA|EC|OPENSSH|ENCRYPTED) )?PRIVATE KEY-----|-----BEGIN PGP PRIVATE KEY BLOCK-----/g,
     severity: 'critical',
     description: 'Private cryptographic key detected',
   },
   {
-    name: 'API Token/Key',
-    regex: /(api[_-]?key|apikey|access[_-]?token|token)\s*[=:]\s*['"`][^'"`]{20,}['"`]/gi,
-    severity: 'high',
-    description: 'Potential API key or access token detected',
-  },
-  {
-    name: 'Database Password',
-    regex: /(password|passwd|pwd)\s*[=:]\s*['"`]([^'"`]{6,})['"`]/gi,
-    severity: 'high',
-    description: 'Database password in configuration detected',
-  },
-  {
     name: 'GitHub/GitLab Token',
-    regex: /(ghp_|glpat_|github_token)[A-Za-z0-9_]{30,}/g,
+    kind: 'provider',
+    regex: /\b(gh[pousr]_[A-Za-z0-9]{36,}|github_pat_[A-Za-z0-9_]{22,}|glpat-[A-Za-z0-9_-]{20,})/g,
     severity: 'critical',
     description: 'GitHub or GitLab authentication token detected',
   },
   {
     name: 'Slack/Discord Webhook',
-    regex: /https:\/\/(hooks\.slack\.com|discordapp\.com\/api\/webhooks)\/[^\s"'`]+/g,
+    kind: 'provider',
+    regex: /https:\/\/(hooks\.slack\.com\/services|(discord|discordapp)\.com\/api\/webhooks)\/[^\s"'`]+/g,
     severity: 'high',
     description: 'Webhook URL (Slack/Discord) detected in code',
   },
+  {
+    name: 'API Token/Key',
+    kind: 'generic',
+    regex: /(api[_-]?key|apikey|access[_-]?token|token)['"]?\s*[=:]\s*['"`]([^'"`]{20,})['"`]/gi,
+    severity: 'high',
+    description: 'Potential API key or access token detected',
+  },
+  {
+    name: 'Secret Key',
+    kind: 'generic',
+    regex: /([\w-]*secret(?:[_-]?key)?)['"]?\s*[=:]\s*['"`]([^'"`]{6,})['"`]/gi,
+    severity: 'high',
+    description: 'Hardcoded secret key (e.g. a session or JWT signing secret) detected',
+  },
+  {
+    name: 'Database Password',
+    kind: 'generic',
+    regex: /(password|passwd|pwd)['"]?\s*[=:]\s*['"`]([^'"`]{6,})['"`]/gi,
+    severity: 'high',
+    description: 'Hardcoded password detected',
+  },
 ];
 
-function getContextFactors(line, filePath, matchedText) {
-  const factors = [];
+// Values that are computed or filled in later: `${...}` (JS / Terraform) and `{{ ... }}` (Helm, Handlebars)
+const INTERPOLATED = /\$\{|\{\{/;
 
-  if (filePath.includes('.env')) {
-    factors.push('✓ In .env file (less critical if not committed)');
-  }
+const PLACEHOLDER_WORDS = new Set([
+  'password', 'passw0rd', 'secret', 'changeme', 'change_me', 'change-me', 'example', 'sample', 'test', 'testing',
+  'foo', 'bar', 'foobar', 'dummy', 'placeholder', 'redacted', 'todo', 'none', 'null', 'undefined', 'xxx',
+]);
 
-  if (filePath.includes('/test') || filePath.includes('/example') || filePath.includes('.test.') || filePath.includes('.spec.')) {
-    factors.push('⚠ In test/example file (may be intentional/fake)');
-  }
-
-  if (line.includes('//') || line.includes('/*')) {
-    factors.push('? In or near comment (may be example/documentation)');
-  }
-
-  // Check for obvious fake passwords
-  const lowercaseMatch = matchedText.toLowerCase();
-  if (['test', 'demo', 'example', 'foobar', 'password', 'secret', '123456', '12345678'].some((fake) => lowercaseMatch.includes(fake))) {
-    factors.push('⚠ Matches common test password pattern (likely fake)');
-  }
-
-  if (!line.trim().startsWith('//') && !line.trim().startsWith('*')) {
-    factors.push('✓ Active code (not in comment)');
-  }
-
-  const entropy = estimateEntropy(matchedText);
-  if (entropy > 4.5) {
-    factors.push(`✓ High entropy (${entropy.toFixed(1)}) - likely real secret`);
-  } else if (entropy < 3) {
-    factors.push(`⚠ Low entropy (${entropy.toFixed(1)}) - may be test/placeholder`);
-  }
-
-  if (factors.length === 0) {
-    factors.push('⚠ Unable to determine context (manual review needed)');
-  }
-
-  return factors;
+function looksLikePlaceholder(value) {
+  const normalized = value.trim().toLowerCase();
+  return PLACEHOLDER_WORDS.has(normalized)
+    || /^(.)\1+$/.test(normalized) // "xxxxxx", "******"
+    || /^<[^>]+>$/.test(normalized) // "<your-token>"
+    || /^your[-_ ]|^my[-_]/.test(normalized) // "your_api_key_here", "my_password_here" (not "my little …")
+    || /change[-_ ]?me|placeholder|replace[-_ ]?me/.test(normalized);
 }
 
-function estimateEntropy(str) {
-  const frequencies = {};
-  for (const char of str) {
-    frequencies[char] = (frequencies[char] || 0) + 1;
+// Shannon entropy in bits per character
+function entropy(value) {
+  const counts = {};
+  for (const char of value) counts[char] = (counts[char] || 0) + 1;
+  return Object.values(counts).reduce((sum, count) => {
+    const p = count / value.length;
+    return sum - p * Math.log2(p);
+  }, 0);
+}
+
+// Structured data under a data/ or seed directory: an app's seed accounts and fixtures
+function isSeedDataFile(filePath) {
+  return /\.(ya?ml|json|csv|sql)$/.test(filePath) && /(^|\/)(data|seeds?|seeders?|seeding)\//.test(filePath);
+}
+
+// Translation files map UI label keys ("LABEL_PASSWORD") to display text, never to credentials
+function isTranslationFile(filePath) {
+  return /(^|\/)(i18n|l10n|locales?|translations?|lang)\//.test(filePath);
+}
+
+function isCommentLine(line) {
+  return /^\s*(\/\/|\/\*|\*|#|<!--|--)/.test(line);
+}
+
+// Severity, confidence, and the factors behind them. Never includes the secret's value.
+function assessSecret(pattern, value, keyName, line, filePath) {
+  const factors = [];
+  let severity = pattern.severity;
+  let confidence;
+  const inTestOrExample = isTestOrExampleFile(filePath);
+  const inSnippet = isCodeSnippetFile(filePath);
+
+  if (pattern.kind === 'provider') {
+    factors.push(`✓ Matches the ${pattern.name} format`);
+    confidence = 0.9;
+    if (inSnippet) {
+      factors.push('⚠ In a training/fixture file: still a leak if the key is real');
+      confidence = 0.7;
+    } else if (inTestOrExample) {
+      factors.push('⚠ In a test/example file: still a leak if the key is real');
+      confidence = 0.7;
+    } else {
+      factors.push('✓ In application code or config');
+    }
+  } else {
+    factors.push(`✓ \`${keyName}\` is assigned a literal value`);
+    confidence = 0.6;
+
+    if (looksLikePlaceholder(value)) {
+      factors.push('⚠ Value looks like a placeholder, not a real credential');
+      severity = 'low';
+      confidence = 0.2;
+    } else if (pattern.name === 'API Token/Key' && entropy(value) < 3) {
+      factors.push(`⚠ Low-entropy value (${entropy(value).toFixed(1)} bits/char): real tokens are random`);
+      severity = 'low';
+      confidence = 0.3;
+    } else if (pattern.name === 'API Token/Key' && entropy(value) >= 4) {
+      factors.push(`✓ High-entropy value (${entropy(value).toFixed(1)} bits/char): looks like a real token`);
+      confidence = 0.75;
+    } else {
+      factors.push('? Value doesn\'t look like a placeholder');
+    }
+
+    if (inSnippet) {
+      factors.push('⚠ Non-executed code snippet (training/fixture file, not run by the app)');
+      severity = 'low';
+      confidence = Math.min(confidence, 0.3);
+    } else if (inTestOrExample) {
+      factors.push('⚠ In a test/example file (likely a test credential)');
+      severity = 'low';
+      confidence = Math.min(confidence, 0.3);
+    } else if (isSeedDataFile(filePath)) {
+      factors.push('⚠ Seed data file: likely a default account password; change it before deploying');
+      if (severity !== 'low') severity = 'medium';
+      confidence = Math.min(confidence, 0.5);
+    } else {
+      factors.push('✓ In application code or config');
+    }
   }
 
-  let entropy = 0;
-  for (const freq of Object.values(frequencies)) {
-    const p = freq / str.length;
-    entropy -= p * Math.log2(p);
+  if (isCommentLine(line)) {
+    factors.push('? In a comment (may be documentation; still a leak if real)');
+    confidence -= 0.1;
+  } else {
+    factors.push('✓ Active code (not in a comment)');
   }
-  return entropy;
+
+  if (/(^|\/)\.env(\.|$)/.test(filePath)) {
+    factors.push('? In a .env file: check that it isn\'t committed');
+  }
+
+  return { severity, confidence: Math.round(Math.max(0.1, confidence) * 100) / 100, factors };
+}
+
+// The regex may match the tail of a longer name ("Password" in testingPassword)
+function wholeIdentifier(line, start, matchedKey) {
+  let begin = start;
+  while (begin > 0 && /[\w$-]/.test(line[begin - 1])) begin--;
+  return line.slice(begin, start) + matchedKey;
+}
+
+// Matches on one line, specific provider formats first; a generic match overlapping a
+// provider match (api_key = "ghp_...") is the same secret and is dropped
+function matchLine(line, { genericAllowed = true } = {}) {
+  const matches = [];
+  for (const pattern of PATTERNS) {
+    if (pattern.kind === 'generic' && !genericAllowed) continue;
+    pattern.regex.lastIndex = 0;
+    let match;
+    while ((match = pattern.regex.exec(line)) !== null) {
+      const start = match.index;
+      const end = start + match[0].length;
+      const value = pattern.kind === 'generic' ? match[2] : match[0];
+      if (pattern.kind === 'generic' && INTERPOLATED.test(value)) continue;
+      if (matches.some((other) => start < other.end && other.start < end)) continue;
+      matches.push({ pattern, start, end, value, keyName: pattern.kind === 'generic' ? wholeIdentifier(line, start, match[1]) : null });
+    }
+  }
+  return matches.sort((a, b) => a.start - b.start);
 }
 
 export async function scanForSecrets(targetPath) {
   const findings = [];
-  const seen = new Set();
 
   try {
-    const files = walkDir(targetPath);
+    // A real key in a test file is still leaked, so test files are scanned too (see genericAllowed)
+    const files = walkDir(targetPath, { includeTests: true });
 
     for (const file of files) {
+      let content;
       try {
-        const content = fs.readFileSync(file, 'utf-8');
-        const lines = content.split('\n');
+        content = fs.readFileSync(file, 'utf-8');
+      } catch {
+        continue; // Unreadable (permissions, broken symlink)
+      }
 
-        for (let lineNum = 0; lineNum < lines.length; lineNum++) {
-          const line = lines[lineNum];
+      const relFile = path.relative(targetPath, file);
+      const idBase = `secret-${relFile.replace(/[^\w]/g, '_')}`;
+      const lines = content.split('\n');
+      // Test files are scanned for provider keys only: their generic passwords are test fixtures
+      // (user decision; Juice Shop has 160+ like `const password = '123456'`)
+      const genericAllowed = !isTranslationFile(relFile) && !isTestFile(relFile);
 
-          for (const pattern of PATTERNS) {
-            let match;
-            // Reset regex lastIndex for each line (reusable regex issue)
-            pattern.regex.lastIndex = 0;
+      for (let lineNum = 0; lineNum < lines.length; lineNum++) {
+        const line = lines[lineNum];
+        const matches = matchLine(line, { genericAllowed });
 
-            while ((match = pattern.regex.exec(line)) !== null) {
-              const findingId = `${file}-${lineNum}-${pattern.name}-${match[0].substring(0, 10)}`;
-              if (!seen.has(findingId)) {
-                seen.add(findingId);
-
-                const relFile = path.relative(targetPath, file);
-                const context = getContextFactors(line, relFile, match[0]);
-
-                findings.push({
-                  id: `secret-${findingId.split('-').slice(-1)[0]}`,
-                  type: 'hardcoded-secret',
-                  title: pattern.name,
-                  severity: pattern.severity,
-                  confidence: 0.8,
-                  description: pattern.description,
-                  file: relFile,
-                  line: lineNum + 1,
-                  snippet: line.trim().substring(0, 100),
-                  context,
-                  remediation: `Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.`,
-                  references: ['https://owasp.org/www-community/Source_Code_Disclosure'],
-                  tags: ['secret', 'critical', 'secrets-detection'],
-                });
-              }
-            }
-          }
-        }
-      } catch (error) {
-        // Skip files that can't be read as text
-        continue;
+        matches.forEach((match, index) => {
+          const { severity, confidence, factors } = assessSecret(match.pattern, match.value, match.keyName, line, relFile);
+          findings.push({
+            id: `${idBase}-${lineNum + 1}${index > 0 ? `-${index + 1}` : ''}`,
+            type: 'hardcoded-secret',
+            title: match.pattern.name,
+            severity,
+            confidence,
+            description: match.pattern.description,
+            file: relFile,
+            line: lineNum + 1,
+            snippet: line.trim().replace(/\s+/g, ' ').substring(0, 120),
+            context: factors,
+            remediation: 'Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.',
+            references: [
+              'https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html',
+              'https://owasp.org/www-community/Source_Code_Disclosure',
+            ],
+            tags: ['secret', 'secrets-detection', match.pattern.kind === 'provider' ? 'provider-key' : 'generic-credential'],
+          });
+        });
       }
     }
   } catch (error) {

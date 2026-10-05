@@ -18,12 +18,17 @@ const SKIPPED_PATHS = [
 
 const TEST_FILE = /\.(test|spec)\./;
 
+// foo.test.js, foo.spec.ts
+export function isTestFile(filePath) {
+  return TEST_FILE.test(filePath);
+}
+
 const SOURCE_EXTENSIONS = new Set(['.js', '.mjs', '.cjs', '.jsx', '.ts', '.tsx']);
 const TEMPLATE_EXTENSIONS = new Set(['.html', '.htm', '.ejs', '.pug', '.jade', '.hbs', '.handlebars', '.mustache', '.vue']);
 
 // `relativePath` is relative to the scan target. Test files are skipped unless `includeTests`.
 export function shouldSkipFile(relativePath, { includeTests = false } = {}) {
-  if (!includeTests && TEST_FILE.test(relativePath)) return true;
+  if (!includeTests && isTestFile(relativePath)) return true;
   return SKIPPED_PATHS.some((pattern) => pattern.test(relativePath));
 }
 
