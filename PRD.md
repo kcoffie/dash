@@ -34,9 +34,9 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 **What:** Parse package.json → query CVE database (*requirements.txt / go.mod are Phase 2; Node.js only for MVP*)  
 **Why:** 80% of vulnerabilities are in dependencies, not custom code  
 **Acceptance Criteria:**
-- [x] Parses package.json and extracts dependencies + versions (*the installed version shows as `@undefined`; open TODO*)
+- [x] Parses package.json and extracts dependencies + versions (*installed versions come from the lockfile; without one, from a lockfile resolved at scan time*)
 - [x] Queries npm audit API (or GitHub Advisory Database)
-- [ ] Returns findings with CVSS score, CVE ID, patched version (*patched version ✅; the id is npm's advisory number and the GHSA link is in `references`. No CVSS score or CVE ID yet*)
+- [ ] Returns findings with CVSS score, CVE ID, patched version (*patched version ✅ when the advisory range has a strict upper bound; the id is npm's advisory number and the GHSA link is in `references`. No CVSS score or CVE ID yet*)
 - [x] Handles missing/non-existent packages gracefully (no package.json → dependency scan skipped, pattern scan continues)
 
 **Interview Talking Point:** "I started with dependency scanning because that's where the low-hanging fruit is. 80% of security debt comes from outdated packages."
@@ -112,9 +112,9 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 ## 3. Data Schema (Scanner Output)
 
 This is the canonical schema; DESIGN.md points here. Notes:
-- Dependency findings also carry `package` and `patchedVersions`, use npm's numeric advisory id as `id`, and have `"line": null`.
+- Dependency findings also carry `package`, `packageVersion` (from the lockfile; `null` if unknown), `affectedVersions`, `patchedVersions` (`null` when the advisory range doesn't name one), `advisorySeverity`, and `devOnly` (`true` / `false` / `null` = couldn't tell). They use npm's numeric advisory id as `id` and have `"line": null`.
 - `errors` (array of strings) is present only when a scanner failed. The dashboard shows it in the coverage panel.
-- Ids are not guaranteed unique: secret ids are derived from the matched text (open TODO).
+- Pattern-finding ids are one per file and line: `sqli-<file>-<line>` and `xss-<file>-<line>` (those scanners report at most one finding per line), and `secret-<file>-<line>`, with `-2`, `-3`… when one line holds several secrets. Dependency ids are npm advisory numbers. The dashboard keys rows on type + file + line + index, not on id.
 - **Demo reports** (`public/demo/*.json`, from `npm run demo:export`) add `"source": { "repo": "<GitHub URL>", "commit": "<short sha>" }`, use the repo name as `targetPath`, and replace secret snippets with `"[redacted in demo report]"` and secret ids with `secret-<file>-<line>`. `public/demo/index.json` lists them: `{ "scans": [{ "id", "label", "description", "file", "repo", "commit", "total" }] }`.
 
 ```json

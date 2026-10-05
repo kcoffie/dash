@@ -35,13 +35,17 @@ Scanner (Node.js) → JSON Output → React Dashboard
 ```
 
 1. **Scan.** `npm run scan <repo>` walks the target's source files and runs four checks:
-   - **Dependency CVEs:** runs `npm audit` in the target. Severity is the advisory's own.
-   - **Hardcoded secrets:** regexes for known key formats (AWS, private keys, tokens) and password/token assignments.
+   - **Dependency CVEs:** `npm audit` on the target's lockfile. Without a lockfile, the tree is resolved into a temporary one first; the target isn't modified. A second production-only audit tells runtime dependencies from dev-only ones.
+   - **Hardcoded secrets:** provider key formats (AWS, private keys, GitHub/GitLab tokens, Slack/Discord webhooks) and literal values assigned to password, token, API-key, and secret keys. Templated values (`${…}`, `{{ }}`) are skipped.
    - **SQL injection and XSS:** regexes find risky constructs, such as SQL built with `+` or `${}`, `innerHTML`, `bypassSecurityTrust*`, and unescaped template output. Multi-line statements are joined first, so a query split across lines still matches.
 2. **Score.** For SQL injection and XSS, a match starts at **medium** and moves up or down based on what's in the 15 lines around it:
    - **Up:** request data (`req.body`, `req.query`, …) on the same line or nearby, URL or storage values read in browser code (XSS), or code inside a route handler, which makes it reachable over HTTP.
    - **Down:** escaping, a sanitizer, or a numeric cast nearby, or a value that looks like a constant.
    - **Capped at low:** test, example, and training-snippet files.
+
+   Other findings are scored too:
+   - **Dependencies:** the advisory's severity, capped at low for dev-only packages. Factors give the installed version, the direct dependency that pulls it in, and the fix npm suggests, which can be a downgrade.
+   - **Secrets:** provider-format keys keep their severity anywhere, because a real key is leaked wherever it sits. Generic passwords and tokens drop to **low** when the value looks like a placeholder or the file is a test, example, or training snippet, and to **medium** in seed data.
 
    Every adjustment is recorded as a ✓ / ⚠ / ? factor, so the dashboard can show *why*.
 3. **Report.** Findings, factors, remediation, and a coverage list (what was checked, what isn't supported yet, and any errors) go to `scanner-output.json`.
@@ -59,17 +63,16 @@ The live demo shows these scans. Each one is committed under `public/demo/` with
 
 | Target | Dependency CVEs | Secrets | SQL injection | XSS | Total |
 |---|---|---|---|---|---|
-| [OWASP Juice Shop](https://github.com/juice-shop/juice-shop) @ `1618a61` | 65 | 41 | 13 (1 critical, 1 high, 11 low snippets) | 19 (5 high, 8 medium, 6 low snippets) | 138 |
-| [DVNA](https://github.com/appsecco/dvna) @ `9ba473a` | 0 | 0 | 1 (critical) | 10 (medium) | 11 |
-| [Express](https://github.com/expressjs/express) @ `7ef9844` | 4 | 1 | 0 (it has no SQL) | 54 (all low: `test/`, `examples/`) | 59 |
+| [OWASP Juice Shop](https://github.com/juice-shop/juice-shop) @ `1618a61` | 66 (8 critical, 27 high; 3 dev-only → low) | 27 (3 private keys, 1 hardcoded test password, 23 seed-data passwords → medium) | 13 (1 critical, 1 high, 11 low snippets) | 19 (5 high, 8 medium, 6 low snippets) | 125 |
+| [DVNA](https://github.com/appsecco/dvna) @ `9ba473a` | 58 (15 critical, 19 high; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) | 70 |
+| [Express](https://github.com/expressjs/express) @ `7ef9844` | 4 (all dev-only → low) | 6 (all in `examples/`, low) | 0 (it has no SQL) | 54 (all low: `test/`, `examples/`) | 64 |
 
 **Recall against known answers.** Juice Shop and DVNA document their intended vulnerabilities, which gives an answer key:
 - **SQL injection:** 3/3 found (`juice-shop/routes/login.ts:34`, `juice-shop/routes/search.ts:23`, `dvna/core/appHandler.js:10`). Juice Shop's static query and its "correct fix" files are not flagged.
 - **XSS:** 8 of 9 Juice Shop challenges and 3/3 DVNA. The miss is Juice Shop's CSP Bypass: user input is spliced into a Pug template string that is then compiled. That's template injection, which the scanner doesn't detect yet.
 
 **Known limitations** (tracked in [HANDOFF.md → Open TODOs](HANDOFF.md#open-todos)):
-- **Secrets are noisy.** 30 of Juice Shop's 41 secret findings are "Database Password" matches in seed data.
-- **Dependency findings show `@undefined` versions.** They also don't separate dev from runtime dependencies. None of Express's 4 advisories (`diff`, `serialize-javascript`, `uuid`) is a direct dependency of Express.
+- **Versions are resolved at scan time without a lockfile.** None of the three targets commits one, so npm resolves what it would install today, and counts can change between scans. Each finding says so.
 - **Regex, not data flow.** `search.ts:23` stays **high** rather than critical because `req.query.q` reaches the query through a variable.
 
 ## Getting Started
@@ -93,17 +96,19 @@ Without a local `scanner-output.json`, the dashboard opens the Juice Shop demo. 
 - **The problem:** pattern scanners flag every match, so real issues drown in noise. This one scores exploitability and shows its reasoning: the login SQL injection above is critical for stated reasons, and the identical code in a training snippet is low.
 - **Measured, not claimed:** checked against two intentionally vulnerable apps with documented answers. SQL injection 3/3; XSS 8/9 Juice Shop challenges + 3/3 DVNA. The one miss is a known gap (template injection).
 - **Honest coverage:** the report lists the 5 categories it doesn't check yet, so "0 findings" can't be mistaken for "secure".
+- **A silent failure I found in my own scanner:** `npm audit` needs a lockfile. On DVNA it failed, and the failure was read as "no vulnerabilities", so the demo showed 0 dependency CVEs. There are 58, 15 of them critical. Errors now surface in the report, and targets without a lockfile are resolved in a temp directory.
+- **Noise is a bug too:** Juice Shop's secret findings went from 41 (38 high) to 27. Fourteen were templated values like `${var.project_name}`, and the 23 seed-data passwords are now medium. The same pass closed blind spots that tests now cover: PKCS#8 private keys, GitLab tokens (the pattern had the wrong prefix), passwords in JSON, and session secrets (DVNA's).
 - **Trade-offs:**
   - **Regex + local context instead of an AST or taint analysis:** fast and explainable, but it misses data flow through variables (`search.ts:23`).
   - **Node.js only.**
   - **Recall over precision for now:** the secret noise is visible, not hidden.
 - **Engineering:**
-  - **Tests:** 70 across 6 suites (scanners, demo export, dashboard logic).
+  - **Tests:** 100 across 8 suites (scanners, file walker, npm audit parsing, demo export, dashboard logic).
   - **Protected `main`:** CI must pass (`npm ci` → `npm test` → `npm run build`) before anything merges.
   - **Fail-closed demo export:** it refuses to write a file that still contains a key format.
   - **Repo hygiene:** secret scanning and push protection are on.
   - **Accessibility:** contrast measured in light and dark mode, and chart colors checked for color-vision deficiency.
-- **Next:** cut secret noise, separate dev from runtime dependencies, then the insecure-crypto and async scanners.
+- **Next:** the insecure-crypto and async scanners, then template injection.
 
 ## Project Structure
 

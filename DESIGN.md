@@ -35,8 +35,8 @@ The same pattern in a test file, a training snippet, or with a constant like `${
 |---|---|---|
 | SQL injection | MEDIUM, 0.6 confidence | user input (`req.*`) nearby or on the line ↑1 · route handler + input on the line ↑1 more · escaping / `parseInt` nearby ↓1 · constant value → LOW · non-production code → LOW |
 | XSS | MEDIUM | no encoding visible · server input (`req.*`) ↑1 · browser-controlled source (URL, storage) ↑1 · route handler + input ↑1 · encoder/sanitizer ↓1 · constant → LOW · non-production → LOW |
-| Hardcoded secrets | fixed per pattern (AWS key, private key, GitHub/GitLab token = critical; API token, DB password, webhook = high) | factors explain (`.env`, test file, comment, entropy) but don't change severity yet. Only 1 factor per finding: open TODO |
-| Dependency CVEs | npm audit's severity | none. 0.95 confidence, since the advisory is authoritative |
+| Hardcoded secrets | per pattern: AWS key, private key, GitHub/GitLab token = critical; webhook, API token, secret key, password = high | **provider formats** keep their severity anywhere (a real key leaks wherever it sits). **Generic values:** placeholder (`foobar`, `changeme`, `<…>`) or low-entropy token → LOW · test/example/snippet file → LOW · seed data file (`data/`, `seeds/` + yml/json/csv/sql) → MEDIUM. Templated values (`${…}`, `{{ }}`) aren't findings. `.test.`/`.spec.` files: provider formats only; translation files (`i18n/`, `locales/`): provider formats only |
+| Dependency CVEs | npm audit's severity, 0.95 confidence | dev-only (absent from `npm audit --omit=dev`) → LOW · can't tell dev from runtime → 0.85 confidence |
 
 - **Severity ladder:** `low → medium → high → critical`; `shiftSeverity()` moves along it and clamps at the ends.
 - **Confidence:** 0.1–0.95, raised by direct evidence and lowered by mitigations.
@@ -83,12 +83,13 @@ The full schema is **PRD.md §3**. One finding:
 ## Scanners
 
 **Dependency Scanner** (`dependency-scanner.js`, `npm-audit-client.js`)
-- Reads `package.json` and runs npm audit. No `package.json` → skipped, and the pattern scan continues.
-- Output: advisory title, severity, patched version, GHSA link.
-- *(not built)* `requirements.txt` / `go.mod` (Phase 2), CVSS score and CVE id, installed version (shows `@undefined`).
+- Reads `package.json` and runs npm audit, never modifying the target. With a committed `package-lock.json` / `npm-shrinkwrap.json`, audits those versions. Without one, copies `package.json` to a temp dir and resolves a lockfile there first (`npm install --package-lock-only --ignore-scripts`), since `npm audit` fails without a lockfile. npm's own errors (`{ "error": … }`) go to the report's `errors`; they're never read as zero findings. No `package.json` → skipped, and the pattern scan continues. Workspaces without a lockfile → error (can't be resolved from the root `package.json`).
+- A second `npm audit --omit=dev` marks dev-only advisories.
+- Output: advisory title, severity (and `advisorySeverity` when capped), installed version from the lockfile, affected range, first patched version when the range has a strict upper bound, the direct dependency that pulls it in, and npm's suggested fix (which may name a different package, and may be a downgrade), GHSA link.
+- *(not built)* `requirements.txt` / `go.mod` (Phase 2), CVSS score and CVE id, yarn/pnpm lockfiles (resolved fresh instead, with a factor saying so).
 
 **Pattern Scanners** (`src/scanner/patterns/`; shared helpers in `file-utils.js`)
-1. **Hardcoded Secrets**: AWS keys, private keys, API tokens, DB passwords. Context: `.env` file, test/example file, comment, test-password shape, entropy.
+1. **Hardcoded Secrets**: AWS keys (`AKIA`/`ASIA`), private keys (PKCS#1/#8, encrypted, OpenSSH, PGP), GitHub (`ghp_`, `gho_`, `ghs_`, `github_pat_`…) and GitLab (`glpat-`) tokens, Slack/Discord webhooks, and literal values for password / token / API-key / secret keys (quoted JSON keys too). Context: value (placeholder, entropy), file kind (test/example, snippet, seed data, translation, `.env`), comment. Factors never include the secret's value.
 2. **SQL Injection**: string concatenation and template literals that look like SQL (uppercase keywords anywhere, lowercase only at the start). Context: see the scoring model above.
 3. **XSS**: `bypassSecurityTrust*`, `dangerouslySetInnerHTML`, `innerHTML`, `document.write` / `insertAdjacentHTML` / jQuery `.html()`, unescaped template output (EJS/Handlebars/Pug/Vue), `res.send()` of HTML or raw `req.*`. Template files are scanned for XSS only. Angular `[innerHTML]` isn't flagged, because Angular sanitizes it.
 4. **Async Footguns** *(not built, deferred)*: `fetch()` without `await` / `.catch()`; is an error handler present, and does an unhandled rejection crash the server?
@@ -110,8 +111,8 @@ One horizontal bar per finding type, biggest first, split into severity segments
 Shows what was checked and what wasn't, so "0 findings" means "checked and clean", not "never looked":
 ```
 Coverage: checked 4 categories · 5 not yet supported
-✓ Dependency CVEs          65 found      Not yet checked
-✓ Hardcoded Secrets        41 found      – Insecure Crypto Usage
+✓ Dependency CVEs          66 found      Not yet checked
+✓ Hardcoded Secrets        27 found      – Insecure Crypto Usage
 ✓ SQL Injection Patterns   13 found      – CORS Misconfiguration
 ✓ XSS Vulnerabilities      19 found      – Async Footguns
                                          – Permission Creep

@@ -1,9 +1,9 @@
 # Project Handoff — Security Audit Platform
 
 **Last updated:** 2026-10-05 (session 6)
-**Branch:** `main` @ `313191a` has everything through PR #12. Session 6's work (live URL + Task #7 docs) is on `docs/deploy-readme`, open as a PR for the user to merge. No other branches.
-**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 README/screenshots/talking points in review · repo public, `main` protected, secret scanning + push protection on (0 alerts)
-**Next step:** If the `docs/deploy-readme` PR is still open, the user merges it. Then the scanner TODOs (START HERE step 6).
+**Branch:** `main` @ `849861e` has everything through PR #13 (live URL + Task #7 docs). The scanner-accuracy work is on `fix/scanner-accuracy`, open as a PR for the user to merge. No other branches.
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy fixes in review (`fix/scanner-accuracy`) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
+**Next step:** If the `fix/scanner-accuracy` PR is still open, the user merges it (Vercel then redeploys the new demo data). Then the ESLint config TODO, then #2.4 crypto / #2.5 async.
 
 ---
 
@@ -27,12 +27,12 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    `npm ci` warns that esbuild's install script wasn't approved — harmless (the build works; CI is green).
 2. **Verify baseline**
    ```bash
-   npm test                                 # 6 suites: demo export 5/5, dependency 3/3, secrets 5/5, SQLi 21/21, XSS 22/22, dashboard helpers 14/14
+   npm test                                 # 8 suites, 100 tests: demo export 5/5, dependency 4/4, file utils 4/4, secrets 18/18, npm audit client 12/12, SQLi 21/21, XSS 22/22, dashboard helpers 14/14
    npm run build                            # must succeed (CI runs it)
    ```
    Scanner counts (run from a scratch dir — `index.js` writes `scanner-output.json` to the cwd):
-   Juice Shop 13 SQLi / 19 XSS / 138 total · DVNA 1 SQLi / 10 XSS · Express 0 SQLi / 54 XSS (all low).
-   Session 6 got Juice Shop **139** (dependency CVEs + secrets 107 vs 106; SQLi/XSS unchanged); likely `npm audit` advisory drift, not checked further. The committed demo stays at 138.
+   Juice Shop 66 deps / 27 secrets / 13 SQLi / 19 XSS = 125 · DVNA 58 / 1 / 1 / 10 = 70 · Express 4 / 6 / 0 / 54 = 64 (all low).
+   **Dependency counts drift:** none of the three targets commits a lockfile, so npm resolves versions at scan time and advisories change. Pattern counts (secrets/SQLi/XSS) are stable at a pinned commit.
 3. **See the dashboard**: from the repo root, `npm run scan /tmp/juice-shop` (writes the gitignored `scanner-output.json` the dev server serves), then `npm run dev` → http://localhost:5173. Without a local report, the dashboard opens the committed Juice Shop demo. The "Demo scan" picker switches demos; "Load scan file…" loads any other report.
 4. **Check secret scanning** (enabled by the user at the end of session 5; the first scan of history can take a while):
    ```bash
@@ -43,7 +43,7 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 5. **Deploy (Task #6) ✅** — https://dash-jade-nine.vercel.app/. Imported by the user (Vite auto-detected, no `vercel.json`, production branch `main`). Verified in session 6: Juice Shop opens by default, picker switches to DVNA (11) / Express (59), light + dark, 390px with no horizontal scroll, no console errors, `/scanner-output.json` 404s (expected).
    - **README screenshots:** `npm run screenshots [-- <url>]` (`scripts/screenshots.js`) drives headless Chrome over the DevTools protocol and rewrites `docs/screenshots/` (light, dark, expanded login SQLi finding, phone). Defaults to the live URL; set `CHROME` if Chrome isn't at the macOS path. Re-run after visible dashboard or demo-data changes.
    - **Regenerating demo data:** re-clone the targets (step 1), run `npm run demo:export`, review the diff, and commit `public/demo/`. The export redacts secret snippets and ids and **fails** if any finding still contains an AWS key, private-key header, GitHub/GitLab token, or Slack/Discord webhook.
-6. **Next:** fix the scanner TODOs (secret noise + ids, `@undefined` dep versions, dev vs runtime deps, secret context factors, ESLint config), re-export the demo data and screenshots, then #2.4 crypto / #2.5 async.
+6. **Next:** the ESLint config TODO (own PR), then #2.4 crypto / #2.5 async. After any scanner change: `npm run demo:export -- <targets-dir>`, review the diff, then `npm run screenshots -- http://localhost:4173/` against a `vite preview` build (the live site only updates after merge).
 
 ### Dashboard map
 - `src/App.jsx`: loads `/scanner-output.json` first, otherwise the first scan in `/demo/index.json`. A non-JSON response means "not there" (Vite and static hosts answer missing files with `index.html` + 200). "Demo scan" picker (manifest validated by `normalizeDemoManifest()`), file picker via `normalizeReport()`, target linked to the scanned commit via `sourceLink()`.
@@ -66,6 +66,20 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 ---
 
 ## What We Did in Session 6 (2026-10-05)
+
+**Part 2: scanner accuracy (`fix/scanner-accuracy`, PR for the user to merge).** Every fix has tests that were run against the old code first and failed.
+- 🔴 **Silent failure fixed:** `npm audit` needs a lockfile. DVNA has none, so audit failed with ENOLOCK, and `{ "error": … }` parsed as "no vulnerabilities" with no error. The demo said DVNA had 0 dependency CVEs; it has **58 (15 critical)**. Express and Juice Shop only worked because their `.npmrc` sets `package-lock=false`. Now: lockfile → audit as is; no lockfile → resolve into a temp dir (target untouched); npm errors → `coverage.errors`.
+- **Dependency findings:** installed version from the lockfile (was `@undefined`, a field npm doesn't emit); dev-only (second `--omit=dev` audit) capped at LOW (**user decision**); "Pulled in by <direct dep>"; fix text names the package npm says to change (was "update serialize-javascript to 12.0.3", mocha's version) and says **downgrade** when npm's fix is older (`sequelize` 6 → 3, `csurf` 1.11 → 1.2); cross-major changes flagged even when npm's `isSemVerMajor` is false.
+- **Secrets** (Juice Shop 41 → 27; **user decisions** on scoring):
+  - Not findings: templated values (`${…}`, `{{ }}`: 14 on Juice Shop), generic matches in translation files (`i18n/`, 513 once JSON keys were matched).
+  - Provider formats keep severity anywhere; generic values → LOW for placeholders / low-entropy tokens / test-example-snippet files, → MEDIUM in seed data (`users.yml`: 23).
+  - `.test.`/`.spec.` files now scanned for provider formats only (generic there = 162 test passwords on Juice Shop; user chose not to report them).
+  - Misses fixed: PKCS#8/encrypted private keys, `glpat-` (pattern had `glpat_`), `gho_`/`ghs_`/`github_pat_`, `ASIA` keys, discord.com webhooks, JSON-quoted keys, new **Secret Key** pattern (DVNA `server.js:24` session secret).
+  - Ids `secret-<file>-<line>[-n]`; entropy/placeholder checks on the value (every password match used to be "likely fake" because the match included the word "password"); `//` in a URL isn't a comment; factors name the whole identifier and never the value.
+- **Walker:** skip rules ran on absolute paths (a target under `build/`, `dist/`, or `*.test.*` was skipped entirely) and `/\.git/` also skipped `.github/`. Now target-relative; no change on the three targets.
+- Demo data regenerated at the same commits (Juice Shop 138 → 125, DVNA 11 → 70, Express 59 → 64); README/DESIGN/PRD/STATUS updated; screenshots retaken from a local build.
+
+**Part 1: deploy + docs (PR #13, merged).**
 
 - ✅ Baseline matched: 6 suites (5/5, 3/3, 5/5, 21/21, 22/22, 14/14), build OK. Scanner counts match except Juice Shop total 139 vs 138 (see START HERE step 2). The `/tmp` targets had been partly pruned by macOS; re-cloned to get real numbers.
 - ✅ Secret scanning + push protection enabled, **0 alerts**.
@@ -122,9 +136,11 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 
 | Target | Dependency CVEs | Secrets | SQL injection | XSS |
 |---|---|---|---|---|
-| Express (`/tmp/express`) | 4 | 1 | 0 (correct — no SQL) | 54 (all low — all in `test/` + `examples/`) |
-| Juice Shop (`/tmp/juice-shop`) | 65 | 41 (noisy) | 13 (1 critical, 1 high + 11 low snippets) | 19 (5 high, 8 medium + 6 low snippets) |
-| DVNA (`/tmp/dvna`) | 0 | 0 | 1 (critical) | 10 (medium) |
+| Express (`/tmp/express`) | 4 (all dev-only → low) | 6 (all `examples/`, low) | 0 (correct — no SQL) | 54 (all low — all in `test/` + `examples/`) |
+| Juice Shop (`/tmp/juice-shop`) | 66 (3 dev-only → low) | 27 (3 private keys critical, 1 high, 23 seed medium) | 13 (1 critical, 1 high + 11 low snippets) | 19 (5 high, 8 medium + 6 low snippets) |
+| DVNA (`/tmp/dvna`) | 58 (15 critical; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) |
+
+*(Updated session 6 after the scanner-accuracy fixes; dependency counts drift because no target commits a lockfile.)*
 
 ### XSS answer key + recall (session 4)
 
@@ -190,15 +206,18 @@ Week 3 Deploy    ████████████████░░░░░
 - [ ] **XSS: sinks inside string literals are matched.** e.g. Express `test/res.redirect.js:115` — `'javascript:eval(document.body.innerHTML=...)'` is a string, not code.
 - [ ] **XSS: not covered yet** — `javascript:` URLs (`location.href = value`, `<a href>`), `eval`/`setTimeout(string)`, `res.render` with unescaped locals passed from routes (only the template side is checked).
 - [x] **Run tests before PRs can be merged.** Done (session 4): `npm test` runs every `src/scanner/__tests__/*.test.js` via `node --test`; `.github/workflows/test.yml` runs it on Node 24 for PRs and pushes to `main`. A ruleset on `main` (enforced since the repo went public) requires a PR (0 approvals, squash only) and a passing `test` check, and blocks force pushes and deletion. New test files just need the `.test.js` suffix and a non-zero exit on failure.
-- [ ] **Secret finding ids aren't unique.** Ids are built from the matched text (e.g. `secret-token = "$`), so they collide and contain spaces. The dashboard works around it (keys on type+file+line+index), but ids should be `secret-<file>-<line>` like SQLi/XSS.
-- [ ] **Dependency findings don't separate dev from runtime dependencies.** Express's 4 advisories (`diff`, `serialize-javascript`, `uuid`) aren't direct Express dependencies; they come through dev/test tooling. Mark dev-only advisories (npm audit's `nodes` / `isDirect`, or `npm audit --omit=dev`) and lower their severity.
-- [ ] **Dependency findings show `@undefined` version.** Context reads "Vulnerable dependency detected: <pkg>@undefined" — the installed version isn't read from npm audit output.
-- [ ] **Secret findings have 1 context factor** (schema wants 3+), and flag Terraform interpolations like `creation_token = "${var.project_name}-…"` as API tokens.
+- [x] **Secret finding ids aren't unique.** Fixed (session 6): `secret-<file>-<line>`, `-2`… for more on one line.
+- [x] **Dependency findings don't separate dev from runtime dependencies.** Fixed (session 6): second `npm audit --omit=dev`; dev-only capped at LOW (user decision). Express's 4 are all dev-only.
+- [x] **Dependency findings show `@undefined` version.** Fixed (session 6): versions from the lockfile (v1–v3).
+- [x] **Secret findings have 1 context factor**, and flag Terraform interpolations. Fixed (session 6): 3–5 factors, templated values skipped.
+- [x] **`npm audit` failures read as zero findings.** Fixed (session 6): DVNA showed 0 dependency CVEs (ENOLOCK); errors now reported, no-lockfile targets resolved in a temp dir.
+- [ ] **Dependency results drift without a lockfile.** None of the three targets commits one, so each scan resolves today's versions. The factor says so; nothing else to do unless we pin by committing resolved lockfiles for the demo targets.
+- [ ] **Dependencies: yarn.lock / pnpm-lock.yaml targets** are audited from a freshly resolved npm lockfile (with a factor saying so), not their real lockfile.
 - [ ] **`npm run lint` is broken** — ESLint 9 needs an `eslint.config.js`; none exists. Add a flat config (React + hooks plugins), then a lint step in CI.
 - [x] **Deploy needs committed demo data.** Done (PR #10, merged): all three scans under `public/demo/`, generated by `npm run demo:export` with secret snippets redacted, and a picker in the dashboard.
-- [ ] **Demo data is a snapshot.** It's pinned to the target commits above, so it won't change when the scanners improve. Re-run `npm run demo:export` after scanner changes (e.g. the secret-noise or `@undefined` fixes) and commit the diff.
+- [ ] **Demo data is a snapshot.** It's pinned to the target commits above, so it won't change when the scanners improve. Re-run `npm run demo:export` after scanner changes and commit the diff (last regenerated session 6, after the accuracy fixes).
 - [x] **PRD.md / DESIGN.md were partly stale.** Fixed in session 5 (PR #9). PRD checkboxes now match the build, with italic notes where it differs; DESIGN describes the scoring model and dashboard as built and marks *(not built)* ideas; README, CONTRIBUTING (everything goes through PRs; task numbers, not issues), TPM_STRATEGY, and FUTURE_IDEAS refreshed; the original brief (`security-audit-platform-overview.md`) is kept as-is with a "what changed" note.
-- [ ] **Hardcoded-secret noise on Juice Shop.** 41 findings, 30 of them "Database Password" in `data/static/` seed data. `lib/insecurity.ts` private key is a real (planted) true positive. Review when tuning false positives.
+- [x] **Hardcoded-secret noise on Juice Shop.** Fixed (session 6): 41 → 27. The 23 left in `data/static/users.yml` are real seed passwords, now MEDIUM; `lib/insecurity.ts` private key is a real (planted) true positive.
 
 ---
 
@@ -208,7 +227,7 @@ Week 3 Deploy    ████████████████░░░░░
 
 Each scanner in `src/scanner/patterns/` exports `async scanForX(targetPath)` returning findings matching the schema in PRD.md §3:
 
-1. `walkDir(targetPath)` → skip `shouldSkipFile` / non-`isSourceFile` files
+1. `walkDir(targetPath)` returns files already filtered by `shouldSkipFile` (target-relative; `{ includeTests: true }` to keep `.test.`/`.spec.` files) → skip non-`isSourceFile` files
 2. `toStatements(lines)` → iterate logical statements (multi-line safe); skip statements starting with `//` or `*`
 3. `PATTERNS` array: `{ name, regex (global), sqlText/extractor, detected, description }`; reset `regex.lastIndex` before each use
 4. Filter matches with a "does this really look like X" check (SQL: `looksLikeSql`) to keep false positives down
@@ -216,7 +235,7 @@ Each scanner in `src/scanner/patterns/` exports `async scanForX(targetPath)` ret
 6. Finding fields: `id`, `type` (`'xss'` for XSS — already counted in `index.js` coverage), `title`, `severity`, `confidence` (0.1–0.95), `description`, `file`, `line` (1-based statement start), `snippet` (whitespace-collapsed, ≤120 chars), `context` (3+ factors, ✓/⚠/? prefixes), `remediation` (actionable, with example), `references` (OWASP), `tags`
 7. Wire into `src/scanner/pattern-scanner.js` inside its own try/catch
 
-Tests: plain Node scripts (no framework), run with `node src/scanner/__tests__/<name>.test.js`; each writes fixtures to a tmp dir, prints ✓/✗, exits non-zero on failure. Note `.test.` files are skipped by the walker, so fixtures must use other names.
+Tests: plain Node scripts (no framework), run with `node src/scanner/__tests__/<name>.test.js`; each writes fixtures to a tmp dir, prints ✓/✗, exits non-zero on failure. Note `.test.`/`.spec.` files are skipped by the walker (except for the secrets scanner, provider formats only), so SQLi/XSS fixtures must use other names.
 
 ---
 
@@ -264,8 +283,8 @@ src/scanner/
 ├── index.js                  ← CLI: node src/scanner/index.js <repo> → scanner-output.json
 ├── report.js                 ← scanTarget(): runs every scanner, builds the report (CLI + demo export)
 ├── demo-export.js            ← toDemoReport(): redact secrets, record source, refuse key material
-├── dependency-scanner.js     ← Task #1
-├── npm-audit-client.js       ← Task #1
+├── dependency-scanner.js     ← Task #1: package.json checks, then runNpmAudit + parseAuditResults
+├── npm-audit-client.js       ← Task #1: lockfile or temp-resolved audit, --omit=dev pass, versions, fix text
 ├── pattern-scanner.js        ← runs each pattern scanner (crypto/async TODOs here)
 ├── file-utils.js             ← shared: walkDir, skip rules, toStatements, USER_INPUT, ROUTE_HANDLER
 ├── patterns/
@@ -274,8 +293,10 @@ src/scanner/
 │   └── xss.js                ← Task #2.3
 └── __tests__/
     ├── demo-export.test.js
-    ├── dependency-scanner.test.js
+    ├── dependency-scanner.test.js   (no-lockfile case needs the npm registry)
+    ├── file-utils.test.js
     ├── hardcoded-secrets.test.js
+    ├── npm-audit-client.test.js     (fixtures copied from real npm 11 output)
     ├── sql-injection.test.js
     └── xss.test.js
 ```
