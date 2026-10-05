@@ -222,6 +222,38 @@ async function testPassphraseIsNotPlaceholder() {
   return report('"my little nest of vipers" is a passphrase; "my_password_here" is a placeholder', JSON.stringify(byLine) === JSON.stringify({ 1: 'high', 2: 'low' }), summary(findings));
 }
 
+async function testEnvFiles() {
+  // .env values are usually unquoted, which the assignment patterns (quotes required) never matched
+  const findings = await scanFiles({
+    '.env': [
+      'DB_PASSWORD=hunter2hunter2',
+      'export STRIPE_SECRET_KEY="Zk3pQ9xV7mN2bL8cR4tY6wE1"',
+      'API_KEY=',
+      'DEBUG=true',
+      '# OLD_TOKEN=Qm8Zr2Lm9Xv4Tn7Wb1Kc5Hy3',
+    ].join('\n'),
+    '.env.example': 'DB_PASSWORD=changeme\nJWT_SECRET=s3cr3tvalue123',
+    'deploy/prod.env': 'GITHUB_TOKEN=Qm8Zr2Lm9Xv4Tn7Wb1Kc5Hy3\nGITHUB_TOKEN_NAME=deploy-bot\nTOKEN_TTL=3600\nPASSWORD_MIN_LENGTH=12',
+    'src/settings.js': 'const note = "set PASSWORD=hunter2 in your shell";',
+  });
+  const got = findings.map((f) => `${f.file}:${f.line}:${f.severity}`).sort();
+  const expected = ['.env.example:1:low', '.env.example:2:low', '.env:1:high', '.env:2:high', '.env:5:high', 'deploy/prod.env:1:high'];
+  const real = findings.find((f) => f.file === '.env' && f.line === 1);
+  const commented = findings.find((f) => f.file === '.env' && f.line === 5);
+  const example = findings.find((f) => f.file === '.env.example' && f.line === 2);
+  return report(
+    '.env files: unquoted values found; empty and non-secret keys (TOKEN_TTL) ignored; .env.example is an example',
+    JSON.stringify(got) === JSON.stringify(expected)
+      && real.title === 'Env File Secret'
+      && real.context.some((c) => c.startsWith('? In a .env file'))
+      && real.context[0] === '✓ `DB_PASSWORD` is assigned a literal value'
+      && commented.context.some((c) => c.startsWith('? In a comment'))
+      && example.context.some((c) => c.startsWith('⚠ In a test/example file'))
+      && !example.context.some((c) => c.startsWith('? In a .env file')),
+    summary(findings),
+  );
+}
+
 async function testSkipsNodeModules() {
   const findings = await scanFiles({ 'node_modules/pkg/config.js': `const AWS_KEY = "${AWS_KEY}";` });
   return report('Skips node_modules', findings.length === 0, summary(findings));
@@ -233,7 +265,7 @@ for (const test of [
   testGenericSecretInTestOrExampleIsLow, testProviderKeyInTestFileKeepsSeverity, testSeedDataIsMedium,
   testIdsUniqueOnOneLine, testOverlappingPatternsReportOnce, testValuesNeverEchoed, testLowEntropyTokenIsLow,
   testUrlIsNotAComment, testTranslationFilesOnlyProviderKeys, testSessionSecret, testFactorNamesWholeIdentifier,
-  testPassphraseIsNotPlaceholder, testSkipsNodeModules,
+  testPassphraseIsNotPlaceholder, testEnvFiles, testSkipsNodeModules,
 ]) {
   results.push(await test());
 }

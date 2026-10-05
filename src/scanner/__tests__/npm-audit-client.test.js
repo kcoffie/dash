@@ -1,4 +1,4 @@
-import { parseAuditResults, parseAuditJson, lockedVersion, firstPatchedVersion, introducedBy, compareVersions } from '../npm-audit-client.js';
+import { parseAuditResults, parseAuditJson, lockedVersion, firstPatchedVersion, introducedBy, compareVersions, npmErrorSummary } from '../npm-audit-client.js';
 
 // Shapes copied from real `npm audit --json` output (npm 11): Express's dev tooling
 // (mocha → serialize-javascript, diff) and DVNA's direct node-serialize dependency.
@@ -204,6 +204,23 @@ function testAuditErrorsThrow() {
   return report('npm audit errors throw instead of reading as zero findings', failures.length === 0, JSON.stringify(failures));
 }
 
+function testNpmErrorSummary() {
+  // Real stderr from `npm install --package-lock-only` with a package that doesn't exist
+  const stderr = [
+    'npm error code E404',
+    "npm error 404 Not Found - GET https://registry.npmjs.org/zz-no-such-package-qq9 - Not found",
+    'npm error 404',
+    'npm error A complete log of this run can be found in: /Users/someone/.npm/_logs/2026-10-05T18_01_06_227Z-debug-0.log',
+  ].join('\n');
+  const summary = npmErrorSummary(stderr);
+  return report(
+    'npm error summary keeps the code and reason, drops the local log path',
+    summary === 'code E404 · 404 Not Found - GET https://registry.npmjs.org/zz-no-such-package-qq9 - Not found'
+      && npmErrorSummary('') === 'no details from npm',
+    summary,
+  );
+}
+
 const results = [
   testDevOnlyTransitive(),
   testFixNamesTheRightPackage(),
@@ -217,6 +234,7 @@ const results = [
   testFirstPatchedVersion(),
   testIntroducedByHandlesCycles(),
   testAuditErrorsThrow(),
+  testNpmErrorSummary(),
 ];
 
 console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
