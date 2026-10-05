@@ -1,7 +1,1895 @@
 {
-  "timestamp": "2026-10-02T20:35:00.752Z",
+  "timestamp": "2026-10-05T17:56:47.822Z",
   "targetPath": "dvna",
   "findings": [
+    {
+      "id": 1090082,
+      "type": "dependency-cve",
+      "title": "Integer Overflow or Wraparound and Use of a Broken or Risky Cryptographic Algorithm in bcrypt",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Integer Overflow or Wraparound and Use of a Broken or Risky Cryptographic Algorithm in bcrypt in bcrypt (CWE-190, CWE-327).",
+      "package": "bcrypt",
+      "packageVersion": "1.0.3",
+      "affectedVersions": "<5.0.0",
+      "patchedVersions": "5.0.0",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ bcrypt 1.0.3 is in the affected range <5.0.0",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-5wg4-74h6-q47v",
+      "references": [
+        "https://github.com/advisories/GHSA-5wg4-74h6-q47v"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-190",
+        "CWE-327"
+      ]
+    },
+    {
+      "id": 1103907,
+      "type": "dependency-cve",
+      "title": "cookie accepts cookie name, path, and domain with out of bounds characters",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "cookie accepts cookie name, path, and domain with out of bounds characters in cookie (CWE-74).",
+      "package": "cookie",
+      "packageVersion": "0.4.0",
+      "affectedVersions": "<0.7.0",
+      "patchedVersions": "0.7.0",
+      "advisorySeverity": "low",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ cookie 0.4.0 is in the affected range <0.7.0",
+        "✓ Pulled in by csurf",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade csurf from 1.11.0 to 1.2.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Downgrade csurf from 1.11.0 to 1.2.2 (major version change: check for breaking changes); it depends on cookie, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-pxg6-pf52-xh8x",
+      "references": [
+        "https://github.com/advisories/GHSA-pxg6-pf52-xh8x"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-74"
+      ]
+    },
+    {
+      "id": 1093150,
+      "type": "dependency-cve",
+      "title": "Crash in HeaderParser in dicer",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Crash in HeaderParser in dicer in dicer (CWE-248).",
+      "package": "dicer",
+      "packageVersion": "0.2.5",
+      "affectedVersions": "<=0.3.1",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ dicer 0.2.5 is in the affected range <=0.3.1",
+        "✓ Pulled in by express-fileupload",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes); it depends on dicer, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-wm7h-9275-46v2",
+      "references": [
+        "https://github.com/advisories/GHSA-wm7h-9275-46v2"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-248"
+      ]
+    },
+    {
+      "id": 1089270,
+      "type": "dependency-cve",
+      "title": "ejs template injection vulnerability",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "ejs template injection vulnerability in ejs (CWE-74).",
+      "package": "ejs",
+      "packageVersion": "2.7.4",
+      "affectedVersions": "<3.1.7",
+      "patchedVersions": "3.1.7",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ ejs 2.7.4 is in the affected range <3.1.7",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade ejs to 7.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade ejs to 7.0.1 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-phwq-j96m-2c2q",
+      "references": [
+        "https://github.com/advisories/GHSA-phwq-j96m-2c2q"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-74"
+      ]
+    },
+    {
+      "id": 1098366,
+      "type": "dependency-cve",
+      "title": "ejs lacks certain pollution protection",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "ejs lacks certain pollution protection in ejs (CWE-693, CWE-1321).",
+      "package": "ejs",
+      "packageVersion": "2.7.4",
+      "affectedVersions": "<3.1.10",
+      "patchedVersions": "3.1.10",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ ejs 2.7.4 is in the affected range <3.1.10",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade ejs to 7.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade ejs to 7.0.1 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-ghr5-ch3p-vcr6",
+      "references": [
+        "https://github.com/advisories/GHSA-ghr5-ch3p-vcr6"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-693",
+        "CWE-1321"
+      ]
+    },
+    {
+      "id": 1086748,
+      "type": "dependency-cve",
+      "title": "Denial of Service in express-fileupload",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "Denial of Service in express-fileupload in express-fileupload.",
+      "package": "express-fileupload",
+      "packageVersion": "0.4.0",
+      "affectedVersions": "<=1.0.0-alpha.1",
+      "patchedVersions": null,
+      "advisorySeverity": "low",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ express-fileupload 0.4.0 is in the affected range <=1.0.0-alpha.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-q3w9-g74q-vp5f",
+      "references": [
+        "https://github.com/advisories/GHSA-q3w9-g74q-vp5f"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit"
+      ]
+    },
+    {
+      "id": 1086749,
+      "type": "dependency-cve",
+      "title": "Denial of Service in express-fileupload",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "Denial of Service in express-fileupload in express-fileupload.",
+      "package": "express-fileupload",
+      "packageVersion": "0.4.0",
+      "affectedVersions": "<=1.1.1-alpha.3",
+      "patchedVersions": null,
+      "advisorySeverity": "low",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ express-fileupload 0.4.0 is in the affected range <=1.1.1-alpha.3",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-q3w9-g74q-vp5f",
+      "references": [
+        "https://github.com/advisories/GHSA-q3w9-g74q-vp5f"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit"
+      ]
+    },
+    {
+      "id": 1086750,
+      "type": "dependency-cve",
+      "title": "Denial of Service in express-fileupload",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "Denial of Service in express-fileupload in express-fileupload.",
+      "package": "express-fileupload",
+      "packageVersion": "0.4.0",
+      "affectedVersions": "<=1.1.2-alpha.1",
+      "patchedVersions": null,
+      "advisorySeverity": "low",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ express-fileupload 0.4.0 is in the affected range <=1.1.2-alpha.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-q3w9-g74q-vp5f",
+      "references": [
+        "https://github.com/advisories/GHSA-q3w9-g74q-vp5f"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit"
+      ]
+    },
+    {
+      "id": 1086751,
+      "type": "dependency-cve",
+      "title": "Denial of Service in express-fileupload",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "Denial of Service in express-fileupload in express-fileupload.",
+      "package": "express-fileupload",
+      "packageVersion": "0.4.0",
+      "affectedVersions": "<=1.1.3-alpha.2",
+      "patchedVersions": null,
+      "advisorySeverity": "low",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ express-fileupload 0.4.0 is in the affected range <=1.1.3-alpha.2",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-q3w9-g74q-vp5f",
+      "references": [
+        "https://github.com/advisories/GHSA-q3w9-g74q-vp5f"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit"
+      ]
+    },
+    {
+      "id": 1086752,
+      "type": "dependency-cve",
+      "title": "Denial of Service in express-fileupload",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "Denial of Service in express-fileupload in express-fileupload.",
+      "package": "express-fileupload",
+      "packageVersion": "0.4.0",
+      "affectedVersions": "<1.1.6-alpha.6",
+      "patchedVersions": "1.1.6-alpha.6",
+      "advisorySeverity": "low",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ express-fileupload 0.4.0 is in the affected range <1.1.6-alpha.6",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-q3w9-g74q-vp5f",
+      "references": [
+        "https://github.com/advisories/GHSA-q3w9-g74q-vp5f"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit"
+      ]
+    },
+    {
+      "id": 1089068,
+      "type": "dependency-cve",
+      "title": "Prototype Pollution in express-fileupload",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Prototype Pollution in express-fileupload in express-fileupload (CWE-915, CWE-1321).",
+      "package": "express-fileupload",
+      "packageVersion": "0.4.0",
+      "affectedVersions": "<1.1.9",
+      "patchedVersions": "1.1.9",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ express-fileupload 0.4.0 is in the affected range <1.1.9",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-9wcg-jrwf-8gg7",
+      "references": [
+        "https://github.com/advisories/GHSA-9wcg-jrwf-8gg7"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-915",
+        "CWE-1321"
+      ]
+    },
+    {
+      "id": 1094404,
+      "type": "dependency-cve",
+      "title": "Express-FileUpload Arbitrary File Overwrite",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Express-FileUpload Arbitrary File Overwrite in express-fileupload (CWE-434).",
+      "package": "express-fileupload",
+      "packageVersion": "0.4.0",
+      "affectedVersions": "<=1.3.1",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ express-fileupload 0.4.0 is in the affected range <=1.3.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade express-fileupload to 1.5.2 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-w4m6-x6c2-j5c9",
+      "references": [
+        "https://github.com/advisories/GHSA-w4m6-x6c2-j5c9"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-434"
+      ]
+    },
+    {
+      "id": 1109540,
+      "type": "dependency-cve",
+      "title": "form-data uses unsafe random function in form-data for choosing boundary",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "form-data uses unsafe random function in form-data for choosing boundary in form-data (CWE-330).",
+      "package": "form-data",
+      "packageVersion": "2.3.3",
+      "affectedVersions": "<2.5.4",
+      "patchedVersions": "2.5.4",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ form-data 2.3.3 is in the affected range <2.5.4",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on form-data, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-fjxv-7rqg-78g4",
+      "references": [
+        "https://github.com/advisories/GHSA-fjxv-7rqg-78g4"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-330"
+      ]
+    },
+    {
+      "id": 1120745,
+      "type": "dependency-cve",
+      "title": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "form-data: CRLF injection in form-data via unescaped multipart field names and filenames in form-data (CWE-93).",
+      "package": "form-data",
+      "packageVersion": "2.3.3",
+      "affectedVersions": "<2.5.6",
+      "patchedVersions": "2.5.6",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ form-data 2.3.3 is in the affected range <2.5.6",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on form-data, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-hmw2-7cc7-3qxx",
+      "references": [
+        "https://github.com/advisories/GHSA-hmw2-7cc7-3qxx"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-93"
+      ]
+    },
+    {
+      "id": 1100552,
+      "type": "dependency-cve",
+      "title": "libxmljs vulnerable to type confusion when parsing specially crafted XML ",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "libxmljs vulnerable to type confusion when parsing specially crafted XML  in libxmljs (CWE-843).",
+      "package": "libxmljs",
+      "packageVersion": "0.19.10",
+      "affectedVersions": "<=1.0.11",
+      "patchedVersions": null,
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ libxmljs 0.19.10 is in the affected range <=1.0.11",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "⚠ No fix available yet",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "No patched release is available through npm audit yet. Consider replacing libxmljs, or check whether the vulnerable code path is reachable. Details: https://github.com/advisories/GHSA-mg49-jqgw-gcj6",
+      "references": [
+        "https://github.com/advisories/GHSA-mg49-jqgw-gcj6"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-843"
+      ]
+    },
+    {
+      "id": 1100659,
+      "type": "dependency-cve",
+      "title": "libxmljs vulnerable to type confusion when parsing specially crafted XML",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "libxmljs vulnerable to type confusion when parsing specially crafted XML in libxmljs (CWE-843).",
+      "package": "libxmljs",
+      "packageVersion": "0.19.10",
+      "affectedVersions": "<=1.0.11",
+      "patchedVersions": null,
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ libxmljs 0.19.10 is in the affected range <=1.0.11",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "⚠ No fix available yet",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "No patched release is available through npm audit yet. Consider replacing libxmljs, or check whether the vulnerable code path is reachable. Details: https://github.com/advisories/GHSA-6433-x5p4-8jc7",
+      "references": [
+        "https://github.com/advisories/GHSA-6433-x5p4-8jc7"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-843"
+      ]
+    },
+    {
+      "id": 1111708,
+      "type": "dependency-cve",
+      "title": "libxmljs has segmentation fault, potentially leading to a denial-of-service (DoS)",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "libxmljs has segmentation fault, potentially leading to a denial-of-service (DoS) in libxmljs (CWE-400).",
+      "package": "libxmljs",
+      "packageVersion": "0.19.10",
+      "affectedVersions": "<=1.0.11",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ libxmljs 0.19.10 is in the affected range <=1.0.11",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "⚠ No fix available yet",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "No patched release is available through npm audit yet. Consider replacing libxmljs, or check whether the vulnerable code path is reachable. Details: https://github.com/advisories/GHSA-jv72-59wq-8rxm",
+      "references": [
+        "https://github.com/advisories/GHSA-jv72-59wq-8rxm"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": 1087811,
+      "type": "dependency-cve",
+      "title": "Arbitrary Code Execution in mathjs",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Arbitrary Code Execution in mathjs in mathjs (CWE-94).",
+      "package": "mathjs",
+      "packageVersion": "3.10.1",
+      "affectedVersions": "<3.17.0",
+      "patchedVersions": "3.17.0",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mathjs 3.10.1 is in the affected range <3.17.0",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mathjs to 3.20.2",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mathjs to 3.20.2. Details: https://github.com/advisories/GHSA-vx5c-87qx-cv6c",
+      "references": [
+        "https://github.com/advisories/GHSA-vx5c-87qx-cv6c"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-94"
+      ]
+    },
+    {
+      "id": 1088796,
+      "type": "dependency-cve",
+      "title": "Prototype Pollution in mathjs",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Prototype Pollution in mathjs in mathjs (CWE-915).",
+      "package": "mathjs",
+      "packageVersion": "3.10.1",
+      "affectedVersions": "<7.5.1",
+      "patchedVersions": "7.5.1",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mathjs 3.10.1 is in the affected range <7.5.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mathjs to 3.20.2",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mathjs to 3.20.2. Details: https://github.com/advisories/GHSA-x2fc-mxcx-w4mf",
+      "references": [
+        "https://github.com/advisories/GHSA-x2fc-mxcx-w4mf"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-915"
+      ]
+    },
+    {
+      "id": 1093770,
+      "type": "dependency-cve",
+      "title": "Arbitrary Code Execution in mathjs",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Arbitrary Code Execution in mathjs in mathjs (CWE-88).",
+      "package": "mathjs",
+      "packageVersion": "3.10.1",
+      "affectedVersions": "<3.17.0",
+      "patchedVersions": "3.17.0",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mathjs 3.10.1 is in the affected range <3.17.0",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mathjs to 3.20.2",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mathjs to 3.20.2. Details: https://github.com/advisories/GHSA-pv8x-p9hq-j328",
+      "references": [
+        "https://github.com/advisories/GHSA-pv8x-p9hq-j328"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-88"
+      ]
+    },
+    {
+      "id": 1096970,
+      "type": "dependency-cve",
+      "title": "mysql2 Remote Code Execution (RCE) via the readCodeFor function",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "mysql2 Remote Code Execution (RCE) via the readCodeFor function in mysql2 (CWE-94).",
+      "package": "mysql2",
+      "packageVersion": "1.7.0",
+      "affectedVersions": "<3.9.4",
+      "patchedVersions": "3.9.4",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mysql2 1.7.0 is in the affected range <3.9.4",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mysql2 to 3.24.5 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mysql2 to 3.24.5 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-fpw7-j2hg-69v5",
+      "references": [
+        "https://github.com/advisories/GHSA-fpw7-j2hg-69v5"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-94"
+      ]
+    },
+    {
+      "id": 1097180,
+      "type": "dependency-cve",
+      "title": "MySQL2 for Node Arbitrary Code Injection",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "MySQL2 for Node Arbitrary Code Injection in mysql2 (CWE-94).",
+      "package": "mysql2",
+      "packageVersion": "1.7.0",
+      "affectedVersions": "<3.9.7",
+      "patchedVersions": "3.9.7",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mysql2 1.7.0 is in the affected range <3.9.7",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mysql2 to 3.24.5 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mysql2 to 3.24.5 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-4rch-2fh8-94vw",
+      "references": [
+        "https://github.com/advisories/GHSA-4rch-2fh8-94vw"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-94"
+      ]
+    },
+    {
+      "id": 1097488,
+      "type": "dependency-cve",
+      "title": "mysql2 vulnerable to Prototype Pollution",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "mysql2 vulnerable to Prototype Pollution in mysql2 (CWE-1321).",
+      "package": "mysql2",
+      "packageVersion": "1.7.0",
+      "affectedVersions": "<3.9.8",
+      "patchedVersions": "3.9.8",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mysql2 1.7.0 is in the affected range <3.9.8",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mysql2 to 3.24.5 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mysql2 to 3.24.5 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-pmh2-wpjm-fj45",
+      "references": [
+        "https://github.com/advisories/GHSA-pmh2-wpjm-fj45"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1321"
+      ]
+    },
+    {
+      "id": 1098367,
+      "type": "dependency-cve",
+      "title": "mysql2 cache poisoning vulnerability",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "mysql2 cache poisoning vulnerability in mysql2 (CWE-20).",
+      "package": "mysql2",
+      "packageVersion": "1.7.0",
+      "affectedVersions": "<3.9.3",
+      "patchedVersions": "3.9.3",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mysql2 1.7.0 is in the affected range <3.9.3",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mysql2 to 3.24.5 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mysql2 to 3.24.5 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-mqr2-w7wj-jjgr",
+      "references": [
+        "https://github.com/advisories/GHSA-mqr2-w7wj-jjgr"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-20"
+      ]
+    },
+    {
+      "id": 1098617,
+      "type": "dependency-cve",
+      "title": "mysql2 vulnerable to Prototype Poisoning",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "mysql2 vulnerable to Prototype Poisoning in mysql2 (CWE-1321).",
+      "package": "mysql2",
+      "packageVersion": "1.7.0",
+      "affectedVersions": "<3.9.4",
+      "patchedVersions": "3.9.4",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mysql2 1.7.0 is in the affected range <3.9.4",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mysql2 to 3.24.5 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mysql2 to 3.24.5 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-49j4-86m8-q2jw",
+      "references": [
+        "https://github.com/advisories/GHSA-49j4-86m8-q2jw"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1321"
+      ]
+    },
+    {
+      "id": 1153173,
+      "type": "dependency-cve",
+      "title": "MySQL2: Auth Plugin Downgrade to mysql_clear_password Leaks Plaintext Credentials",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "MySQL2: Auth Plugin Downgrade to mysql_clear_password Leaks Plaintext Credentials in mysql2 (CWE-522).",
+      "package": "mysql2",
+      "packageVersion": "1.7.0",
+      "affectedVersions": "<3.22.0",
+      "patchedVersions": "3.22.0",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mysql2 1.7.0 is in the affected range <3.22.0",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mysql2 to 3.24.5 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mysql2 to 3.24.5 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-3f6p-5ww8-9rcr",
+      "references": [
+        "https://github.com/advisories/GHSA-3f6p-5ww8-9rcr"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-522"
+      ]
+    },
+    {
+      "id": 1158532,
+      "type": "dependency-cve",
+      "title": "MySQL2: Unbounded zlib inflate in compressed MySQL protocol handler allows decompression-bomb DoS",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "MySQL2: Unbounded zlib inflate in compressed MySQL protocol handler allows decompression-bomb DoS in mysql2 (CWE-409).",
+      "package": "mysql2",
+      "packageVersion": "1.7.0",
+      "affectedVersions": "<=3.23.0",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ mysql2 1.7.0 is in the affected range <=3.23.0",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mysql2 to 3.24.5 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mysql2 to 3.24.5 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-rgwj-5xj2-c3m3",
+      "references": [
+        "https://github.com/advisories/GHSA-rgwj-5xj2-c3m3"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-409"
+      ]
+    },
+    {
+      "id": 1090722,
+      "type": "dependency-cve",
+      "title": "Code Execution through IIFE in node-serialize",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Code Execution through IIFE in node-serialize in node-serialize (CWE-502).",
+      "package": "node-serialize",
+      "packageVersion": "0.0.4",
+      "affectedVersions": "<=0.0.4",
+      "patchedVersions": null,
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ node-serialize 0.0.4 is in the affected range <=0.0.4",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "⚠ No fix available yet",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "No patched release is available through npm audit yet. Consider replacing node-serialize, or check whether the vulnerable code path is reachable. Details: https://github.com/advisories/GHSA-q4v7-4rhw-9hqm",
+      "references": [
+        "https://github.com/advisories/GHSA-q4v7-4rhw-9hqm"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-502"
+      ]
+    },
+    {
+      "id": 1093639,
+      "type": "dependency-cve",
+      "title": "Passport vulnerable to session regeneration when a users logs in or out",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Passport vulnerable to session regeneration when a users logs in or out in passport (CWE-384).",
+      "package": "passport",
+      "packageVersion": "0.4.1",
+      "affectedVersions": "<0.6.0",
+      "patchedVersions": "0.6.0",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ passport 0.4.1 is in the affected range <0.6.0",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade passport to 0.7.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade passport to 0.7.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-v923-w3x8-wh69",
+      "references": [
+        "https://github.com/advisories/GHSA-v923-w3x8-wh69"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-384"
+      ]
+    },
+    {
+      "id": 1113719,
+      "type": "dependency-cve",
+      "title": "qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "qs's arrayLimit bypass in its bracket notation allows DoS via memory exhaustion in qs (CWE-20).",
+      "package": "qs",
+      "packageVersion": "6.5.5",
+      "affectedVersions": "<6.14.1",
+      "patchedVersions": "6.14.1",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ qs 6.5.5 is in the affected range <6.14.1",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on qs, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-6rw7-vpxm-498p",
+      "references": [
+        "https://github.com/advisories/GHSA-6rw7-vpxm-498p"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-20"
+      ]
+    },
+    {
+      "id": 1158507,
+      "type": "dependency-cve",
+      "title": "qs: Denial of Service via Attacker Controlled isBuffer",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "qs: Denial of Service via Attacker Controlled isBuffer in qs (CWE-248, CWE-703).",
+      "package": "qs",
+      "packageVersion": "6.5.5",
+      "affectedVersions": ">=2.2.5 <6.16.0",
+      "patchedVersions": "6.16.0",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ qs 6.5.5 is in the affected range >=2.2.5 <6.16.0",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on qs, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-4mjr-xmp4-gh2g",
+      "references": [
+        "https://github.com/advisories/GHSA-4mjr-xmp4-gh2g"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-248",
+        "CWE-703"
+      ]
+    },
+    {
+      "id": 1096727,
+      "type": "dependency-cve",
+      "title": "Server-Side Request Forgery in Request",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Server-Side Request Forgery in Request in request (CWE-918).",
+      "package": "request",
+      "packageVersion": "2.88.2",
+      "affectedVersions": "<=2.88.2",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ request 2.88.2 is in the affected range <=2.88.2",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on request, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-p8p7-x288-28g6",
+      "references": [
+        "https://github.com/advisories/GHSA-p8p7-x288-28g6"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-918"
+      ]
+    },
+    {
+      "id": 1091121,
+      "type": "dependency-cve",
+      "title": "Sequelize vulnerable to SQL Injection via replacements",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Sequelize vulnerable to SQL Injection via replacements in sequelize (CWE-89).",
+      "package": "sequelize",
+      "packageVersion": "4.44.4",
+      "affectedVersions": "<6.19.1",
+      "patchedVersions": "6.19.1",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ sequelize 4.44.4 is in the affected range <6.19.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sequelize to 6.37.8 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade sequelize to 6.37.8 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-wrh9-cjv3-2hpw",
+      "references": [
+        "https://github.com/advisories/GHSA-wrh9-cjv3-2hpw"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-89"
+      ]
+    },
+    {
+      "id": 1091130,
+      "type": "dependency-cve",
+      "title": "Sequelize information disclosure vulnerability",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Sequelize information disclosure vulnerability in sequelize (CWE-200).",
+      "package": "sequelize",
+      "packageVersion": "4.44.4",
+      "affectedVersions": "<6.28.1",
+      "patchedVersions": "6.28.1",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ sequelize 4.44.4 is in the affected range <6.28.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sequelize to 6.37.8 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade sequelize to 6.37.8 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-8c25-f3mj-v6h8",
+      "references": [
+        "https://github.com/advisories/GHSA-8c25-f3mj-v6h8"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-200"
+      ]
+    },
+    {
+      "id": 1091149,
+      "type": "dependency-cve",
+      "title": "Sequelize - Default support for “raw attributes” when using parentheses",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Sequelize - Default support for “raw attributes” when using parentheses in sequelize (CWE-790).",
+      "package": "sequelize",
+      "packageVersion": "4.44.4",
+      "affectedVersions": "<6.29.0",
+      "patchedVersions": "6.29.0",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ sequelize 4.44.4 is in the affected range <6.29.0",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sequelize to 6.37.8 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade sequelize to 6.37.8 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-f598-mfpv-gmfx",
+      "references": [
+        "https://github.com/advisories/GHSA-f598-mfpv-gmfx"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-790"
+      ]
+    },
+    {
+      "id": 1117429,
+      "type": "dependency-cve",
+      "title": "Unsafe fall-through in getWhereConditions",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Unsafe fall-through in getWhereConditions in sequelize (CWE-843).",
+      "package": "sequelize",
+      "packageVersion": "4.44.4",
+      "affectedVersions": "<6.28.1",
+      "patchedVersions": "6.28.1",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ sequelize 4.44.4 is in the affected range <6.28.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sequelize to 6.37.8 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade sequelize to 6.37.8 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-vqfx-gj96-3w95",
+      "references": [
+        "https://github.com/advisories/GHSA-vqfx-gj96-3w95"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-843"
+      ]
+    },
+    {
+      "id": 1130741,
+      "type": "dependency-cve",
+      "title": "Sequelize: SQL Injection (Oracle DB)",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "Sequelize: SQL Injection (Oracle DB) in sequelize (CWE-89).",
+      "package": "sequelize",
+      "packageVersion": "4.44.4",
+      "affectedVersions": "<6.37.4",
+      "patchedVersions": "6.37.4",
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ sequelize 4.44.4 is in the affected range <6.37.4",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sequelize to 6.37.8 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade sequelize to 6.37.8 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-v8fg-2rw7-q452",
+      "references": [
+        "https://github.com/advisories/GHSA-v8fg-2rw7-q452"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-89"
+      ]
+    },
+    {
+      "id": 1089685,
+      "type": "dependency-cve",
+      "title": "Arbitrary File Creation/Overwrite due to insufficient absolute path sanitization",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Arbitrary File Creation/Overwrite due to insufficient absolute path sanitization in tar (CWE-22).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<3.2.2",
+      "patchedVersions": "3.2.2",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <3.2.2",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-3jfq-g458-7qm9",
+      "references": [
+        "https://github.com/advisories/GHSA-3jfq-g458-7qm9"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1095117,
+      "type": "dependency-cve",
+      "title": "Arbitrary File Creation/Overwrite on Windows via insufficient relative path sanitization",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Arbitrary File Creation/Overwrite on Windows via insufficient relative path sanitization in tar (CWE-22).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<4.4.18",
+      "patchedVersions": "4.4.18",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <4.4.18",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-5955-9wpr-37jh",
+      "references": [
+        "https://github.com/advisories/GHSA-5955-9wpr-37jh"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1097493,
+      "type": "dependency-cve",
+      "title": "Denial of service while parsing a tar file due to lack of folders count validation",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Denial of service while parsing a tar file due to lack of folders count validation in tar (CWE-400).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<6.2.1",
+      "patchedVersions": "6.2.1",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <6.2.1",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-f5x3-32g6-xq36",
+      "references": [
+        "https://github.com/advisories/GHSA-f5x3-32g6-xq36"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400"
+      ]
+    },
+    {
+      "id": 1112659,
+      "type": "dependency-cve",
+      "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal in tar (CWE-22, CWE-59).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<7.5.7",
+      "patchedVersions": "7.5.7",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <7.5.7",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-34x7-hfp2-rc4v",
+      "references": [
+        "https://github.com/advisories/GHSA-34x7-hfp2-rc4v"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22",
+        "CWE-59"
+      ]
+    },
+    {
+      "id": 1113300,
+      "type": "dependency-cve",
+      "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization in tar (CWE-22).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.2",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.2",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-8qq5-rm4j-mr97",
+      "references": [
+        "https://github.com/advisories/GHSA-8qq5-rm4j-mr97"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1113375,
+      "type": "dependency-cve",
+      "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction in tar (CWE-22).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<7.5.8",
+      "patchedVersions": "7.5.8",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <7.5.8",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-83g3-92jg-28cx",
+      "references": [
+        "https://github.com/advisories/GHSA-83g3-92jg-28cx"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1114200,
+      "type": "dependency-cve",
+      "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "tar has Hardlink Path Traversal via Drive-Relative Linkpath in tar (CWE-22, CWE-59).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.9",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.9",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-qffp-2rhf-9h96",
+      "references": [
+        "https://github.com/advisories/GHSA-qffp-2rhf-9h96"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22",
+        "CWE-59"
+      ]
+    },
+    {
+      "id": 1114302,
+      "type": "dependency-cve",
+      "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "node-tar Symlink Path Traversal via Drive-Relative Linkpath in tar (CWE-22).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.10",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.10",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-9ppj-qmqm-q256",
+      "references": [
+        "https://github.com/advisories/GHSA-9ppj-qmqm-q256"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-22"
+      ]
+    },
+    {
+      "id": 1114680,
+      "type": "dependency-cve",
+      "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS in tar (CWE-176, CWE-367).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.3",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.3",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-r6q2-hw4h-h46w",
+      "references": [
+        "https://github.com/advisories/GHSA-r6q2-hw4h-h46w"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-176",
+        "CWE-367"
+      ]
+    },
+    {
+      "id": 1120782,
+      "type": "dependency-cve",
+      "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling) in tar (CWE-436).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.15",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.15",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-vmf3-w455-68vh",
+      "references": [
+        "https://github.com/advisories/GHSA-vmf3-w455-68vh"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-436"
+      ]
+    },
+    {
+      "id": 1123939,
+      "type": "dependency-cve",
+      "title": "node-tar: Process crash via PAX numeric path type confusion",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "node-tar: Process crash via PAX numeric path type confusion in tar (CWE-704).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.17",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.17",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-w8wr-v893-vjvp",
+      "references": [
+        "https://github.com/advisories/GHSA-w8wr-v893-vjvp"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-704"
+      ]
+    },
+    {
+      "id": 1123940,
+      "type": "dependency-cve",
+      "title": "node-tar: Decompression/parse DoS via unlimited input",
+      "severity": "critical",
+      "confidence": 0.95,
+      "description": "node-tar: Decompression/parse DoS via unlimited input in tar (CWE-770).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.18",
+      "patchedVersions": null,
+      "advisorySeverity": "critical",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.18",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-23hp-3jrh-7fpw",
+      "references": [
+        "https://github.com/advisories/GHSA-23hp-3jrh-7fpw"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-770"
+      ]
+    },
+    {
+      "id": 1123941,
+      "type": "dependency-cve",
+      "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "node-tar: Negative tar entry size causes infinite loop in archive replace in tar (CWE-835).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.17",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.17",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
+      "references": [
+        "https://github.com/advisories/GHSA-8x88-c5mf-7j5w"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-835"
+      ]
+    },
+    {
+      "id": 1123942,
+      "type": "dependency-cve",
+      "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records in tar (CWE-248).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.16",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.16",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-gvwx-54wh-qm9j",
+      "references": [
+        "https://github.com/advisories/GHSA-gvwx-54wh-qm9j"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-248"
+      ]
+    },
+    {
+      "id": 1145647,
+      "type": "dependency-cve",
+      "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection in tar (CWE-400, CWE-674).",
+      "package": "tar",
+      "packageVersion": "2.2.2, 6.2.1",
+      "affectedVersions": "<=7.5.20",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tar 2.2.2, 6.2.1 is in the affected range <=7.5.20",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-r292-9mhp-454m",
+      "references": [
+        "https://github.com/advisories/GHSA-r292-9mhp-454m"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-400",
+        "CWE-674"
+      ]
+    },
+    {
+      "id": 1097682,
+      "type": "dependency-cve",
+      "title": "tough-cookie Prototype Pollution vulnerability",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "tough-cookie Prototype Pollution vulnerability in tough-cookie (CWE-1321).",
+      "package": "tough-cookie",
+      "packageVersion": "2.5.0",
+      "affectedVersions": "<4.1.3",
+      "patchedVersions": "4.1.3",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ tough-cookie 2.5.0 is in the affected range <4.1.3",
+        "✓ Pulled in by bcrypt",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade bcrypt to 6.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade bcrypt to 6.0.0 (major version change: check for breaking changes); it depends on tough-cookie, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-72xf-g2v4-qvf3",
+      "references": [
+        "https://github.com/advisories/GHSA-72xf-g2v4-qvf3"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1321"
+      ]
+    },
+    {
+      "id": 1087024,
+      "type": "dependency-cve",
+      "title": "Arbitrary JavaScript Execution in typed-function",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Arbitrary JavaScript Execution in typed-function in typed-function (CWE-94).",
+      "package": "typed-function",
+      "packageVersion": "0.10.5",
+      "affectedVersions": "<0.10.6",
+      "patchedVersions": "0.10.6",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ typed-function 0.10.5 is in the affected range <0.10.6",
+        "✓ Pulled in by mathjs",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade mathjs to 3.20.2",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade mathjs to 3.20.2; it depends on typed-function, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-3qh4-r86r-grvm",
+      "references": [
+        "https://github.com/advisories/GHSA-3qh4-r86r-grvm"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-94"
+      ]
+    },
+    {
+      "id": 1119441,
+      "type": "dependency-cve",
+      "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided in uuid (CWE-787, CWE-1285).",
+      "package": "uuid",
+      "packageVersion": "3.4.0",
+      "affectedVersions": "<11.1.1",
+      "patchedVersions": "11.1.1",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ uuid 3.4.0 is in the affected range <11.1.1",
+        "✓ Pulled in by bcrypt, sequelize",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sequelize to 6.37.8 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade sequelize to 6.37.8 (major version change: check for breaking changes); it depends on uuid, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-w5hq-g745-h8pq",
+      "references": [
+        "https://github.com/advisories/GHSA-w5hq-g745-h8pq"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-787",
+        "CWE-1285"
+      ]
+    },
+    {
+      "id": 1095093,
+      "type": "dependency-cve",
+      "title": "Inefficient Regular Expression Complexity in validator.js",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "Inefficient Regular Expression Complexity in validator.js in validator (CWE-1333).",
+      "package": "validator",
+      "packageVersion": "10.11.0",
+      "affectedVersions": "<13.7.0",
+      "patchedVersions": "13.7.0",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ validator 10.11.0 is in the affected range <13.7.0",
+        "✓ Pulled in by sequelize",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sequelize to 6.37.8 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade sequelize to 6.37.8 (major version change: check for breaking changes); it depends on validator, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-qgmg-gppg-76g5",
+      "references": [
+        "https://github.com/advisories/GHSA-qgmg-gppg-76g5"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1333"
+      ]
+    },
+    {
+      "id": 1109241,
+      "type": "dependency-cve",
+      "title": "validator.js has a URL validation bypass vulnerability in its isURL function",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "validator.js has a URL validation bypass vulnerability in its isURL function in validator (CWE-79).",
+      "package": "validator",
+      "packageVersion": "10.11.0",
+      "affectedVersions": "<13.15.20",
+      "patchedVersions": "13.15.20",
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ validator 10.11.0 is in the affected range <13.15.20",
+        "✓ Pulled in by sequelize",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sequelize to 6.37.8 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade sequelize to 6.37.8 (major version change: check for breaking changes); it depends on validator, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-9965-vmph-33xx",
+      "references": [
+        "https://github.com/advisories/GHSA-9965-vmph-33xx"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-79"
+      ]
+    },
+    {
+      "id": 1112713,
+      "type": "dependency-cve",
+      "title": "Validator is Vulnerable to Incomplete Filtering of One or More Instances of Special Elements",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "Validator is Vulnerable to Incomplete Filtering of One or More Instances of Special Elements in validator (CWE-172, CWE-792).",
+      "package": "validator",
+      "packageVersion": "10.11.0",
+      "affectedVersions": "<13.15.22",
+      "patchedVersions": "13.15.22",
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ validator 10.11.0 is in the affected range <13.15.22",
+        "✓ Pulled in by sequelize",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sequelize to 6.37.8 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade sequelize to 6.37.8 (major version change: check for breaking changes); it depends on validator, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-vghf-hv5q-vc2g",
+      "references": [
+        "https://github.com/advisories/GHSA-vghf-hv5q-vc2g"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-172",
+        "CWE-792"
+      ]
+    },
+    {
+      "id": "secret-server.js-24",
+      "type": "hardcoded-secret",
+      "title": "Secret Key",
+      "severity": "high",
+      "confidence": 0.6,
+      "description": "Hardcoded secret key (e.g. a session or JWT signing secret) detected",
+      "file": "server.js",
+      "line": 24,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ `secret` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "✓ In application code or config",
+        "✓ Active code (not in a comment)"
+      ],
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "secrets-detection",
+        "generic-credential"
+      ]
+    },
     {
       "id": "sqli-core_appHandler_js-10",
       "type": "sql-injection",
@@ -326,8 +2214,8 @@
       "Logging PII"
     ],
     "findingsByType": {
-      "dependency-cve": 0,
-      "hardcoded-secret": 0,
+      "dependency-cve": 58,
+      "hardcoded-secret": 1,
       "sql-injection": 1,
       "xss": 10,
       "crypto-misuse": 0,
@@ -335,11 +2223,11 @@
     }
   },
   "summary": {
-    "total": 11,
-    "critical": 1,
-    "high": 0,
-    "medium": 10,
-    "low": 0,
+    "total": 70,
+    "critical": 16,
+    "high": 20,
+    "medium": 28,
+    "low": 6,
     "info": 0
   },
   "source": {

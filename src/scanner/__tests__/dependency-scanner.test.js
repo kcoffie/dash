@@ -41,29 +41,42 @@ async function testMalformedJson() {
   return false;
 }
 
-async function testValidPackageJson() {
-  const testPath = setup('valid-package-json');
-  fs.writeFileSync(
-    path.join(testPath, 'package.json'),
-    JSON.stringify({
-      name: 'test-app',
-      version: '1.0.0',
-      dependencies: {
-        express: '^4.0.0',
-      },
-    }),
-  );
+function isOffline(errors) {
+  return errors.some((error) => /ENOTFOUND|EAI_AGAIN|ECONNREFUSED|ETIMEDOUT|network/i.test(error));
+}
+
+async function testNoLockfileWithWorkspaces() {
+  // npm audit needs a lockfile; workspaces can't be resolved from package.json alone
+  const testPath = setup('workspaces-no-lockfile');
+  fs.writeFileSync(path.join(testPath, 'package.json'), JSON.stringify({ name: 'mono', workspaces: ['packages/*'] }));
 
   const { findings, errors } = await scanDependencies(testPath);
-
-  // Note: This test requires npm to be installed and may fail without network
-  if (errors.length === 0) {
-    console.log(`✓ Valid package.json: found ${findings.length} vulnerabilities`);
+  if (findings.length === 0 && errors.some((error) => error.includes('workspaces'))) {
+    console.log('✓ No lockfile + workspaces: reported as an error, not as zero findings');
     return true;
   }
-  // npm audit might fail in some environments, that's ok for now
-  console.log('⚠ Valid package.json: npm audit failed (may be offline or permission issue)');
-  return true;
+  console.log(`✗ No lockfile + workspaces: expected an error, got ${JSON.stringify({ findings: findings.length, errors })}`);
+  return false;
+}
+
+async function testNoLockfileResolvesWithoutTouchingTarget() {
+  // DVNA's case: no lockfile. node-serialize 0.0.4 has a critical advisory with no fix.
+  const testPath = setup('no-lockfile');
+  fs.writeFileSync(path.join(testPath, 'package.json'), JSON.stringify({ name: 'app', version: '1.0.0', dependencies: { 'node-serialize': '0.0.4' } }));
+
+  const { findings, errors } = await scanDependencies(testPath);
+  if (isOffline(errors)) {
+    console.log(`⚠ No lockfile: skipped, npm registry unreachable (${errors[0]})`);
+    return true;
+  }
+  const finding = findings.find((f) => f.package === 'node-serialize');
+  const leftovers = fs.readdirSync(testPath).filter((name) => name !== 'package.json');
+  if (errors.length === 0 && finding?.packageVersion === '0.0.4' && finding.severity === 'critical' && finding.devOnly === false && leftovers.length === 0) {
+    console.log('✓ No lockfile: resolved in a temp dir, node-serialize@0.0.4 critical, target untouched');
+    return true;
+  }
+  console.log(`✗ No lockfile: ${JSON.stringify({ errors, finding, leftovers })}`);
+  return false;
 }
 
 async function runTests() {
@@ -72,7 +85,8 @@ async function runTests() {
   const results = [];
   results.push(await testMissingPackageJson());
   results.push(await testMalformedJson());
-  results.push(await testValidPackageJson());
+  results.push(await testNoLockfileWithWorkspaces());
+  results.push(await testNoLockfileResolvesWithoutTouchingTarget());
 
   console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
 

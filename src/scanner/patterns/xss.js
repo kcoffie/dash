@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import {
-  shouldSkipFile, isSourceFile, isTemplateFile, nonProductionContext, walkDir, toStatements, USER_INPUT, ROUTE_HANDLER,
+  isSourceFile, isTemplateFile, nonProductionContext, walkDir, toStatements, USER_INPUT, ROUTE_HANDLER,
 } from '../file-utils.js';
 
 // How many physical lines after a sink to read when its argument spans lines: `sink(\n  value\n)`
@@ -214,7 +214,7 @@ export async function scanForXss(targetPath) {
     const files = walkDir(targetPath);
 
     for (const file of files) {
-      if (shouldSkipFile(file) || !(isSourceFile(file) || isTemplateFile(file))) continue;
+      if (!(isSourceFile(file) || isTemplateFile(file))) continue;
 
       let content;
       try {

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-02T20:35:01.574Z",
+  "timestamp": "2026-10-05T17:56:49.596Z",
   "targetPath": "express",
   "findings": [
     {
@@ -8,130 +8,295 @@
       "title": "jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch",
       "severity": "low",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch in diff (CWE-400, CWE-1333).",
       "package": "diff",
-      "patchedVersions": "12.0.3",
+      "packageVersion": "7.0.0",
+      "affectedVersions": ">=6.0.0 <8.0.3",
+      "patchedVersions": "8.0.3",
+      "advisorySeverity": "low",
+      "devOnly": true,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: diff@undefined",
-        "⚠ Severity: low",
-        "✓ Vulnerability: jsdiff has a Denial of Service vulnerability in parsePatch and applyPatch",
-        "✓ Fix available: upgrade to 12.0.3"
+        "✓ diff 7.0.0 is in the affected range >=6.0.0 <8.0.3",
+        "✓ Pulled in by mocha",
+        "⚠ Dev-only dependency (not installed in production)",
+        "✓ Fix available: upgrade mocha to 12.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update diff to 12.0.3. See https://github.com/advisories/GHSA-73rr-hh4g-fpgx for details.",
+      "remediation": "Upgrade mocha to 12.0.3 (major version change: check for breaking changes); it depends on diff, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-73rr-hh4g-fpgx",
       "references": [
         "https://github.com/advisories/GHSA-73rr-hh4g-fpgx"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-400"
+        "CWE-400",
+        "CWE-1333",
+        "dev-only"
       ]
     },
     {
       "id": 1113686,
       "type": "dependency-cve",
       "title": "Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString()",
-      "severity": "high",
+      "severity": "low",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString() in serialize-javascript (CWE-96).",
       "package": "serialize-javascript",
-      "patchedVersions": "12.0.3",
+      "packageVersion": "6.0.2",
+      "affectedVersions": "<=7.0.2",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": true,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: serialize-javascript@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Serialize JavaScript is Vulnerable to RCE via RegExp.flags and Date.prototype.toISOString()",
-        "✓ Fix available: upgrade to 12.0.3"
+        "✓ serialize-javascript 6.0.2 is in the affected range <=7.0.2",
+        "✓ Pulled in by mocha",
+        "⚠ Dev-only dependency (not installed in production): advisory severity high, scored low",
+        "✓ Fix available: upgrade mocha to 12.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update serialize-javascript to 12.0.3. See https://github.com/advisories/GHSA-5c6j-r48x-rmvq for details.",
+      "remediation": "Upgrade mocha to 12.0.3 (major version change: check for breaking changes); it depends on serialize-javascript, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-5c6j-r48x-rmvq",
       "references": [
         "https://github.com/advisories/GHSA-5c6j-r48x-rmvq"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-96"
+        "CWE-96",
+        "dev-only"
       ]
     },
     {
       "id": 1119440,
       "type": "dependency-cve",
       "title": "Serialize JavaScript has CPU Exhaustion Denial of Service via crafted array-like objects",
-      "severity": "medium",
+      "severity": "low",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Serialize JavaScript has CPU Exhaustion Denial of Service via crafted array-like objects in serialize-javascript (CWE-400, CWE-834).",
       "package": "serialize-javascript",
-      "patchedVersions": "12.0.3",
+      "packageVersion": "6.0.2",
+      "affectedVersions": ">=5.0.0 <7.0.5",
+      "patchedVersions": "7.0.5",
+      "advisorySeverity": "medium",
+      "devOnly": true,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: serialize-javascript@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Serialize JavaScript has CPU Exhaustion Denial of Service via crafted array-like objects",
-        "✓ Fix available: upgrade to 12.0.3"
+        "✓ serialize-javascript 6.0.2 is in the affected range >=5.0.0 <7.0.5",
+        "✓ Pulled in by mocha",
+        "⚠ Dev-only dependency (not installed in production): advisory severity medium, scored low",
+        "✓ Fix available: upgrade mocha to 12.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update serialize-javascript to 12.0.3. See https://github.com/advisories/GHSA-qj8w-gfj5-8c6v for details.",
+      "remediation": "Upgrade mocha to 12.0.3 (major version change: check for breaking changes); it depends on serialize-javascript, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-qj8w-gfj5-8c6v",
       "references": [
         "https://github.com/advisories/GHSA-qj8w-gfj5-8c6v"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-400"
+        "CWE-400",
+        "CWE-834",
+        "dev-only"
       ]
     },
     {
       "id": 1119441,
       "type": "dependency-cve",
       "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
-      "severity": "medium",
+      "severity": "low",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided in uuid (CWE-787, CWE-1285).",
       "package": "uuid",
-      "patchedVersions": "18.0.0",
+      "packageVersion": "8.3.2",
+      "affectedVersions": "<11.1.1",
+      "patchedVersions": "11.1.1",
+      "advisorySeverity": "medium",
+      "devOnly": true,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: uuid@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
-        "✓ Fix available: upgrade to 18.0.0"
+        "✓ uuid 8.3.2 is in the affected range <11.1.1",
+        "✓ Pulled in by nyc",
+        "⚠ Dev-only dependency (not installed in production): advisory severity medium, scored low",
+        "✓ Fix available: upgrade nyc to 18.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update uuid to 18.0.0. See https://github.com/advisories/GHSA-w5hq-g745-h8pq for details.",
+      "remediation": "Upgrade nyc to 18.0.0 (major version change: check for breaking changes); it depends on uuid, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-w5hq-g745-h8pq",
       "references": [
         "https://github.com/advisories/GHSA-w5hq-g745-h8pq"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-787"
+        "CWE-787",
+        "CWE-1285",
+        "dev-only"
+      ]
+    },
+    {
+      "id": "secret-examples/auth/index.js-25",
+      "type": "hardcoded-secret",
+      "title": "Secret Key",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Hardcoded secret key (e.g. a session or JWT signing secret) detected",
+      "file": "examples/auth/index.js",
+      "line": 25,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ `secret` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ In a test/example file (likely a test credential)",
+        "✓ Active code (not in a comment)"
+      ],
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-examples/auth/index.js-50",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "low",
+      "confidence": 0.2,
+      "description": "Hardcoded password detected",
       "file": "examples/auth/index.js",
       "line": 50,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "⚠ Value looks like a placeholder, not a real credential",
+        "⚠ In a test/example file (likely a test credential)",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
+      ]
+    },
+    {
+      "id": "secret-examples/cookie-sessions/index.js-13",
+      "type": "hardcoded-secret",
+      "title": "Secret Key",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Hardcoded secret key (e.g. a session or JWT signing secret) detected",
+      "file": "examples/cookie-sessions/index.js",
+      "line": 13,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ `secret` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ In a test/example file (likely a test credential)",
+        "✓ Active code (not in a comment)"
+      ],
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "secrets-detection",
+        "generic-credential"
+      ]
+    },
+    {
+      "id": "secret-examples/mvc/index.js-43",
+      "type": "hardcoded-secret",
+      "title": "Secret Key",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Hardcoded secret key (e.g. a session or JWT signing secret) detected",
+      "file": "examples/mvc/index.js",
+      "line": 43,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ `secret` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ In a test/example file (likely a test credential)",
+        "✓ Active code (not in a comment)"
+      ],
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "secrets-detection",
+        "generic-credential"
+      ]
+    },
+    {
+      "id": "secret-examples/session/index.js-19",
+      "type": "hardcoded-secret",
+      "title": "Secret Key",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Hardcoded secret key (e.g. a session or JWT signing secret) detected",
+      "file": "examples/session/index.js",
+      "line": 19,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ `secret` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ In a test/example file (likely a test credential)",
+        "✓ Active code (not in a comment)"
+      ],
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "secrets-detection",
+        "generic-credential"
+      ]
+    },
+    {
+      "id": "secret-examples/session/redis.js-23",
+      "type": "hardcoded-secret",
+      "title": "Secret Key",
+      "severity": "low",
+      "confidence": 0.3,
+      "description": "Hardcoded secret key (e.g. a session or JWT signing secret) detected",
+      "file": "examples/session/redis.js",
+      "line": 23,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ `secret` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ In a test/example file (likely a test credential)",
+        "✓ Active code (not in a comment)"
+      ],
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
+      "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
+        "https://owasp.org/www-community/Source_Code_Disclosure"
+      ],
+      "tags": [
+        "secret",
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
@@ -1718,7 +1883,7 @@
     ],
     "findingsByType": {
       "dependency-cve": 4,
-      "hardcoded-secret": 1,
+      "hardcoded-secret": 6,
       "sql-injection": 0,
       "xss": 54,
       "crypto-misuse": 0,
@@ -1726,11 +1891,11 @@
     }
   },
   "summary": {
-    "total": 59,
+    "total": 64,
     "critical": 0,
-    "high": 2,
-    "medium": 2,
-    "low": 55,
+    "high": 0,
+    "medium": 0,
+    "low": 64,
     "info": 0
   },
   "source": {

@@ -1,14 +1,14 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-05  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs in review
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy fixes in review
 
 ---
 
 ## Overall Progress
 
 ```
-Phase 1 (MVP)      █████████░ 90%  (6⅓ of 7 tasks: #1 #2 #4 #5 #6 #7 done once its PR merges; #3 1 of 3 scanners)
+Phase 1 (MVP)      █████████░ 90%  (6⅓ of 7 tasks: #1 #2 #4 #5 #6 #7 done; #3 1 of 3 scanners)
 Phase 2 (Depth)    ░░░░░░░░░░  0%  (PRD §6 Phase 2 — PDF export, FP tuning, 3+ repos; dark mode + chart pulled into #5)
 Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDEAS.md)
 ```
@@ -46,7 +46,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 | **#2: Pattern Scanners (Secrets + SQL)** | ✅ Merged (PR #2) | Regex for hardcoded secrets, SQL patterns, 3+ context factors |
 | **#3: Pattern Scanners (XSS, Crypto, Async)** | 🟡 XSS ✅ merged (PR #2); crypto + async deferred until after dashboard | XSS, MD5/SHA1, async footguns, integrated output |
 
-**Deliverable:** `scanner-output.json` with 5 finding types + context factors — 4 of 5 shipped (dependency CVEs, secrets, SQLi, XSS). Validated against OWASP Juice Shop + DVNA answer keys: SQLi 3/3, XSS 8/9 Juice Shop challenges + 3/3 DVNA. Details in HANDOFF.md.
+**Deliverable:** `scanner-output.json` with 5 finding types + context factors — 4 of 5 shipped (dependency CVEs, secrets, SQLi, XSS). Validated against OWASP Juice Shop + DVNA answer keys: SQLi 3/3, XSS 8/9 Juice Shop challenges + 3/3 DVNA. Accuracy pass (session 6, in review): dependency scan no longer reads npm audit failures as clean (DVNA 0 → 58 CVEs), dev-only advisories → low, secrets 41 → 27 on Juice Shop with fewer misses. Details in HANDOFF.md.
 
 ### Week 2: Build Dashboard
 
@@ -62,7 +62,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
 | **#6: Deploy to Vercel** | ✅ Live at https://dash-jade-nine.vercel.app/ (2026-10-05). Demo data + picker (PR #10); production branch `main` | Live URL, tested on 3+ repos (Express, Juice Shop, DVNA ✅), edge cases handled |
-| **#7: Documentation** | 🟡 In review: README screenshots (light, dark, finding details, phone), how it works, measured results, limitations, talking points; `npm run screenshots` | README, talking points, git history, portfolio-ready |
+| **#7: Documentation** | ✅ Merged (PR #13): README screenshots (light, dark, finding details, phone), how it works, measured results, limitations, talking points; `npm run screenshots` | README, talking points, git history, portfolio-ready |
 
 **Deliverable:** Live demo + interview story
 
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** User merges the Task #7 PR. Then the scanner TODOs (secret noise, `@undefined` versions, dev vs runtime deps), then crypto / async scanners. Talking points live in README.md. Every PR must pass `npm test` + `npm run build`.
+**Next Step:** User merges the scanner-accuracy PR (`fix/scanner-accuracy`). Then the ESLint config, then crypto / async scanners. Talking points live in README.md. Every PR must pass `npm test` + `npm run build`.

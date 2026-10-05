@@ -1,59 +1,71 @@
 {
-  "timestamp": "2026-10-02T20:35:00.583Z",
+  "timestamp": "2026-10-05T17:56:46.052Z",
   "targetPath": "juice-shop",
   "findings": [
     {
       "id": 1121296,
       "type": "dependency-cve",
       "title": "@cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument",
-      "severity": "high",
+      "severity": "low",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "@cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument in @cyclonedx/cyclonedx-npm (CWE-78).",
       "package": "@cyclonedx/cyclonedx-npm",
-      "patchedVersions": "2.0.0",
+      "packageVersion": "4.2.1",
+      "affectedVersions": ">=2.1.0 <5.0.0",
+      "patchedVersions": "5.0.0",
+      "advisorySeverity": "high",
+      "devOnly": true,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: @cyclonedx/cyclonedx-npm@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: @cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument",
-        "✓ Fix available: upgrade to 2.0.0"
+        "✓ @cyclonedx/cyclonedx-npm 4.2.1 is in the affected range >=2.1.0 <5.0.0",
+        "✓ Direct dependency (devDependencies)",
+        "⚠ Dev-only dependency (not installed in production): advisory severity high, scored low",
+        "✓ Fix available: downgrade @cyclonedx/cyclonedx-npm from 4.2.1 to 2.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update @cyclonedx/cyclonedx-npm to 2.0.0. See https://github.com/advisories/GHSA-v75r-vx73-82pj for details.",
+      "remediation": "Downgrade @cyclonedx/cyclonedx-npm from 4.2.1 to 2.0.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-v75r-vx73-82pj",
       "references": [
         "https://github.com/advisories/GHSA-v75r-vx73-82pj"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-78"
+        "CWE-78",
+        "dev-only"
       ]
     },
     {
       "id": 1224698,
       "type": "dependency-cve",
       "title": "@cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument on Windows",
-      "severity": "high",
+      "severity": "low",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "@cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument on Windows in @cyclonedx/cyclonedx-npm (CWE-78).",
       "package": "@cyclonedx/cyclonedx-npm",
-      "patchedVersions": "2.0.0",
+      "packageVersion": "4.2.1",
+      "affectedVersions": "<6.0.0",
+      "patchedVersions": "6.0.0",
+      "advisorySeverity": "high",
+      "devOnly": true,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: @cyclonedx/cyclonedx-npm@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: @cyclonedx/cyclonedx-npm: Shell Injection via Unsanitized --workspace Argument on Windows",
-        "✓ Fix available: upgrade to 2.0.0"
+        "✓ @cyclonedx/cyclonedx-npm 4.2.1 is in the affected range <6.0.0",
+        "✓ Direct dependency (devDependencies)",
+        "⚠ Dev-only dependency (not installed in production): advisory severity high, scored low",
+        "✓ Fix available: downgrade @cyclonedx/cyclonedx-npm from 4.2.1 to 2.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update @cyclonedx/cyclonedx-npm to 2.0.0. See https://github.com/advisories/GHSA-q69g-4hcv-6jg4 for details.",
+      "remediation": "Downgrade @cyclonedx/cyclonedx-npm from 4.2.1 to 2.0.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-q69g-4hcv-6jg4",
       "references": [
         "https://github.com/advisories/GHSA-q69g-4hcv-6jg4"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-78"
+        "CWE-78",
+        "dev-only"
       ]
     },
     {
@@ -62,18 +74,23 @@
       "title": "@tootallnate/once vulnerable to Incorrect Control Flow Scoping",
       "severity": "low",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "@tootallnate/once vulnerable to Incorrect Control Flow Scoping in @tootallnate/once (CWE-705).",
       "package": "@tootallnate/once",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "1.1.2",
+      "affectedVersions": "<2.0.1",
+      "patchedVersions": "2.0.1",
+      "advisorySeverity": "low",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: @tootallnate/once@undefined",
-        "⚠ Severity: low",
-        "✓ Vulnerability: @tootallnate/once vulnerable to Incorrect Control Flow Scoping",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ @tootallnate/once 1.1.2 is in the affected range <2.0.1",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update @tootallnate/once to 6.0.1. See https://github.com/advisories/GHSA-vpq2-c234-7xj6 for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on @tootallnate/once, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-vpq2-c234-7xj6",
       "references": [
         "https://github.com/advisories/GHSA-vpq2-c234-7xj6"
       ],
@@ -89,18 +106,23 @@
       "title": "Out-of-bounds Read in base64url",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Out-of-bounds Read in base64url in base64url (CWE-125).",
       "package": "base64url",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "0.0.6",
+      "affectedVersions": "<3.0.0",
+      "patchedVersions": "3.0.0",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: base64url@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Out-of-bounds Read in base64url",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ base64url 0.0.6 is in the affected range <3.0.0",
+        "✓ Pulled in by express-jwt, jsonwebtoken",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update base64url to 9.0.3. See https://github.com/advisories/GHSA-rvg8-pwq2-xj7q for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes); it depends on base64url, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-rvg8-pwq2-xj7q",
       "references": [
         "https://github.com/advisories/GHSA-rvg8-pwq2-xj7q"
       ],
@@ -116,18 +138,23 @@
       "title": "cookie accepts cookie name, path, and domain with out of bounds characters",
       "severity": "low",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "cookie accepts cookie name, path, and domain with out of bounds characters in cookie (CWE-74).",
       "package": "cookie",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "0.4.2",
+      "affectedVersions": "<0.7.0",
+      "patchedVersions": "0.7.0",
+      "advisorySeverity": "low",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: cookie@undefined",
-        "⚠ Severity: low",
-        "✓ Vulnerability: cookie accepts cookie name, path, and domain with out of bounds characters",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ cookie 0.4.2 is in the affected range <0.7.0",
+        "✓ Pulled in by socket.io",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade socket.io to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update cookie to 4.8.4. See https://github.com/advisories/GHSA-pxg6-pf52-xh8x for details.",
+      "remediation": "Upgrade socket.io to 4.8.4 (major version change: check for breaking changes); it depends on cookie, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-pxg6-pf52-xh8x",
       "references": [
         "https://github.com/advisories/GHSA-pxg6-pf52-xh8x"
       ],
@@ -143,25 +170,32 @@
       "title": "crypto-js PBKDF2 1,000 times weaker than specified in 1993 and 1.3M times weaker than current standard",
       "severity": "critical",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "crypto-js PBKDF2 1,000 times weaker than specified in 1993 and 1.3M times weaker than current standard in crypto-js (CWE-327, CWE-328, CWE-916).",
       "package": "crypto-js",
-      "patchedVersions": "0.20.2",
+      "packageVersion": "3.3.0",
+      "affectedVersions": "<4.2.0",
+      "patchedVersions": "4.2.0",
+      "advisorySeverity": "critical",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: crypto-js@undefined",
-        "⚠ Severity: critical",
-        "✓ Vulnerability: crypto-js PBKDF2 1,000 times weaker than specified in 1993 and 1.3M times weaker than current standard",
-        "✓ Fix available: upgrade to 0.20.2"
+        "✓ crypto-js 3.3.0 is in the affected range <4.2.0",
+        "✓ Pulled in by pdfkit",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade pdfkit to 0.20.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update crypto-js to 0.20.2. See https://github.com/advisories/GHSA-xwcq-pm8m-c4vf for details.",
+      "remediation": "Upgrade pdfkit to 0.20.2 (major version change: check for breaking changes); it depends on crypto-js, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-xwcq-pm8m-c4vf",
       "references": [
         "https://github.com/advisories/GHSA-xwcq-pm8m-c4vf"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-327"
+        "CWE-327",
+        "CWE-328",
+        "CWE-916"
       ]
     },
     {
@@ -170,25 +204,32 @@
       "title": "crypto-js: Insufficient Entropy in Cryptographic Secret Generation via Vulnerable CryptoJS Dependency Chain",
       "severity": "critical",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "crypto-js: Insufficient Entropy in Cryptographic Secret Generation via Vulnerable CryptoJS Dependency Chain in crypto-js (CWE-331, CWE-334, CWE-338).",
       "package": "crypto-js",
-      "patchedVersions": "0.20.2",
+      "packageVersion": "3.3.0",
+      "affectedVersions": "<4.0.0",
+      "patchedVersions": "4.0.0",
+      "advisorySeverity": "critical",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: crypto-js@undefined",
-        "⚠ Severity: critical",
-        "✓ Vulnerability: crypto-js: Insufficient Entropy in Cryptographic Secret Generation via Vulnerable CryptoJS Dependency Chain",
-        "✓ Fix available: upgrade to 0.20.2"
+        "✓ crypto-js 3.3.0 is in the affected range <4.0.0",
+        "✓ Pulled in by pdfkit",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade pdfkit to 0.20.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update crypto-js to 0.20.2. See https://github.com/advisories/GHSA-rg76-677x-56q9 for details.",
+      "remediation": "Upgrade pdfkit to 0.20.2 (major version change: check for breaking changes); it depends on crypto-js, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-rg76-677x-56q9",
       "references": [
         "https://github.com/advisories/GHSA-rg76-677x-56q9"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-331"
+        "CWE-331",
+        "CWE-334",
+        "CWE-338"
       ]
     },
     {
@@ -197,25 +238,33 @@
       "title": "decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input in decode-uri-component (CWE-400, CWE-405, CWE-407, CWE-1176).",
       "package": "decode-uri-component",
-      "patchedVersions": "4.4.3",
+      "packageVersion": "0.2.2",
+      "affectedVersions": "<=0.4.2",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: decode-uri-component@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: decode-uri-component: Denial of service via exponential decoding of malformed percent-encoded input",
-        "✓ Fix available: upgrade to 4.4.3"
+        "✓ decode-uri-component 0.2.2 is in the affected range <=0.4.2",
+        "✓ Pulled in by download",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update decode-uri-component to 4.4.3. See https://github.com/advisories/GHSA-vcc3-ghjq-m6fr for details.",
+      "remediation": "Downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes); it depends on decode-uri-component, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-vcc3-ghjq-m6fr",
       "references": [
         "https://github.com/advisories/GHSA-vcc3-ghjq-m6fr"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-400"
+        "CWE-400",
+        "CWE-405",
+        "CWE-407",
+        "CWE-1176"
       ]
     },
     {
@@ -224,25 +273,32 @@
       "title": "Decompress: Archive extraction can create files and links outside of the target directory",
       "severity": "critical",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Decompress: Archive extraction can create files and links outside of the target directory in decompress (CWE-22, CWE-59, CWE-732).",
       "package": "decompress",
-      "patchedVersions": "4.4.3",
+      "packageVersion": "4.2.1",
+      "affectedVersions": "<=4.2.1",
+      "patchedVersions": null,
+      "advisorySeverity": "critical",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: decompress@undefined",
-        "⚠ Severity: critical",
-        "✓ Vulnerability: Decompress: Archive extraction can create files and links outside of the target directory",
-        "✓ Fix available: upgrade to 4.4.3"
+        "✓ decompress 4.2.1 is in the affected range <=4.2.1",
+        "✓ Pulled in by download",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update decompress to 4.4.3. See https://github.com/advisories/GHSA-mp2f-45pm-3cg9 for details.",
+      "remediation": "Downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes); it depends on decompress, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-mp2f-45pm-3cg9",
       "references": [
         "https://github.com/advisories/GHSA-mp2f-45pm-3cg9"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-22"
+        "CWE-22",
+        "CWE-59",
+        "CWE-732"
       ]
     },
     {
@@ -251,25 +307,31 @@
       "title": "decompress: Arbitrary File Write via Archive Extraction (Zip Slip)",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "decompress: Arbitrary File Write via Archive Extraction (Zip Slip) in decompress (CWE-22, CWE-29).",
       "package": "decompress",
-      "patchedVersions": "4.4.3",
+      "packageVersion": "4.2.1",
+      "affectedVersions": "<=4.2.1",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: decompress@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: decompress: Arbitrary File Write via Archive Extraction (Zip Slip)",
-        "✓ Fix available: upgrade to 4.4.3"
+        "✓ decompress 4.2.1 is in the affected range <=4.2.1",
+        "✓ Pulled in by download",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update decompress to 4.4.3. See https://github.com/advisories/GHSA-h39j-r5qq-r9mm for details.",
+      "remediation": "Downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes); it depends on decompress, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-h39j-r5qq-r9mm",
       "references": [
         "https://github.com/advisories/GHSA-h39j-r5qq-r9mm"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-22"
+        "CWE-22",
+        "CWE-29"
       ]
     },
     {
@@ -278,18 +340,23 @@
       "title": "decompress allows arbitrary hardlink creation during archive extraction",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "decompress allows arbitrary hardlink creation during archive extraction in decompress (CWE-59).",
       "package": "decompress",
-      "patchedVersions": "4.4.3",
+      "packageVersion": "4.2.1",
+      "affectedVersions": "<=4.2.1",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: decompress@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: decompress allows arbitrary hardlink creation during archive extraction",
-        "✓ Fix available: upgrade to 4.4.3"
+        "✓ decompress 4.2.1 is in the affected range <=4.2.1",
+        "✓ Pulled in by download",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update decompress to 4.4.3. See https://github.com/advisories/GHSA-jwp9-9v96-94mx for details.",
+      "remediation": "Downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes); it depends on decompress, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-jwp9-9v96-94mx",
       "references": [
         "https://github.com/advisories/GHSA-jwp9-9v96-94mx"
       ],
@@ -305,25 +372,31 @@
       "title": "@xhmikosr/decompress: Path traversal via symlink chain",
       "severity": "critical",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "@xhmikosr/decompress: Path traversal via symlink chain in decompress (CWE-22, CWE-59).",
       "package": "decompress",
-      "patchedVersions": "4.4.3",
+      "packageVersion": "4.2.1",
+      "affectedVersions": "<=4.2.1",
+      "patchedVersions": null,
+      "advisorySeverity": "critical",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: decompress@undefined",
-        "⚠ Severity: critical",
-        "✓ Vulnerability: @xhmikosr/decompress: Path traversal via symlink chain",
-        "✓ Fix available: upgrade to 4.4.3"
+        "✓ decompress 4.2.1 is in the affected range <=4.2.1",
+        "✓ Pulled in by download",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update decompress to 4.4.3. See https://github.com/advisories/GHSA-hrh2-vp3x-79xf for details.",
+      "remediation": "Downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes); it depends on decompress, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-hrh2-vp3x-79xf",
       "references": [
         "https://github.com/advisories/GHSA-hrh2-vp3x-79xf"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-22"
+        "CWE-22",
+        "CWE-59"
       ]
     },
     {
@@ -332,18 +405,23 @@
       "title": "Uncaught exception in engine.io",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Uncaught exception in engine.io in engine.io (CWE-248).",
       "package": "engine.io",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "4.1.2",
+      "affectedVersions": ">=4.0.0 <6.2.1",
+      "patchedVersions": "6.2.1",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: engine.io@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Uncaught exception in engine.io",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ engine.io 4.1.2 is in the affected range >=4.0.0 <6.2.1",
+        "✓ Pulled in by socket.io",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade socket.io to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update engine.io to 4.8.4. See https://github.com/advisories/GHSA-r7qp-cfhv-p84w for details.",
+      "remediation": "Upgrade socket.io to 4.8.4 (major version change: check for breaking changes); it depends on engine.io, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-r7qp-cfhv-p84w",
       "references": [
         "https://github.com/advisories/GHSA-r7qp-cfhv-p84w"
       ],
@@ -359,18 +437,23 @@
       "title": "Socket.IO: Engine.IO Polling Transport Connection Exhaustion",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Socket.IO: Engine.IO Polling Transport Connection Exhaustion in engine.io (CWE-404).",
       "package": "engine.io",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "4.1.2",
+      "affectedVersions": ">=4.1.0 <6.6.7",
+      "patchedVersions": "6.6.7",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: engine.io@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Socket.IO: Engine.IO Polling Transport Connection Exhaustion",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ engine.io 4.1.2 is in the affected range >=4.1.0 <6.6.7",
+        "✓ Pulled in by socket.io",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade socket.io to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update engine.io to 4.8.4. See https://github.com/advisories/GHSA-r635-g3xr-vw7x for details.",
+      "remediation": "Upgrade socket.io to 4.8.4 (major version change: check for breaking changes); it depends on engine.io, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-r635-g3xr-vw7x",
       "references": [
         "https://github.com/advisories/GHSA-r635-g3xr-vw7x"
       ],
@@ -386,25 +469,31 @@
       "title": "Authorization bypass in express-jwt",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Authorization bypass in express-jwt in express-jwt (CWE-285, CWE-863).",
       "package": "express-jwt",
-      "patchedVersions": "8.5.1",
+      "packageVersion": "0.1.3",
+      "affectedVersions": "<=5.3.3",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: express-jwt@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Authorization bypass in express-jwt",
-        "✓ Fix available: upgrade to 8.5.1"
+        "✓ express-jwt 0.1.3 is in the affected range <=5.3.3",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade express-jwt to 8.5.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update express-jwt to 8.5.1. See https://github.com/advisories/GHSA-6g6m-m6h5-w9gf for details.",
+      "remediation": "Upgrade express-jwt to 8.5.1 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-6g6m-m6h5-w9gf",
       "references": [
         "https://github.com/advisories/GHSA-6g6m-m6h5-w9gf"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-285"
+        "CWE-285",
+        "CWE-863"
       ]
     },
     {
@@ -413,18 +502,23 @@
       "title": "file-type affected by infinite loop in ASF parser on malformed input with zero-size sub-header",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "file-type affected by infinite loop in ASF parser on malformed input with zero-size sub-header in file-type (CWE-835).",
       "package": "file-type",
-      "patchedVersions": "22.1.1",
+      "packageVersion": "16.5.4",
+      "affectedVersions": ">=13.0.0 <21.3.1",
+      "patchedVersions": "21.3.1",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: file-type@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: file-type affected by infinite loop in ASF parser on malformed input with zero-size sub-header",
-        "✓ Fix available: upgrade to 22.1.1"
+        "✓ file-type 16.5.4 is in the affected range >=13.0.0 <21.3.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade file-type to 22.1.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update file-type to 22.1.1. See https://github.com/advisories/GHSA-5v7r-6r5c-r473 for details.",
+      "remediation": "Upgrade file-type to 22.1.1 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-5v7r-6r5c-r473",
       "references": [
         "https://github.com/advisories/GHSA-5v7r-6r5c-r473"
       ],
@@ -440,25 +534,29 @@
       "title": "Got allows a redirect to a UNIX socket",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Got allows a redirect to a UNIX socket in got.",
       "package": "got",
-      "patchedVersions": "4.4.3",
+      "packageVersion": "8.3.2",
+      "affectedVersions": "<11.8.5",
+      "patchedVersions": "11.8.5",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: got@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Got allows a redirect to a UNIX socket",
-        "✓ Fix available: upgrade to 4.4.3"
+        "✓ got 8.3.2 is in the affected range <11.8.5",
+        "✓ Pulled in by download",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update got to 4.4.3. See https://github.com/advisories/GHSA-pfrx-2q88-qq97 for details.",
+      "remediation": "Downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes); it depends on got, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-pfrx-2q88-qq97",
       "references": [
         "https://github.com/advisories/GHSA-pfrx-2q88-qq97"
       ],
       "tags": [
         "dependency",
-        "npm-audit",
-        "vulnerability"
+        "npm-audit"
       ]
     },
     {
@@ -467,18 +565,23 @@
       "title": "http-cache-semantics vulnerable to Regular Expression Denial of Service",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "http-cache-semantics vulnerable to Regular Expression Denial of Service in http-cache-semantics (CWE-1333).",
       "package": "http-cache-semantics",
-      "patchedVersions": "4.4.3",
+      "packageVersion": "3.8.1",
+      "affectedVersions": "<4.1.1",
+      "patchedVersions": "4.1.1",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: http-cache-semantics@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: http-cache-semantics vulnerable to Regular Expression Denial of Service",
-        "✓ Fix available: upgrade to 4.4.3"
+        "✓ http-cache-semantics 3.8.1 is in the affected range <4.1.1",
+        "✓ Pulled in by download",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update http-cache-semantics to 4.4.3. See https://github.com/advisories/GHSA-rc47-6667-2j5j for details.",
+      "remediation": "Downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes); it depends on http-cache-semantics, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-rc47-6667-2j5j",
       "references": [
         "https://github.com/advisories/GHSA-rc47-6667-2j5j"
       ],
@@ -489,23 +592,60 @@
       ]
     },
     {
+      "id": 1240991,
+      "type": "dependency-cve",
+      "title": "http-cache-semantics max-stale handling can disclose cross-user cached responses",
+      "severity": "high",
+      "confidence": 0.95,
+      "description": "http-cache-semantics max-stale handling can disclose cross-user cached responses in http-cache-semantics (CWE-524).",
+      "package": "http-cache-semantics",
+      "packageVersion": "3.8.1",
+      "affectedVersions": "<=4.2.0",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ http-cache-semantics 3.8.1 is in the affected range <=4.2.0",
+        "✓ Pulled in by download",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Downgrade download from 8.0.0 to 4.4.3 (major version change: check for breaking changes); it depends on http-cache-semantics, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-ch52-4w7c-c8xp",
+      "references": [
+        "https://github.com/advisories/GHSA-ch52-4w7c-c8xp"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-524"
+      ]
+    },
+    {
       "id": 1090918,
       "type": "dependency-cve",
       "title": "Verification Bypass in jsonwebtoken",
       "severity": "critical",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Verification Bypass in jsonwebtoken in jsonwebtoken (CWE-20).",
       "package": "jsonwebtoken",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "0.1.0, 0.4.0",
+      "affectedVersions": "<4.2.2",
+      "patchedVersions": "4.2.2",
+      "advisorySeverity": "critical",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: jsonwebtoken@undefined",
-        "⚠ Severity: critical",
-        "✓ Vulnerability: Verification Bypass in jsonwebtoken",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ jsonwebtoken 0.1.0, 0.4.0 is in the affected range <4.2.2",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update jsonwebtoken to 9.0.3. See https://github.com/advisories/GHSA-c7hr-j4mj-j2w6 for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-c7hr-j4mj-j2w6",
       "references": [
         "https://github.com/advisories/GHSA-c7hr-j4mj-j2w6"
       ],
@@ -521,18 +661,23 @@
       "title": "jsonwebtoken unrestricted key type could lead to legacy keys usage ",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "jsonwebtoken unrestricted key type could lead to legacy keys usage  in jsonwebtoken (CWE-327).",
       "package": "jsonwebtoken",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "0.1.0, 0.4.0",
+      "affectedVersions": "<=8.5.1",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: jsonwebtoken@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: jsonwebtoken unrestricted key type could lead to legacy keys usage ",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ jsonwebtoken 0.1.0, 0.4.0 is in the affected range <=8.5.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update jsonwebtoken to 9.0.3. See https://github.com/advisories/GHSA-8cf7-32gw-wr33 for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-8cf7-32gw-wr33",
       "references": [
         "https://github.com/advisories/GHSA-8cf7-32gw-wr33"
       ],
@@ -548,25 +693,31 @@
       "title": "jsonwebtoken's insecure implementation of key retrieval function could lead to Forgeable Public/Private Tokens from RSA to HMAC",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "jsonwebtoken's insecure implementation of key retrieval function could lead to Forgeable Public/Private Tokens from RSA to HMAC in jsonwebtoken (CWE-287, CWE-1259).",
       "package": "jsonwebtoken",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "0.1.0, 0.4.0",
+      "affectedVersions": "<=8.5.1",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: jsonwebtoken@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: jsonwebtoken's insecure implementation of key retrieval function could lead to Forgeable Public/Private Tokens from RSA to HMAC",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ jsonwebtoken 0.1.0, 0.4.0 is in the affected range <=8.5.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update jsonwebtoken to 9.0.3. See https://github.com/advisories/GHSA-hjrf-2m68-5959 for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-hjrf-2m68-5959",
       "references": [
         "https://github.com/advisories/GHSA-hjrf-2m68-5959"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-287"
+        "CWE-287",
+        "CWE-1259"
       ]
     },
     {
@@ -575,25 +726,32 @@
       "title": "jsonwebtoken vulnerable to signature validation bypass due to insecure default algorithm in jwt.verify()",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "jsonwebtoken vulnerable to signature validation bypass due to insecure default algorithm in jwt.verify() in jsonwebtoken (CWE-287, CWE-327, CWE-347).",
       "package": "jsonwebtoken",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "0.1.0, 0.4.0",
+      "affectedVersions": "<9.0.0",
+      "patchedVersions": "9.0.0",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: jsonwebtoken@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: jsonwebtoken vulnerable to signature validation bypass due to insecure default algorithm in jwt.verify()",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ jsonwebtoken 0.1.0, 0.4.0 is in the affected range <9.0.0",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update jsonwebtoken to 9.0.3. See https://github.com/advisories/GHSA-qwph-4952-7xr6 for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-qwph-4952-7xr6",
       "references": [
         "https://github.com/advisories/GHSA-qwph-4952-7xr6"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-287"
+        "CWE-287",
+        "CWE-327",
+        "CWE-347"
       ]
     },
     {
@@ -602,25 +760,29 @@
       "title": "Forgeable Public/Private Tokens in jws",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Forgeable Public/Private Tokens in jws in jws.",
       "package": "jws",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "0.2.6",
+      "affectedVersions": "<3.0.0",
+      "patchedVersions": "3.0.0",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: jws@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Forgeable Public/Private Tokens in jws",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ jws 0.2.6 is in the affected range <3.0.0",
+        "✓ Pulled in by express-jwt, jsonwebtoken",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update jws to 9.0.3. See https://github.com/advisories/GHSA-gjcw-v447-2w7q for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes); it depends on jws, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-gjcw-v447-2w7q",
       "references": [
         "https://github.com/advisories/GHSA-gjcw-v447-2w7q"
       ],
       "tags": [
         "dependency",
-        "npm-audit",
-        "vulnerability"
+        "npm-audit"
       ]
     },
     {
@@ -629,18 +791,23 @@
       "title": "auth0/node-jws Improperly Verifies HMAC Signature",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "auth0/node-jws Improperly Verifies HMAC Signature in jws (CWE-347).",
       "package": "jws",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "0.2.6",
+      "affectedVersions": "<3.2.3",
+      "patchedVersions": "3.2.3",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: jws@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: auth0/node-jws Improperly Verifies HMAC Signature",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ jws 0.2.6 is in the affected range <3.2.3",
+        "✓ Pulled in by express-jwt, jsonwebtoken",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update jws to 9.0.3. See https://github.com/advisories/GHSA-869p-cjfg-cm3x for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes); it depends on jws, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-869p-cjfg-cm3x",
       "references": [
         "https://github.com/advisories/GHSA-869p-cjfg-cm3x"
       ],
@@ -656,25 +823,31 @@
       "title": "Prototype Pollution in lodash",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Prototype Pollution in lodash in lodash (CWE-471, CWE-1321).",
       "package": "lodash",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "2.4.2",
+      "affectedVersions": "<4.17.5",
+      "patchedVersions": "4.17.5",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: lodash@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Prototype Pollution in lodash",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ lodash 2.4.2 is in the affected range <4.17.5",
+        "✓ Pulled in by sanitize-html",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-fvqr-27wr-82fm for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes); it depends on lodash, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-fvqr-27wr-82fm",
       "references": [
         "https://github.com/advisories/GHSA-fvqr-27wr-82fm"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-471"
+        "CWE-471",
+        "CWE-1321"
       ]
     },
     {
@@ -683,25 +856,31 @@
       "title": "Command Injection in lodash",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Command Injection in lodash in lodash (CWE-77, CWE-94).",
       "package": "lodash",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "2.4.2",
+      "affectedVersions": "<4.17.21",
+      "patchedVersions": "4.17.21",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: lodash@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Command Injection in lodash",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ lodash 2.4.2 is in the affected range <4.17.21",
+        "✓ Pulled in by sanitize-html",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-35jh-r3h4-6jhm for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes); it depends on lodash, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-35jh-r3h4-6jhm",
       "references": [
         "https://github.com/advisories/GHSA-35jh-r3h4-6jhm"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-77"
+        "CWE-77",
+        "CWE-94"
       ]
     },
     {
@@ -710,18 +889,23 @@
       "title": "Prototype Pollution in lodash",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Prototype Pollution in lodash in lodash (CWE-400).",
       "package": "lodash",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "2.4.2",
+      "affectedVersions": "<4.17.11",
+      "patchedVersions": "4.17.11",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: lodash@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Prototype Pollution in lodash",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ lodash 2.4.2 is in the affected range <4.17.11",
+        "✓ Pulled in by sanitize-html",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-4xc9-xhrj-v574 for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes); it depends on lodash, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-4xc9-xhrj-v574",
       "references": [
         "https://github.com/advisories/GHSA-4xc9-xhrj-v574"
       ],
@@ -737,25 +921,31 @@
       "title": "Prototype Pollution in lodash",
       "severity": "critical",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Prototype Pollution in lodash in lodash (CWE-20, CWE-1321).",
       "package": "lodash",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "2.4.2",
+      "affectedVersions": "<4.17.12",
+      "patchedVersions": "4.17.12",
+      "advisorySeverity": "critical",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: lodash@undefined",
-        "⚠ Severity: critical",
-        "✓ Vulnerability: Prototype Pollution in lodash",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ lodash 2.4.2 is in the affected range <4.17.12",
+        "✓ Pulled in by sanitize-html",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-jf85-cpcp-j695 for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes); it depends on lodash, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-jf85-cpcp-j695",
       "references": [
         "https://github.com/advisories/GHSA-jf85-cpcp-j695"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-20"
+        "CWE-20",
+        "CWE-1321"
       ]
     },
     {
@@ -764,18 +954,23 @@
       "title": "lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit`",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit` in lodash (CWE-1321).",
       "package": "lodash",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "2.4.2",
+      "affectedVersions": "<=4.17.23",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: lodash@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: lodash vulnerable to Prototype Pollution via array path bypass in `_.unset` and `_.omit`",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ lodash 2.4.2 is in the affected range <=4.17.23",
+        "✓ Pulled in by sanitize-html",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update lodash to 2.18.0. See https://github.com/advisories/GHSA-f23m-r3pf-42rh for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes); it depends on lodash, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-f23m-r3pf-42rh",
       "references": [
         "https://github.com/advisories/GHSA-f23m-r3pf-42rh"
       ],
@@ -791,18 +986,23 @@
       "title": "Command Injection in marsdb",
       "severity": "critical",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Command Injection in marsdb in marsdb (CWE-77).",
       "package": "marsdb",
-      "patchedVersions": "Unknown",
+      "packageVersion": "0.6.11",
+      "affectedVersions": ">=0.0.0",
+      "patchedVersions": null,
+      "advisorySeverity": "critical",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: marsdb@undefined",
-        "⚠ Severity: critical",
-        "✓ Vulnerability: Command Injection in marsdb",
-        "⚠ No automatic fix"
+        "✓ marsdb 0.6.11 is in the affected range >=0.0.0",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "⚠ No fix available yet",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update marsdb to latest version. See https://github.com/advisories/GHSA-5mrr-rgp6-x4gr for details.",
+      "remediation": "No patched release is available through npm audit yet. Consider replacing marsdb, or check whether the vulnerable code path is reachable. Details: https://github.com/advisories/GHSA-5mrr-rgp6-x4gr",
       "references": [
         "https://github.com/advisories/GHSA-5mrr-rgp6-x4gr"
       ],
@@ -818,18 +1018,23 @@
       "title": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern in minimatch (CWE-1333).",
       "package": "minimatch",
-      "patchedVersions": "0.2.2",
+      "packageVersion": "3.0.5",
+      "affectedVersions": "<3.1.3",
+      "patchedVersions": "3.1.3",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: minimatch@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: minimatch has a ReDoS via repeated wildcards with non-matching literal in pattern",
-        "✓ Fix available: upgrade to 0.2.2"
+        "✓ minimatch 3.0.5 is in the affected range <3.1.3",
+        "✓ Pulled in by replace",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade replace from 1.2.2 to 0.2.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update minimatch to 0.2.2. See https://github.com/advisories/GHSA-3ppc-4f35-3m26 for details.",
+      "remediation": "Downgrade replace from 1.2.2 to 0.2.2 (major version change: check for breaking changes); it depends on minimatch, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-3ppc-4f35-3m26",
       "references": [
         "https://github.com/advisories/GHSA-3ppc-4f35-3m26"
       ],
@@ -845,18 +1050,23 @@
       "title": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments in minimatch (CWE-407).",
       "package": "minimatch",
-      "patchedVersions": "0.2.2",
+      "packageVersion": "3.0.5",
+      "affectedVersions": "<3.1.3",
+      "patchedVersions": "3.1.3",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: minimatch@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: minimatch has ReDoS: matchOne() combinatorial backtracking via multiple non-adjacent GLOBSTAR segments",
-        "✓ Fix available: upgrade to 0.2.2"
+        "✓ minimatch 3.0.5 is in the affected range <3.1.3",
+        "✓ Pulled in by replace",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade replace from 1.2.2 to 0.2.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update minimatch to 0.2.2. See https://github.com/advisories/GHSA-7r86-cg39-jmmj for details.",
+      "remediation": "Downgrade replace from 1.2.2 to 0.2.2 (major version change: check for breaking changes); it depends on minimatch, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-7r86-cg39-jmmj",
       "references": [
         "https://github.com/advisories/GHSA-7r86-cg39-jmmj"
       ],
@@ -872,18 +1082,23 @@
       "title": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions in minimatch (CWE-1333).",
       "package": "minimatch",
-      "patchedVersions": "0.2.2",
+      "packageVersion": "3.0.5",
+      "affectedVersions": "<3.1.4",
+      "patchedVersions": "3.1.4",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: minimatch@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: minimatch ReDoS: nested *() extglobs generate catastrophically backtracking regular expressions",
-        "✓ Fix available: upgrade to 0.2.2"
+        "✓ minimatch 3.0.5 is in the affected range <3.1.4",
+        "✓ Pulled in by replace",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade replace from 1.2.2 to 0.2.2 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update minimatch to 0.2.2. See https://github.com/advisories/GHSA-23c5-xmqv-rm74 for details.",
+      "remediation": "Downgrade replace from 1.2.2 to 0.2.2 (major version change: check for breaking changes); it depends on minimatch, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-23c5-xmqv-rm74",
       "references": [
         "https://github.com/advisories/GHSA-23c5-xmqv-rm74"
       ],
@@ -899,18 +1114,23 @@
       "title": "Regular Expression Denial of Service in moment",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Regular Expression Denial of Service in moment in moment (CWE-400).",
       "package": "moment",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "2.0.0",
+      "affectedVersions": "<2.11.2",
+      "patchedVersions": "2.11.2",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: moment@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Regular Expression Denial of Service in moment",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ moment 2.0.0 is in the affected range <2.11.2",
+        "✓ Pulled in by express-jwt, jsonwebtoken",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update moment to 9.0.3. See https://github.com/advisories/GHSA-87vv-r9j6-g5qv for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes); it depends on moment, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-87vv-r9j6-g5qv",
       "references": [
         "https://github.com/advisories/GHSA-87vv-r9j6-g5qv"
       ],
@@ -926,18 +1146,23 @@
       "title": "Regular Expression Denial of Service in moment",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Regular Expression Denial of Service in moment in moment (CWE-400).",
       "package": "moment",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "2.0.0",
+      "affectedVersions": "<2.19.3",
+      "patchedVersions": "2.19.3",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: moment@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Regular Expression Denial of Service in moment",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ moment 2.0.0 is in the affected range <2.19.3",
+        "✓ Pulled in by express-jwt, jsonwebtoken",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update moment to 9.0.3. See https://github.com/advisories/GHSA-446m-mv8f-q348 for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes); it depends on moment, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-446m-mv8f-q348",
       "references": [
         "https://github.com/advisories/GHSA-446m-mv8f-q348"
       ],
@@ -953,25 +1178,31 @@
       "title": "Path Traversal: 'dir/../../filename' in moment.locale",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Path Traversal: 'dir/../../filename' in moment.locale in moment (CWE-22, CWE-27).",
       "package": "moment",
-      "patchedVersions": "9.0.3",
+      "packageVersion": "2.0.0",
+      "affectedVersions": "<2.29.2",
+      "patchedVersions": "2.29.2",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: moment@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Path Traversal: 'dir/../../filename' in moment.locale",
-        "✓ Fix available: upgrade to 9.0.3"
+        "✓ moment 2.0.0 is in the affected range <2.29.2",
+        "✓ Pulled in by express-jwt, jsonwebtoken",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update moment to 9.0.3. See https://github.com/advisories/GHSA-8hfj-j24r-96c4 for details.",
+      "remediation": "Upgrade jsonwebtoken to 9.0.3 (major version change: check for breaking changes); it depends on moment, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-8hfj-j24r-96c4",
       "references": [
         "https://github.com/advisories/GHSA-8hfj-j24r-96c4"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-22"
+        "CWE-22",
+        "CWE-27"
       ]
     },
     {
@@ -980,18 +1211,23 @@
       "title": "Sandbox escape in notevil and argencoders-notevil",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Sandbox escape in notevil and argencoders-notevil in notevil (CWE-1321).",
       "package": "notevil",
-      "patchedVersions": "Unknown",
+      "packageVersion": "1.3.3",
+      "affectedVersions": "<=1.3.3",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: notevil@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Sandbox escape in notevil and argencoders-notevil",
-        "⚠ No automatic fix"
+        "✓ notevil 1.3.3 is in the affected range <=1.3.3",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "⚠ No fix available yet",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update notevil to latest version. See https://github.com/advisories/GHSA-8g4m-cjm2-96wq for details.",
+      "remediation": "No patched release is available through npm audit yet. Consider replacing notevil, or check whether the vulnerable code path is reachable. Details: https://github.com/advisories/GHSA-8g4m-cjm2-96wq",
       "references": [
         "https://github.com/advisories/GHSA-8g4m-cjm2-96wq"
       ],
@@ -1005,27 +1241,34 @@
       "id": 1107224,
       "type": "dependency-cve",
       "title": "parse-uri Regular expression Denial of Service (ReDoS)",
-      "severity": "medium",
+      "severity": "low",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "parse-uri Regular expression Denial of Service (ReDoS) in parseuri (CWE-185, CWE-1333).",
       "package": "parseuri",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "0.0.6",
+      "affectedVersions": "<2.0.0",
+      "patchedVersions": "2.0.0",
+      "advisorySeverity": "medium",
+      "devOnly": true,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: parseuri@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: parse-uri Regular expression Denial of Service (ReDoS)",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ parseuri 0.0.6 is in the affected range <2.0.0",
+        "✓ Pulled in by socket.io-client",
+        "⚠ Dev-only dependency (not installed in production): advisory severity medium, scored low",
+        "✓ Fix available: upgrade socket.io-client to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update parseuri to 4.8.4. See https://github.com/advisories/GHSA-6fx8-h7jm-663j for details.",
+      "remediation": "Upgrade socket.io-client to 4.8.4 (major version change: check for breaking changes); it depends on parseuri, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-6fx8-h7jm-663j",
       "references": [
         "https://github.com/advisories/GHSA-6fx8-h7jm-663j"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-185"
+        "CWE-185",
+        "CWE-1333",
+        "dev-only"
       ]
     },
     {
@@ -1034,18 +1277,23 @@
       "title": "Improper Input Validation in sanitize-html",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Improper Input Validation in sanitize-html in sanitize-html (CWE-20).",
       "package": "sanitize-html",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "1.4.2",
+      "affectedVersions": "<2.3.2",
+      "patchedVersions": "2.3.2",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: sanitize-html@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Improper Input Validation in sanitize-html",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ sanitize-html 1.4.2 is in the affected range <2.3.2",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-mjxr-4v3x-q3m4 for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-mjxr-4v3x-q3m4",
       "references": [
         "https://github.com/advisories/GHSA-mjxr-4v3x-q3m4"
       ],
@@ -1061,18 +1309,23 @@
       "title": "Cross-Site Scripting in sanitize-html",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Cross-Site Scripting in sanitize-html in sanitize-html (CWE-79).",
       "package": "sanitize-html",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "1.4.2",
+      "affectedVersions": "<1.4.3",
+      "patchedVersions": "1.4.3",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: sanitize-html@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Cross-Site Scripting in sanitize-html",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ sanitize-html 1.4.2 is in the affected range <1.4.3",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-3j7m-hmh3-9jmp for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-3j7m-hmh3-9jmp",
       "references": [
         "https://github.com/advisories/GHSA-3j7m-hmh3-9jmp"
       ],
@@ -1088,18 +1341,23 @@
       "title": "Improper Input Validation in sanitize-html",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Improper Input Validation in sanitize-html in sanitize-html (CWE-20).",
       "package": "sanitize-html",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "1.4.2",
+      "affectedVersions": "<2.3.1",
+      "patchedVersions": "2.3.1",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: sanitize-html@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Improper Input Validation in sanitize-html",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ sanitize-html 1.4.2 is in the affected range <2.3.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-rjqq-98f6-6j3r for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-rjqq-98f6-6j3r",
       "references": [
         "https://github.com/advisories/GHSA-rjqq-98f6-6j3r"
       ],
@@ -1115,18 +1373,23 @@
       "title": "Cross-Site Scripting in sanitize-html",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Cross-Site Scripting in sanitize-html in sanitize-html (CWE-79).",
       "package": "sanitize-html",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "1.4.2",
+      "affectedVersions": "<=1.11.1",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: sanitize-html@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Cross-Site Scripting in sanitize-html",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ sanitize-html 1.4.2 is in the affected range <=1.11.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-xc6g-ggrc-qq4r for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-xc6g-ggrc-qq4r",
       "references": [
         "https://github.com/advisories/GHSA-xc6g-ggrc-qq4r"
       ],
@@ -1142,18 +1405,23 @@
       "title": "Sanitize-html Vulnerable To REDoS Attacks",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Sanitize-html Vulnerable To REDoS Attacks in sanitize-html (CWE-1333).",
       "package": "sanitize-html",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "1.4.2",
+      "affectedVersions": "<2.7.1",
+      "patchedVersions": "2.7.1",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: sanitize-html@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Sanitize-html Vulnerable To REDoS Attacks",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ sanitize-html 1.4.2 is in the affected range <2.7.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-cgfm-xwp7-2cvr for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-cgfm-xwp7-2cvr",
       "references": [
         "https://github.com/advisories/GHSA-cgfm-xwp7-2cvr"
       ],
@@ -1169,18 +1437,23 @@
       "title": "sanitize-html is vulnerable to XSS through incomprehensive sanitization",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "sanitize-html is vulnerable to XSS through incomprehensive sanitization in sanitize-html (CWE-79).",
       "package": "sanitize-html",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "1.4.2",
+      "affectedVersions": "<2.0.0-beta",
+      "patchedVersions": "2.0.0-beta",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: sanitize-html@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: sanitize-html is vulnerable to XSS through incomprehensive sanitization",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ sanitize-html 1.4.2 is in the affected range <2.0.0-beta",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-qhxp-v273-g94h for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-qhxp-v273-g94h",
       "references": [
         "https://github.com/advisories/GHSA-qhxp-v273-g94h"
       ],
@@ -1196,25 +1469,31 @@
       "title": "sanitize-html Information Exposure vulnerability",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "sanitize-html Information Exposure vulnerability in sanitize-html (CWE-200, CWE-538).",
       "package": "sanitize-html",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "1.4.2",
+      "affectedVersions": "<2.12.1",
+      "patchedVersions": "2.12.1",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: sanitize-html@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: sanitize-html Information Exposure vulnerability",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ sanitize-html 1.4.2 is in the affected range <2.12.1",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-rm97-x556-q36h for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-rm97-x556-q36h",
       "references": [
         "https://github.com/advisories/GHSA-rm97-x556-q36h"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-200"
+        "CWE-200",
+        "CWE-538"
       ]
     },
     {
@@ -1223,18 +1502,23 @@
       "title": "ApostropheCMS: Mutation-XSS / allowedTags bypass via literal `</textarea/>` solidus close",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "ApostropheCMS: Mutation-XSS / allowedTags bypass via literal `</textarea/>` solidus close in sanitize-html (CWE-79).",
       "package": "sanitize-html",
-      "patchedVersions": "2.18.0",
+      "packageVersion": "1.4.2",
+      "affectedVersions": "<=2.17.5",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: sanitize-html@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: ApostropheCMS: Mutation-XSS / allowedTags bypass via literal `</textarea/>` solidus close",
-        "✓ Fix available: upgrade to 2.18.0"
+        "✓ sanitize-html 1.4.2 is in the affected range <=2.17.5",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update sanitize-html to 2.18.0. See https://github.com/advisories/GHSA-jxwj-j7wr-gfrw for details.",
+      "remediation": "Upgrade sanitize-html to 2.18.0 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-jxwj-j7wr-gfrw",
       "references": [
         "https://github.com/advisories/GHSA-jxwj-j7wr-gfrw"
       ],
@@ -1250,25 +1534,31 @@
       "title": "socket.io has an unhandled 'error' event",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "socket.io has an unhandled 'error' event in socket.io (CWE-20, CWE-754).",
       "package": "socket.io",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "3.1.2",
+      "affectedVersions": ">=3.0.0 <4.6.2",
+      "patchedVersions": "4.6.2",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: socket.io@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: socket.io has an unhandled 'error' event",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ socket.io 3.1.2 is in the affected range >=3.0.0 <4.6.2",
+        "✓ Direct dependency (dependencies)",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade socket.io to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update socket.io to 4.8.4. See https://github.com/advisories/GHSA-25hc-qcg6-38wj for details.",
+      "remediation": "Upgrade socket.io to 4.8.4 (major version change: check for breaking changes). Details: https://github.com/advisories/GHSA-25hc-qcg6-38wj",
       "references": [
         "https://github.com/advisories/GHSA-25hc-qcg6-38wj"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-20"
+        "CWE-20",
+        "CWE-754"
       ]
     },
     {
@@ -1277,25 +1567,31 @@
       "title": "Insufficient validation when decoding a Socket.IO packet",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Insufficient validation when decoding a Socket.IO packet in socket.io-parser (CWE-20, CWE-754).",
       "package": "socket.io-parser",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "4.0.5",
+      "affectedVersions": ">=4.0.4 <4.2.3",
+      "patchedVersions": "4.2.3",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: socket.io-parser@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: Insufficient validation when decoding a Socket.IO packet",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ socket.io-parser 4.0.5 is in the affected range >=4.0.4 <4.2.3",
+        "✓ Pulled in by socket.io-client",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade socket.io-client to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update socket.io-parser to 4.8.4. See https://github.com/advisories/GHSA-cqmj-92xf-r6r9 for details.",
+      "remediation": "Upgrade socket.io-client to 4.8.4 (major version change: check for breaking changes); it depends on socket.io-parser, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-cqmj-92xf-r6r9",
       "references": [
         "https://github.com/advisories/GHSA-cqmj-92xf-r6r9"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-20"
+        "CWE-20",
+        "CWE-754"
       ]
     },
     {
@@ -1304,18 +1600,23 @@
       "title": "socket.io allows an unbounded number of binary attachments",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "socket.io allows an unbounded number of binary attachments in socket.io-parser (CWE-754).",
       "package": "socket.io-parser",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "4.0.5",
+      "affectedVersions": ">=4.0.0 <4.2.6",
+      "patchedVersions": "4.2.6",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: socket.io-parser@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: socket.io allows an unbounded number of binary attachments",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ socket.io-parser 4.0.5 is in the affected range >=4.0.0 <4.2.6",
+        "✓ Pulled in by socket.io-client",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade socket.io-client to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update socket.io-parser to 4.8.4. See https://github.com/advisories/GHSA-677m-j7p3-52f9 for details.",
+      "remediation": "Upgrade socket.io-client to 4.8.4 (major version change: check for breaking changes); it depends on socket.io-parser, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-677m-j7p3-52f9",
       "references": [
         "https://github.com/advisories/GHSA-677m-j7p3-52f9"
       ],
@@ -1331,25 +1632,31 @@
       "title": "Socket.IO: Zero-attachment Memory Exhaustion",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Socket.IO: Zero-attachment Memory Exhaustion in socket.io-parser (CWE-20, CWE-754).",
       "package": "socket.io-parser",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "4.0.5",
+      "affectedVersions": ">=4.0.0 <4.2.7",
+      "patchedVersions": "4.2.7",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: socket.io-parser@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Socket.IO: Zero-attachment Memory Exhaustion",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ socket.io-parser 4.0.5 is in the affected range >=4.0.0 <4.2.7",
+        "✓ Pulled in by socket.io-client",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade socket.io-client to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update socket.io-parser to 4.8.4. See https://github.com/advisories/GHSA-2m8v-j782-fhvr for details.",
+      "remediation": "Upgrade socket.io-client to 4.8.4 (major version change: check for breaking changes); it depends on socket.io-parser, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-2m8v-j782-fhvr",
       "references": [
         "https://github.com/advisories/GHSA-2m8v-j782-fhvr"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-20"
+        "CWE-20",
+        "CWE-754"
       ]
     },
     {
@@ -1358,25 +1665,31 @@
       "title": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal in tar (CWE-22, CWE-59).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<7.5.7",
+      "patchedVersions": "7.5.7",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: node-tar Vulnerable to Arbitrary File Creation/Overwrite via Hardlink Path Traversal",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <7.5.7",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-34x7-hfp2-rc4v for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-34x7-hfp2-rc4v",
       "references": [
         "https://github.com/advisories/GHSA-34x7-hfp2-rc4v"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-22"
+        "CWE-22",
+        "CWE-59"
       ]
     },
     {
@@ -1385,18 +1698,23 @@
       "title": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization in tar (CWE-22).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.2",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: node-tar is Vulnerable to Arbitrary File Overwrite and Symlink Poisoning via Insufficient Path Sanitization",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.2",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-8qq5-rm4j-mr97 for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-8qq5-rm4j-mr97",
       "references": [
         "https://github.com/advisories/GHSA-8qq5-rm4j-mr97"
       ],
@@ -1412,18 +1730,23 @@
       "title": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction in tar (CWE-22).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<7.5.8",
+      "patchedVersions": "7.5.8",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Arbitrary File Read/Write via Hardlink Target Escape Through Symlink Chain in node-tar Extraction",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <7.5.8",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-83g3-92jg-28cx for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-83g3-92jg-28cx",
       "references": [
         "https://github.com/advisories/GHSA-83g3-92jg-28cx"
       ],
@@ -1439,25 +1762,31 @@
       "title": "tar has Hardlink Path Traversal via Drive-Relative Linkpath",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "tar has Hardlink Path Traversal via Drive-Relative Linkpath in tar (CWE-22, CWE-59).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.9",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: tar has Hardlink Path Traversal via Drive-Relative Linkpath",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.9",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-qffp-2rhf-9h96 for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-qffp-2rhf-9h96",
       "references": [
         "https://github.com/advisories/GHSA-qffp-2rhf-9h96"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-22"
+        "CWE-22",
+        "CWE-59"
       ]
     },
     {
@@ -1466,18 +1795,23 @@
       "title": "node-tar Symlink Path Traversal via Drive-Relative Linkpath",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "node-tar Symlink Path Traversal via Drive-Relative Linkpath in tar (CWE-22).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.10",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: node-tar Symlink Path Traversal via Drive-Relative Linkpath",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.10",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-9ppj-qmqm-q256 for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-9ppj-qmqm-q256",
       "references": [
         "https://github.com/advisories/GHSA-9ppj-qmqm-q256"
       ],
@@ -1493,25 +1827,31 @@
       "title": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS in tar (CWE-176, CWE-367).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.3",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: Race Condition in node-tar Path Reservations via Unicode Ligature Collisions on macOS APFS",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.3",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-r6q2-hw4h-h46w for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-r6q2-hw4h-h46w",
       "references": [
         "https://github.com/advisories/GHSA-r6q2-hw4h-h46w"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-176"
+        "CWE-176",
+        "CWE-367"
       ]
     },
     {
@@ -1520,18 +1860,23 @@
       "title": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling) in tar (CWE-436).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.15",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: node-tar applies PAX size override to intermediary GNU long-name/long-link headers, causing tar parser interpretation differential (file smuggling)",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.15",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-vmf3-w455-68vh for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-vmf3-w455-68vh",
       "references": [
         "https://github.com/advisories/GHSA-vmf3-w455-68vh"
       ],
@@ -1547,18 +1892,23 @@
       "title": "node-tar: Process crash via PAX numeric path type confusion",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "node-tar: Process crash via PAX numeric path type confusion in tar (CWE-704).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.17",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: node-tar: Process crash via PAX numeric path type confusion",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.17",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-w8wr-v893-vjvp for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-w8wr-v893-vjvp",
       "references": [
         "https://github.com/advisories/GHSA-w8wr-v893-vjvp"
       ],
@@ -1574,18 +1924,23 @@
       "title": "node-tar: Decompression/parse DoS via unlimited input",
       "severity": "critical",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "node-tar: Decompression/parse DoS via unlimited input in tar (CWE-770).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.18",
+      "patchedVersions": null,
+      "advisorySeverity": "critical",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: critical",
-        "✓ Vulnerability: node-tar: Decompression/parse DoS via unlimited input",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.18",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-23hp-3jrh-7fpw for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-23hp-3jrh-7fpw",
       "references": [
         "https://github.com/advisories/GHSA-23hp-3jrh-7fpw"
       ],
@@ -1601,18 +1956,23 @@
       "title": "node-tar: Negative tar entry size causes infinite loop in archive replace",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "node-tar: Negative tar entry size causes infinite loop in archive replace in tar (CWE-835).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.17",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: node-tar: Negative tar entry size causes infinite loop in archive replace",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.17",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-8x88-c5mf-7j5w for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-8x88-c5mf-7j5w",
       "references": [
         "https://github.com/advisories/GHSA-8x88-c5mf-7j5w"
       ],
@@ -1628,18 +1988,23 @@
       "title": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records in tar (CWE-248).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.16",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: node-tar: Uncaught Exception DoS via NUL byte in PAX path/linkpath records",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.16",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-gvwx-54wh-qm9j for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-gvwx-54wh-qm9j",
       "references": [
         "https://github.com/advisories/GHSA-gvwx-54wh-qm9j"
       ],
@@ -1655,25 +2020,31 @@
       "title": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection in tar (CWE-400, CWE-674).",
       "package": "tar",
-      "patchedVersions": "6.0.1",
+      "packageVersion": "6.2.1",
+      "affectedVersions": "<=7.5.20",
+      "patchedVersions": null,
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: tar@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: node-tar: Uncontrolled recursion in mapHas/filesFilter allows uncatchable stack-overflow DoS via crafted long-path tar with member selection",
-        "✓ Fix available: upgrade to 6.0.1"
+        "✓ tar 6.2.1 is in the affected range <=7.5.20",
+        "✓ Pulled in by sqlite3",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update tar to 6.0.1. See https://github.com/advisories/GHSA-r292-9mhp-454m for details.",
+      "remediation": "Upgrade sqlite3 to 6.0.1 (major version change: check for breaking changes); it depends on tar, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-r292-9mhp-454m",
       "references": [
         "https://github.com/advisories/GHSA-r292-9mhp-454m"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-400"
+        "CWE-400",
+        "CWE-674"
       ]
     },
     {
@@ -1682,25 +2053,31 @@
       "title": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
       "severity": "medium",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided in uuid (CWE-787, CWE-1285).",
       "package": "uuid",
-      "patchedVersions": "3.30.0",
+      "packageVersion": "8.3.2",
+      "affectedVersions": "<11.1.1",
+      "patchedVersions": "11.1.1",
+      "advisorySeverity": "medium",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: uuid@undefined",
-        "⚠ Severity: moderate",
-        "✓ Vulnerability: uuid: Missing buffer bounds check in v3/v5/v6 when buf is provided",
-        "✓ Fix available: upgrade to 3.30.0"
+        "✓ uuid 8.3.2 is in the affected range <11.1.1",
+        "✓ Pulled in by nyc, sequelize",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: downgrade sequelize from 6.37.8 to 3.30.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update uuid to 3.30.0. See https://github.com/advisories/GHSA-w5hq-g745-h8pq for details.",
+      "remediation": "Downgrade sequelize from 6.37.8 to 3.30.0 (major version change: check for breaking changes); it depends on uuid, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-w5hq-g745-h8pq",
       "references": [
         "https://github.com/advisories/GHSA-w5hq-g745-h8pq"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-787"
+        "CWE-787",
+        "CWE-1285"
       ]
     },
     {
@@ -1709,18 +2086,23 @@
       "title": "ws affected by a DoS when handling a request with many HTTP headers",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "ws affected by a DoS when handling a request with many HTTP headers in ws (CWE-476).",
       "package": "ws",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "7.4.6",
+      "affectedVersions": ">=7.0.0 <7.5.10",
+      "patchedVersions": "7.5.10",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: ws@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: ws affected by a DoS when handling a request with many HTTP headers",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ ws 7.4.6 is in the affected range >=7.0.0 <7.5.10",
+        "✓ Pulled in by socket.io, socket.io-client",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade socket.io to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update ws to 4.8.4. See https://github.com/advisories/GHSA-3h5v-q93c-6h6q for details.",
+      "remediation": "Upgrade socket.io to 4.8.4 (major version change: check for breaking changes); it depends on ws, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-3h5v-q93c-6h6q",
       "references": [
         "https://github.com/advisories/GHSA-3h5v-q93c-6h6q"
       ],
@@ -1736,847 +2118,653 @@
       "title": "ws: Memory exhaustion DoS from tiny fragments and data chunks",
       "severity": "high",
       "confidence": 0.95,
-      "description": "Known vulnerability in dependency",
+      "description": "ws: Memory exhaustion DoS from tiny fragments and data chunks in ws (CWE-400, CWE-770, CWE-1050).",
       "package": "ws",
-      "patchedVersions": "4.8.4",
+      "packageVersion": "7.4.6",
+      "affectedVersions": ">=7.0.0 <7.5.11",
+      "patchedVersions": "7.5.11",
+      "advisorySeverity": "high",
+      "devOnly": false,
       "file": "package.json",
       "line": null,
       "context": [
-        "✓ Vulnerable dependency detected: ws@undefined",
-        "⚠ Severity: high",
-        "✓ Vulnerability: ws: Memory exhaustion DoS from tiny fragments and data chunks",
-        "✓ Fix available: upgrade to 4.8.4"
+        "✓ ws 7.4.6 is in the affected range >=7.0.0 <7.5.11",
+        "✓ Pulled in by socket.io, socket.io-client",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade socket.io to 4.8.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
       ],
-      "remediation": "Update ws to 4.8.4. See https://github.com/advisories/GHSA-96hv-2xvq-fx4p for details.",
+      "remediation": "Upgrade socket.io to 4.8.4 (major version change: check for breaking changes); it depends on ws, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-96hv-2xvq-fx4p",
       "references": [
         "https://github.com/advisories/GHSA-96hv-2xvq-fx4p"
       ],
       "tags": [
         "dependency",
         "npm-audit",
-        "CWE-400"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/iacLeakedKeyChallenge_1.tf-249",
-      "type": "hardcoded-secret",
-      "title": "API Token/Key",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Potential API key or access token detected",
-      "file": "data/static/codefixes/iacLeakedKeyChallenge_1.tf",
-      "line": 249,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/iacLeakedKeyChallenge_2.tf-249",
-      "type": "hardcoded-secret",
-      "title": "API Token/Key",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Potential API key or access token detected",
-      "file": "data/static/codefixes/iacLeakedKeyChallenge_2.tf",
-      "line": 249,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/iacLeakedKeyChallenge_3_correct.tf-249",
-      "type": "hardcoded-secret",
-      "title": "API Token/Key",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Potential API key or access token detected",
-      "file": "data/static/codefixes/iacLeakedKeyChallenge_3_correct.tf",
-      "line": 249,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/loginAdminChallenge_1.ts-18",
-      "type": "hardcoded-secret",
-      "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
-      "file": "data/static/codefixes/loginAdminChallenge_1.ts",
-      "line": 18,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/loginAdminChallenge_2.ts-15",
-      "type": "hardcoded-secret",
-      "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
-      "file": "data/static/codefixes/loginAdminChallenge_2.ts",
-      "line": 15,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/loginBenderChallenge_1.ts-18",
-      "type": "hardcoded-secret",
-      "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
-      "file": "data/static/codefixes/loginBenderChallenge_1.ts",
-      "line": 18,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/loginBenderChallenge_3.ts-15",
-      "type": "hardcoded-secret",
-      "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
-      "file": "data/static/codefixes/loginBenderChallenge_3.ts",
-      "line": 15,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/loginBenderChallenge_4.ts-15",
-      "type": "hardcoded-secret",
-      "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
-      "file": "data/static/codefixes/loginBenderChallenge_4.ts",
-      "line": 15,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/loginJimChallenge_2.ts-15",
-      "type": "hardcoded-secret",
-      "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
-      "file": "data/static/codefixes/loginJimChallenge_2.ts",
-      "line": 15,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-data/static/codefixes/loginJimChallenge_4.ts-18",
-      "type": "hardcoded-secret",
-      "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
-      "file": "data/static/codefixes/loginJimChallenge_4.ts",
-      "line": 18,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
+        "CWE-400",
+        "CWE-770",
+        "CWE-1050"
       ]
     },
     {
       "id": "secret-data/static/users.yml-3",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 3,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-31",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 31,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-63",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 63,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-88",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 88,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)",
-        "✓ High entropy (4.7) - likely real secret"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-107",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 107,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)",
-        "✓ High entropy (5.4) - likely real secret"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-115",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 115,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)",
-        "✓ High entropy (5.0) - likely real secret"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-123",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 123,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-132",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 132,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-141",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 141,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)",
-        "✓ High entropy (4.9) - likely real secret"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-150",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 150,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)",
-        "✓ High entropy (4.7) - likely real secret"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-159",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 159,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)",
-        "⚠ Low entropy (2.5) - may be test/placeholder"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-168",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 168,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-178",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 178,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-188",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 188,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-197",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 197,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-206",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 206,
       "snippet": "[redacted in demo report]",
       "context": [
-        "? In or near comment (may be example/documentation)",
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-239",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 239,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)",
-        "✓ High entropy (5.0) - likely real secret"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-245",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 245,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)",
-        "✓ High entropy (4.7) - likely real secret"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-251",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 251,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-261",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 261,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-272",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 272,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-277",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 277,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)",
-        "✓ High entropy (5.9) - likely real secret"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
       "id": "secret-data/static/users.yml-286",
       "type": "hardcoded-secret",
       "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "severity": "medium",
+      "confidence": 0.5,
+      "description": "Hardcoded password detected",
       "file": "data/static/users.yml",
       "line": 286,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `password` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "⚠ Seed data file: likely a default account password; change it before deploying",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-frontend/src/app/complaint/complaint.component.ts-45",
-      "type": "hardcoded-secret",
-      "title": "API Token/Key",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Potential API key or access token detected",
-      "file": "frontend/src/app/complaint/complaint.component.ts",
-      "line": 45,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
@@ -2584,23 +2772,26 @@
       "type": "hardcoded-secret",
       "title": "Database Password",
       "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
+      "confidence": 0.6,
+      "description": "Hardcoded password detected",
       "file": "frontend/src/app/login/login.component.ts",
       "line": 63,
       "snippet": "[redacted in demo report]",
       "context": [
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
+        "✓ `testingPassword` is assigned a literal value",
+        "? Value doesn't look like a placeholder",
+        "✓ In application code or config",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "generic-credential"
       ]
     },
     {
@@ -2608,45 +2799,25 @@
       "type": "hardcoded-secret",
       "title": "Private Key",
       "severity": "critical",
-      "confidence": 0.8,
+      "confidence": 0.9,
       "description": "Private cryptographic key detected",
       "file": "infrastructure/terraform/networking.tf",
       "line": 171,
       "snippet": "[redacted in demo report]",
       "context": [
-        "✓ Active code (not in comment)"
+        "✓ Matches the Private Key format",
+        "✓ In application code or config",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-infrastructure/terraform/networking.tf-250",
-      "type": "hardcoded-secret",
-      "title": "API Token/Key",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Potential API key or access token detected",
-      "file": "infrastructure/terraform/networking.tf",
-      "line": 250,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "provider-key"
       ]
     },
     {
@@ -2654,47 +2825,25 @@
       "type": "hardcoded-secret",
       "title": "Private Key",
       "severity": "critical",
-      "confidence": 0.8,
+      "confidence": 0.9,
       "description": "Private cryptographic key detected",
       "file": "lib/insecurity.ts",
       "line": 21,
       "snippet": "[redacted in demo report]",
       "context": [
-        "✓ Active code (not in comment)"
+        "✓ Matches the Private Key format",
+        "✓ In application code or config",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-routes/login.ts-34",
-      "type": "hardcoded-secret",
-      "title": "Database Password",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Database password in configuration detected",
-      "file": "routes/login.ts",
-      "line": 34,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "? In or near comment (may be example/documentation)",
-        "⚠ Matches common test password pattern (likely fake)",
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "provider-key"
       ]
     },
     {
@@ -2702,45 +2851,25 @@
       "type": "hardcoded-secret",
       "title": "Private Key",
       "severity": "critical",
-      "confidence": 0.8,
+      "confidence": 0.9,
       "description": "Private cryptographic key detected",
       "file": "terraform/networking.tf",
       "line": 171,
       "snippet": "[redacted in demo report]",
       "context": [
-        "✓ Active code (not in comment)"
+        "✓ Matches the Private Key format",
+        "✓ In application code or config",
+        "✓ Active code (not in a comment)"
       ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
+      "remediation": "Remove this secret and rotate the credential (assume it has leaked: it is in the repository history). Load secrets from environment variables or a secrets manager instead.",
       "references": [
+        "https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html",
         "https://owasp.org/www-community/Source_Code_Disclosure"
       ],
       "tags": [
         "secret",
-        "critical",
-        "secrets-detection"
-      ]
-    },
-    {
-      "id": "secret-terraform/networking.tf-250",
-      "type": "hardcoded-secret",
-      "title": "API Token/Key",
-      "severity": "high",
-      "confidence": 0.8,
-      "description": "Potential API key or access token detected",
-      "file": "terraform/networking.tf",
-      "line": 250,
-      "snippet": "[redacted in demo report]",
-      "context": [
-        "✓ Active code (not in comment)"
-      ],
-      "remediation": "Remove this secret and rotate credentials immediately. Store secrets in environment variables or a secrets manager, not in code.",
-      "references": [
-        "https://owasp.org/www-community/Source_Code_Disclosure"
-      ],
-      "tags": [
-        "secret",
-        "critical",
-        "secrets-detection"
+        "secrets-detection",
+        "provider-key"
       ]
     },
     {
@@ -3660,8 +3789,8 @@
       "Logging PII"
     ],
     "findingsByType": {
-      "dependency-cve": 65,
-      "hardcoded-secret": 41,
+      "dependency-cve": 66,
+      "hardcoded-secret": 27,
       "sql-injection": 13,
       "xss": 19,
       "crypto-misuse": 0,
@@ -3669,11 +3798,11 @@
     }
   },
   "summary": {
-    "total": 138,
+    "total": 125,
     "critical": 12,
-    "high": 72,
-    "medium": 35,
-    "low": 19,
+    "high": 34,
+    "medium": 57,
+    "low": 22,
     "info": 0
   },
   "source": {

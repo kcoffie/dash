@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { shouldSkipFile, isSourceFile, nonProductionContext, walkDir, toStatements, USER_INPUT, ROUTE_HANDLER } from '../file-utils.js';
+import { isSourceFile, nonProductionContext, walkDir, toStatements, USER_INPUT, ROUTE_HANDLER } from '../file-utils.js';
 
 // A string literal that reads like a SQL statement, not just prose containing "select ... from".
 // Uppercase keywords count anywhere; lowercase SQL only counts when the string starts with it.
@@ -130,7 +130,7 @@ export async function scanForSqlInjection(targetPath) {
     const files = walkDir(targetPath);
 
     for (const file of files) {
-      if (shouldSkipFile(file) || !isSourceFile(file)) continue;
+      if (!isSourceFile(file)) continue;
 
       let content;
       try {
