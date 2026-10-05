@@ -1,7 +1,7 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-05  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy fixes in review
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14)
 
 ---
 
@@ -46,7 +46,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 | **#2: Pattern Scanners (Secrets + SQL)** | ✅ Merged (PR #2) | Regex for hardcoded secrets, SQL patterns, 3+ context factors |
 | **#3: Pattern Scanners (XSS, Crypto, Async)** | 🟡 XSS ✅ merged (PR #2); crypto + async deferred until after dashboard | XSS, MD5/SHA1, async footguns, integrated output |
 
-**Deliverable:** `scanner-output.json` with 5 finding types + context factors — 4 of 5 shipped (dependency CVEs, secrets, SQLi, XSS). Validated against OWASP Juice Shop + DVNA answer keys: SQLi 3/3, XSS 8/9 Juice Shop challenges + 3/3 DVNA. Accuracy pass (session 6, in review): dependency scan no longer reads npm audit failures as clean (DVNA 0 → 58 CVEs), dev-only advisories → low, secrets 41 → 27 on Juice Shop with fewer misses. Details in HANDOFF.md.
+**Deliverable:** `scanner-output.json` with 5 finding types + context factors — 4 of 5 shipped (dependency CVEs, secrets, SQLi, XSS). Validated against OWASP Juice Shop + DVNA answer keys: SQLi 3/3, XSS 8/9 Juice Shop challenges + 3/3 DVNA. Accuracy pass (session 6, PR #14 merged): dependency scan no longer reads npm audit failures as clean (DVNA 0 → 58 CVEs), dev-only advisories → low, secrets 41 → 27 on Juice Shop with fewer misses. Details in HANDOFF.md.
 
 ### Week 2: Build Dashboard
 
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** User merges the scanner-accuracy PR (`fix/scanner-accuracy`). Then the ESLint config, then crypto / async scanners. Talking points live in README.md. Every PR must pass `npm test` + `npm run build`.
+**Next Step:** ESLint flat config + lint in CI (HANDOFF START HERE 6a), then the insecure-crypto scanner (#2.4, 6b), then async footguns (#2.5). Talking points live in README.md. Every PR must pass `npm test` + `npm run build`.
