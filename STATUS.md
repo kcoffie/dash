@@ -1,14 +1,14 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-05  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** → Task #7 docs
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs in review
 
 ---
 
 ## Overall Progress
 
 ```
-Phase 1 (MVP)      ████████░░ 76%  (5⅓ of 7 tasks: #1 #2 #4 #5 #6 done, #3 1 of 3 scanners; #7 docs left)
+Phase 1 (MVP)      █████████░ 90%  (6⅓ of 7 tasks: #1 #2 #4 #5 #6 #7 done once its PR merges; #3 1 of 3 scanners)
 Phase 2 (Depth)    ░░░░░░░░░░  0%  (PRD §6 Phase 2 — PDF export, FP tuning, 3+ repos; dark mode + chart pulled into #5)
 Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDEAS.md)
 ```
@@ -62,7 +62,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
 | **#6: Deploy to Vercel** | ✅ Live at https://dash-jade-nine.vercel.app/ (2026-10-05). Demo data + picker (PR #10); production branch `main` | Live URL, tested on 3+ repos (Express, Juice Shop, DVNA ✅), edge cases handled |
-| **#7: Documentation** | 🔵 Pending | README, talking points, git history, portfolio-ready |
+| **#7: Documentation** | 🟡 In review: README screenshots (light, dark, finding details, phone), how it works, measured results, limitations, talking points; `npm run screenshots` | README, talking points, git history, portfolio-ready |
 
 **Deliverable:** Live demo + interview story
 
@@ -104,10 +104,10 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 ## Interview Story (TL;DR)
 
 **The Pitch (30 seconds):**
-> "I built a real security vulnerability scanner that audits codebases and displays findings with contextual scoring. The differentiator: I don't just flag patterns—I score exploitability based on multiple factors (is input sanitized? is endpoint public?). This shows threat modeling, not just regex matching. I scanned Express.js, found actual CVEs, and built a dashboard that explains risk to non-technical people."
+> "I built a real security vulnerability scanner that audits codebases and displays findings with contextual scoring. The differentiator: I don't just flag patterns—I score exploitability based on multiple factors (is input sanitized? is endpoint public?). This shows threat modeling, not just regex matching. I checked it against two intentionally vulnerable apps with known answers (SQL injection 3/3, XSS 8/9 + 3/3), and built a dashboard that explains risk to non-technical people."
 
 **The Demo (3 minutes):**
-1. Show scanner output (Juice Shop: the login SQLi scored CRITICAL; Express for real CVEs)
+1. Show scanner output (Juice Shop: the login SQLi scored CRITICAL; the same pattern in training snippets scored LOW)
 2. Explain contextual scoring (why HIGH not CRITICAL? why is the same pattern LOW in a training snippet?)
 3. Walk dashboard (severity cards, findings-by-type chart, filters, search, "Why this severity", remediation links)
 4. Explain trade-offs (why Node.js only? why contextual? why this approach?)
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** Task #7 (README screenshots, how it works, talking points). Every PR must pass `npm test` + `npm run build`.
+**Next Step:** User merges the Task #7 PR. Then the scanner TODOs (secret noise, `@undefined` versions, dev vs runtime deps), then crypto / async scanners. Talking points live in README.md. Every PR must pass `npm test` + `npm run build`.

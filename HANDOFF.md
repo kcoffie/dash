@@ -1,16 +1,16 @@
 # Project Handoff — Security Audit Platform
 
-**Last updated:** 2026-10-02 (end of session 5)
-**Branch:** `main` @ `a7143e1` has everything through PR #11. This wrap-up is PR #12 (`docs/session-5-wrap`, docs only); if it's still open, the user merges it. No other branches.
-**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · Deploy prep ✅ (PR #10: demo data + picker) · repo public, `main` protected, **repo secret scanning + push protection on** (user enabled them at the end of session 5)
-**Next step:** **Vercel import (user's login).** Ask the user whether it's done and for the URL. If it isn't done, walk them through START HERE step 5. Once there's a URL, verify the live site, put the URL in README/STATUS, then Task #7 (README screenshots, talking points).
+**Last updated:** 2026-10-05 (session 6)
+**Branch:** `main` @ `313191a` has everything through PR #12. Session 6's work (live URL + Task #7 docs) is on `docs/deploy-readme`, open as a PR for the user to merge. No other branches.
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 README/screenshots/talking points in review · repo public, `main` protected, secret scanning + push protection on (0 alerts)
+**Next step:** If the `docs/deploy-readme` PR is still open, the user merges it. Then the scanner TODOs (START HERE step 6).
 
 ---
 
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
-The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). Dashboard polish (dark mode, findings-by-type chart, phone layout) is merged (PR #9). Demo data for all three scan targets (redacted) plus a "Demo scan" picker is merged (PR #10), so a static deploy has something to show. **The only thing between here and a live URL is the user importing the repo in Vercel.** CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
+The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). Dashboard polish (dark mode, findings-by-type chart, phone layout) is merged (PR #9). Demo data for all three scan targets (redacted) plus a "Demo scan" picker is merged (PR #10), so a static deploy has something to show. **It's live at https://dash-jade-nine.vercel.app/** (Vercel; every merge to `main` redeploys, PRs get preview URLs). The README has screenshots, how it works, measured results, and talking points (Task #7). CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
 
 ### Do these, in order
 1. **Setup** (if a PR is still open, check with the user before starting new work)
@@ -18,6 +18,8 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    git checkout main && git pull
    npm ci                                   # node_modules isn't committed; needed for dev/build
    # Scan targets live outside the repo — re-clone if /tmp was wiped:
+   # macOS prunes old files in /tmp: if `git -C /tmp/juice-shop status` says "not a git repository", delete and re-clone.
+   # A partial clone scans "fine" but gives junk counts (session 6 saw Juice Shop 42 findings instead of 138).
    git clone --depth 1 https://github.com/expressjs/express.git /tmp/express
    git clone --depth 1 https://github.com/juice-shop/juice-shop.git /tmp/juice-shop
    git clone --depth 1 https://github.com/appsecco/dvna.git /tmp/dvna
@@ -30,6 +32,7 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    ```
    Scanner counts (run from a scratch dir — `index.js` writes `scanner-output.json` to the cwd):
    Juice Shop 13 SQLi / 19 XSS / 138 total · DVNA 1 SQLi / 10 XSS · Express 0 SQLi / 54 XSS (all low).
+   Session 6 got Juice Shop **139** (dependency CVEs + secrets 107 vs 106; SQLi/XSS unchanged); likely `npm audit` advisory drift, not checked further. The committed demo stays at 138.
 3. **See the dashboard**: from the repo root, `npm run scan /tmp/juice-shop` (writes the gitignored `scanner-output.json` the dev server serves), then `npm run dev` → http://localhost:5173. Without a local report, the dashboard opens the committed Juice Shop demo. The "Demo scan" picker switches demos; "Load scan file…" loads any other report.
 4. **Check secret scanning** (enabled by the user at the end of session 5; the first scan of history can take a while):
    ```bash
@@ -37,13 +40,10 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    gh api repos/kcoffie/dash/secret-scanning/alerts --jq 'length' # was 0 at end of session 5
    ```
    If alerts show up, list them (`--jq '.[] | {number, secret_type_display_name, state, path: .first_location_detected.path}'`) and tell the user before doing anything. They're most likely the fake keys in test fixtures (`src/scanner/__tests__/hardcoded-secrets.test.js` uses AWS's documented example key). The demo files were checked and contain no key formats. Don't dismiss alerts yourself; that's the user's call.
-5. **Week 3: Deploy (Task #6)**. Demo data and picker are merged (PR #10; user's decision: all three scans). What's left needs the **user's** Vercel login, so don't try it yourself:
-   - vercel.com → Add New → Project → import `kcoffie/dash`. Vite is auto-detected (build `npm run build`, output `dist`); no `vercel.json` or env vars needed.
-   - Production branch `main`; each merge then redeploys, and PRs get preview URLs.
-   - After the first deploy, check: the Juice Shop demo opens, the picker switches to DVNA / Express, dark mode works, and `/scanner-output.json` 404s (expected; the app falls back to the demo).
-   - Then put the live URL in README.md and STATUS.md.
+5. **Deploy (Task #6) ✅** — https://dash-jade-nine.vercel.app/. Imported by the user (Vite auto-detected, no `vercel.json`, production branch `main`). Verified in session 6: Juice Shop opens by default, picker switches to DVNA (11) / Express (59), light + dark, 390px with no horizontal scroll, no console errors, `/scanner-output.json` 404s (expected).
+   - **README screenshots:** `npm run screenshots [-- <url>]` (`scripts/screenshots.js`) drives headless Chrome over the DevTools protocol and rewrites `docs/screenshots/` (light, dark, expanded login SQLi finding, phone). Defaults to the live URL; set `CHROME` if Chrome isn't at the macOS path. Re-run after visible dashboard or demo-data changes.
    - **Regenerating demo data:** re-clone the targets (step 1), run `npm run demo:export`, review the diff, and commit `public/demo/`. The export redacts secret snippets and ids and **fails** if any finding still contains an AWS key, private-key header, GitHub/GitLab token, or Slack/Discord webhook.
-6. **Later:** fix the scanner TODOs (secret ids, `@undefined` dep versions, secret context factors, ESLint config), then #2.4 crypto / #2.5 async.
+6. **Next:** fix the scanner TODOs (secret noise + ids, `@undefined` dep versions, dev vs runtime deps, secret context factors, ESLint config), re-export the demo data and screenshots, then #2.4 crypto / #2.5 async.
 
 ### Dashboard map
 - `src/App.jsx`: loads `/scanner-output.json` first, otherwise the first scan in `/demo/index.json`. A non-JSON response means "not there" (Vite and static hosts answer missing files with `index.html` + 200). "Demo scan" picker (manifest validated by `normalizeDemoManifest()`), file picker via `normalizeReport()`, target linked to the scanned commit via `sourceLink()`.
@@ -52,7 +52,7 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 - `src/utils/findings.js` — filter/search/sort/count, `severityByType` (chart rows), `summarySeverities` (which cards to show), `parseFactor`, `findingKey` (scanner ids aren't unique), `isSafeUrl`, `CATEGORY_TYPES`.
 - **Dark mode** — Tailwind v4's default `dark:` variant (`prefers-color-scheme`), no toggle. `color-scheme: light dark` in `src/index.css` + `index.html` so native controls match. Every new color class needs a `dark:` partner. Measured contrast (Juice Shop): severity cards ≥ 6.4:1 light, ≥ 10:1 dark.
 - **Chart colors** — `SEVERITY_FILLS` were checked with the dataviz skill's `validate_palette.js` (adjacent pairs, CVD + normal vision) against white and gray-900. Light uses red-700 / orange-500 / amber-400 / sky-600 / gray-400 (red-600 and sky-500 failed the normal-vision floor next to orange / gray). Amber and orange sit below 3:1 on white, so the chart must keep its legend + value labels.
-- Manual-testing tips: Claude-in-Chrome's `resize_window` didn't change the viewport here — test phone width by injecting `<iframe src="/" style="width:390px">` via the JS tool. **Use `npm run build && cp scanner-output.json dist/ && npx vite preview`** for that: the dev server's HMR reloads the page (and drops the iframes) on every file edit, and `SeverityBadge.jsx` exporting constants forces full reloads. To check light mode on a dark-mode machine (or vice versa), rewrite `prefers-color-scheme: dark` in the page's stylesheets via the JS tool; iframes inherit the parent's `color-scheme`. Load a modified report through the file input with a `DataTransfer`. Close tabs and stop servers when done.
+- Manual-testing tips: Claude-in-Chrome's `resize_window` didn't change the viewport here — test phone width by injecting `<iframe src="/" style="width:390px">` via the JS tool. For light mode in an iframe, just set `style.colorScheme = 'light'` on the `<iframe>` element and reload it: the iframe's `prefers-color-scheme` follows that (don't also rewrite media rules — that flips it back). **Use `npm run build && cp scanner-output.json dist/ && npx vite preview`** for that: the dev server's HMR reloads the page (and drops the iframes) on every file edit, and `SeverityBadge.jsx` exporting constants forces full reloads. To check light mode on a dark-mode machine (or vice versa), rewrite `prefers-color-scheme: dark` in the page's stylesheets via the JS tool; iframes inherit the parent's `color-scheme`. Load a modified report through the file input with a `DataTransfer`. Close tabs and stop servers when done.
 
 ### Working agreements with the user
 - **Commit and push right away** after each logical chunk — user wants to be aggressive about pushing so no work is lost.
@@ -64,6 +64,14 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 - Confirm a new test actually fails against the old code before calling a fix done.
 
 ---
+
+## What We Did in Session 6 (2026-10-05)
+
+- ✅ Baseline matched: 6 suites (5/5, 3/3, 5/5, 21/21, 22/22, 14/14), build OK. Scanner counts match except Juice Shop total 139 vs 138 (see START HERE step 2). The `/tmp` targets had been partly pruned by macOS; re-cloned to get real numbers.
+- ✅ Secret scanning + push protection enabled, **0 alerts**.
+- ✅ PR #12 merged by the user. **Vercel imported by the user → https://dash-jade-nine.vercel.app/.** Verified live (see step 5). URL added to README + STATUS (Task #6 done).
+- ✅ **Task #7 (docs)** on `docs/deploy-readme`: README now has screenshots of the live site (light, dark, expanded finding, phone), "How it works", a results table built from the committed demo data, recall vs the answer keys, known limitations, and talking points. `npm run screenshots` added to regenerate the images.
+- ✅ **Corrected an overclaim:** the old pitch said "scanned Express.js, found actual CVEs". Express's 4 advisories are in `diff`, `serialize-javascript`, `uuid`, none of them a direct Express dependency (they come through dev/test tooling). README, STATUS, and the story below now say what was measured; added a TODO for dev vs runtime deps.
 
 ## What We Did in Session 5 (2026-10-02)
 
@@ -183,6 +191,7 @@ Week 3 Deploy    ████████████████░░░░░
 - [ ] **XSS: not covered yet** — `javascript:` URLs (`location.href = value`, `<a href>`), `eval`/`setTimeout(string)`, `res.render` with unescaped locals passed from routes (only the template side is checked).
 - [x] **Run tests before PRs can be merged.** Done (session 4): `npm test` runs every `src/scanner/__tests__/*.test.js` via `node --test`; `.github/workflows/test.yml` runs it on Node 24 for PRs and pushes to `main`. A ruleset on `main` (enforced since the repo went public) requires a PR (0 approvals, squash only) and a passing `test` check, and blocks force pushes and deletion. New test files just need the `.test.js` suffix and a non-zero exit on failure.
 - [ ] **Secret finding ids aren't unique.** Ids are built from the matched text (e.g. `secret-token = "$`), so they collide and contain spaces. The dashboard works around it (keys on type+file+line+index), but ids should be `secret-<file>-<line>` like SQLi/XSS.
+- [ ] **Dependency findings don't separate dev from runtime dependencies.** Express's 4 advisories (`diff`, `serialize-javascript`, `uuid`) aren't direct Express dependencies; they come through dev/test tooling. Mark dev-only advisories (npm audit's `nodes` / `isDirect`, or `npm audit --omit=dev`) and lower their severity.
 - [ ] **Dependency findings show `@undefined` version.** Context reads "Vulnerable dependency detected: <pkg>@undefined" — the installed version isn't read from npm audit output.
 - [ ] **Secret findings have 1 context factor** (schema wants 3+), and flag Terraform interpolations like `creation_token = "${var.project_name}-…"` as API tokens.
 - [ ] **`npm run lint` is broken** — ESLint 9 needs an `eslint.config.js`; none exists. Add a flat config (React + hooks plugins), then a lint step in CI.
@@ -220,7 +229,9 @@ Scanner → JSON → Dashboard
 Don't add features that break this. This is the heart.
 
 ### Interview Story (30 seconds)
-> "I built a real security scanner with contextual scoring. Not just 'vuln found'—I score exploitability based on multiple factors (input sanitized? endpoint public?). This shows threat modeling. I scanned Express.js, found actual CVEs, built an intuitive dashboard."
+> "I built a real security scanner with contextual scoring. Not just 'vuln found'—I score exploitability based on multiple factors (input sanitized? endpoint public?). This shows threat modeling. I checked it against two intentionally vulnerable apps with known answers (SQL injection 3/3, XSS 8/9 + 3/3) and built a dashboard that explains each score."
+
+Fuller talking points are in README.md → Talking Points.
 
 ### Tech Stack
 - **Scanner:** Node.js + npm audit API + pattern regex
