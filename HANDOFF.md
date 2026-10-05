@@ -27,7 +27,7 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    `npm ci` warns that esbuild's install script wasn't approved — harmless (the build works; CI is green).
 2. **Verify baseline**
    ```bash
-   npm test                                 # 8 suites, 100 tests: demo export 5/5, dependency 4/4, file utils 4/4, secrets 18/18, npm audit client 12/12, SQLi 21/21, XSS 22/22, dashboard helpers 14/14
+   npm test                                 # 8 suites, 102 tests: demo export 5/5, dependency 4/4, file utils 4/4, secrets 19/19, npm audit client 13/13, SQLi 21/21, XSS 22/22, dashboard helpers 14/14
    npm run build                            # must succeed (CI runs it)
    ```
    Scanner counts (run from a scratch dir — `index.js` writes `scanner-output.json` to the cwd):
@@ -75,6 +75,8 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
   - Provider formats keep severity anywhere; generic values → LOW for placeholders / low-entropy tokens / test-example-snippet files, → MEDIUM in seed data (`users.yml`: 23).
   - `.test.`/`.spec.` files now scanned for provider formats only (generic there = 162 test passwords on Juice Shop; user chose not to report them).
   - Misses fixed: PKCS#8/encrypted private keys, `glpat-` (pattern had `glpat_`), `gho_`/`ghs_`/`github_pat_`, `ASIA` keys, discord.com webhooks, JSON-quoted keys, new **Secret Key** pattern (DVNA `server.js:24` session secret).
+  - `.env` files: unquoted `KEY=value` (key must end in PASSWORD/SECRET/TOKEN/API_KEY…; commented lines count); `.env.example` etc. score as examples. None of the three targets has one.
+  - npm errors report code + reason (`code E404 · 404 Not Found …`), never npm's debug-log path (it's in the home directory and would have been published in a demo report's errors).
   - Ids `secret-<file>-<line>[-n]`; entropy/placeholder checks on the value (every password match used to be "likely fake" because the match included the word "password"); `//` in a URL isn't a comment; factors name the whole identifier and never the value.
 - **Walker:** skip rules ran on absolute paths (a target under `build/`, `dist/`, or `*.test.*` was skipped entirely) and `/\.git/` also skipped `.github/`. Now target-relative; no change on the three targets.
 - Demo data regenerated at the same commits (Juice Shop 138 → 125, DVNA 11 → 70, Express 59 → 64); README/DESIGN/PRD/STATUS updated; screenshots retaken from a local build.

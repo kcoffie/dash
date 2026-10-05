@@ -36,7 +36,7 @@ Scanner (Node.js) → JSON Output → React Dashboard
 
 1. **Scan.** `npm run scan <repo>` walks the target's source files and runs four checks:
    - **Dependency CVEs:** `npm audit` on the target's lockfile. Without a lockfile, the tree is resolved into a temporary one first; the target isn't modified. A second production-only audit tells runtime dependencies from dev-only ones.
-   - **Hardcoded secrets:** provider key formats (AWS, private keys, GitHub/GitLab tokens, Slack/Discord webhooks) and literal values assigned to password, token, API-key, and secret keys. Templated values (`${…}`, `{{ }}`) are skipped.
+   - **Hardcoded secrets:** provider key formats (AWS, private keys, GitHub/GitLab tokens, Slack/Discord webhooks) and literal values assigned to password, token, API-key, and secret keys, including unquoted `KEY=value` lines in `.env` files. Templated values (`${…}`, `{{ }}`) are skipped.
    - **SQL injection and XSS:** regexes find risky constructs, such as SQL built with `+` or `${}`, `innerHTML`, `bypassSecurityTrust*`, and unescaped template output. Multi-line statements are joined first, so a query split across lines still matches.
 2. **Score.** For SQL injection and XSS, a match starts at **medium** and moves up or down based on what's in the 15 lines around it:
    - **Up:** request data (`req.body`, `req.query`, …) on the same line or nearby, URL or storage values read in browser code (XSS), or code inside a route handler, which makes it reachable over HTTP.
@@ -103,7 +103,7 @@ Without a local `scanner-output.json`, the dashboard opens the Juice Shop demo. 
   - **Node.js only.**
   - **Recall over precision for now:** the secret noise is visible, not hidden.
 - **Engineering:**
-  - **Tests:** 100 across 8 suites (scanners, file walker, npm audit parsing, demo export, dashboard logic).
+  - **Tests:** 102 across 8 suites (scanners, file walker, npm audit parsing, demo export, dashboard logic).
   - **Protected `main`:** CI must pass (`npm ci` → `npm test` → `npm run build`) before anything merges.
   - **Fail-closed demo export:** it refuses to write a file that still contains a key format.
   - **Repo hygiene:** secret scanning and push protection are on.
