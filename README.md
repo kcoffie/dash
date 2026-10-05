@@ -2,6 +2,8 @@
 
 Real vulnerability scanner + interactive dashboard for portfolio. It scores findings by exploitability, not just pattern matches.
 
+**Live demo:** https://dash-jade-nine.vercel.app/
+
 ## Features
 
 - **Dependency Scanning**: Parse `package.json` → npm audit advisories with the patched version (Node.js only for now)
@@ -21,7 +23,7 @@ Scanner (Node.js) → JSON Output → React Dashboard
 
 ## Demo
 
-The deployed dashboard opens a committed scan of **OWASP Juice Shop**. Use the "Demo scan" picker to switch to **DVNA** or **Express**. Secret values are redacted in the demo data. *(Live URL: coming with the Vercel deploy.)*
+The [deployed dashboard](https://dash-jade-nine.vercel.app/) opens a committed scan of **OWASP Juice Shop**. Use the "Demo scan" picker to switch to **DVNA** or **Express**. Secret values are redacted in the demo data.
 
 ## Getting Started
 
@@ -54,7 +56,8 @@ src/
 - [x] Week 2: React dashboard with table, search, filtering, coverage report
 - [x] Week 2: Severity visualization, dark mode, phone layout
 - [x] Week 3: Demo data for three scans with a picker
-- [ ] Week 3: Deploy (Vercel), README screenshots
+- [x] Week 3: Deploy (Vercel): https://dash-jade-nine.vercel.app/
+- [ ] Week 3: README screenshots, talking points
 - [ ] Later: PDF export, false-positive tuning
 
 Status and docs: [STATUS.md](STATUS.md) · [PRD.md](PRD.md) · [DESIGN.md](DESIGN.md) · [CONTRIBUTING.md](CONTRIBUTING.md)

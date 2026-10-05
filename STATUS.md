@@ -1,14 +1,14 @@
 # Project Status Dashboard
 
-**Last Updated:** 2026-10-02  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · repo secret scanning on → **Vercel import (user)** → Task #7 docs
+**Last Updated:** 2026-10-05  
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** → Task #7 docs
 
 ---
 
 ## Overall Progress
 
 ```
-Phase 1 (MVP)      ██████░░░░ 62%  (4⅓ of 7 tasks: #1 #2 #4 #5 done, #3 1 of 3 scanners; #6 deploy in progress, #7 docs left)
+Phase 1 (MVP)      ████████░░ 76%  (5⅓ of 7 tasks: #1 #2 #4 #5 #6 done, #3 1 of 3 scanners; #7 docs left)
 Phase 2 (Depth)    ░░░░░░░░░░  0%  (PRD §6 Phase 2 — PDF export, FP tuning, 3+ repos; dark mode + chart pulled into #5)
 Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDEAS.md)
 ```
@@ -61,7 +61,7 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 
 | Task | Status | DOD Checklist |
 |------|--------|---------------|
-| **#6: Deploy to Vercel** | 🟡 Demo data for all three scans + picker merged (PR #10). Next: the user imports the repo in Vercel | Live URL, tested on 3+ repos (Express, Juice Shop, DVNA ✅), edge cases handled |
+| **#6: Deploy to Vercel** | ✅ Live at https://dash-jade-nine.vercel.app/ (2026-10-05). Demo data + picker (PR #10); production branch `main` | Live URL, tested on 3+ repos (Express, Juice Shop, DVNA ✅), edge cases handled |
 | **#7: Documentation** | 🔵 Pending | README, talking points, git history, portfolio-ready |
 
 **Deliverable:** Live demo + interview story
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** Import the repo in Vercel (HANDOFF.md START HERE step 5), then Task #7 (README + demo). Every PR must pass `npm test` + `npm run build`.
+**Next Step:** Task #7 (README screenshots, how it works, talking points). Every PR must pass `npm test` + `npm run build`.
