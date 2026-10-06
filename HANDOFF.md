@@ -14,7 +14,7 @@
 **Team-gates port, user-approved plan** (A gates → B tests → C talk track → D required check):
 - ✅ PR #20 merged (unique temp dirs). ✅ PR #21 merged (A: Stryker, `mutate` / `mutate:changed`, CI `mutation-changed` + `mutation-full`, ratchet 56, reviewer/architect agents, `docs/ENGINEERING_PROCESS.md`, `qs` override).
 - ✅ First `mutation-full` on `main` (GitHub, 4 workers): **56.91%** (2174 killed / 37 timeout / 1674 survived), **44 m 57 s of the 60-min job timeout**. Local at the same commit: 56.89% (2173 / 37 / 1675), so **1 mutant differs between CI and local**: not identified yet (the CI HTML report wasn't parseable; JSON upload is now added, so diff the next CI run's `out/mutation.json` against a local run).
-- **B1 + B2 on branch `test/report-schema` (pushed, draft PR open, NOT measured yet):**
+- **B1 + B2 on branch `test/report-schema` (pushed, draft PR #22, NOT measured yet):**
   - `report.test.js` (12 rules from PRD §3 / Req 4, fixture worked out by hand: 10 findings, 3 critical / 2 high / 2 medium / 3 low).
   - Stand-in npm `src/scanner/__tests__/helpers/bin/npm` (+ `fake-npm.js`) replays **recorded real npm 11.19.1** output (stdout, stderr, exit code, and `install --package-lock-only`). Fixtures in `src/scanner/__tests__/fixtures/npm-audit/` (`node-serialize-0.0.4`, `ms-2.1.3` clean, `registry-down`); manifests named `*.fixture.json` so Dependabot doesn't alert.
   - Dependency test now on the recording; live registry test only with `LIVE_NPM=1` (offline = fail). Proven: with `npm_config_registry=http://127.0.0.1:9`, `npm test` passes 11/11 and the live test fails.
