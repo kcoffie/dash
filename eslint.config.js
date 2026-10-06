@@ -6,7 +6,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 
 export default [
   // Build output, generated demo reports, and test scratch dirs
-  { ignores: ['dist/', 'coverage/', 'public/demo/', '**/.test-tmp*/'] },
+  { ignores: ['dist/', 'coverage/', 'public/demo/', '**/.test-tmp*/', 'out/', '.stryker-tmp/'] },
 
   js.configs.recommended,
 
