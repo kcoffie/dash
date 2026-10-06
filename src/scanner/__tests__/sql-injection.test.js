@@ -4,7 +4,8 @@ import { scanForSqlInjection } from '../patterns/sql-injection.js';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const tmpDir = path.join(__dirname, '..', '..', '..', '.test-tmp-sqli');
+// Unique per run, so parallel runs (Stryker workers) don't delete each other's fixtures
+const tmpDir = fs.mkdtempSync(path.join(__dirname, '..', '..', '..', '.test-tmp-sqli-'));
 
 function setup() {
   if (fs.existsSync(tmpDir)) {

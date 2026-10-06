@@ -4,7 +4,8 @@ import { scanDependencies } from '../dependency-scanner.js';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const tmpDir = path.join(__dirname, '..', '..', '..', '.test-tmp');
+// Unique per run, so parallel runs (Stryker workers) don't delete each other's fixtures
+const tmpDir = fs.mkdtempSync(path.join(__dirname, '..', '..', '..', '.test-tmp-'));
 
 function setup(dirName) {
   const testPath = path.join(tmpDir, dirName);
