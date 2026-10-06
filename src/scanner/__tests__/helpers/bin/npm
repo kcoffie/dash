@@ -1,0 +1,19 @@
+#!/usr/bin/env node
+// Stand-in `npm` for tests (see ../fake-npm.js). Answers `npm audit --json [--omit=dev]` with
+// a recorded response and fails anything else. Uses process.getBuiltinModule so it runs the
+// same whether Node treats this extensionless file as CommonJS or ESM.
+const fs = process.getBuiltinModule('fs');
+const path = process.getBuiltinModule('path');
+const args = process.argv.slice(2);
+if (process.env.FAKE_NPM_FAIL) {
+  process.stderr.write(`${process.env.FAKE_NPM_FAIL}\n`);
+  process.exit(1);
+}
+if (args[0] === 'audit' && args.includes('--json')) {
+  const file = args.includes('--omit=dev') ? 'audit-omit-dev.json' : 'audit.json';
+  const json = fs.readFileSync(path.join(process.env.FAKE_NPM_RESPONSES, file), 'utf-8');
+  process.stdout.write(json);
+  process.exit(JSON.parse(json).metadata.vulnerabilities.total > 0 ? 1 : 0); // as real npm
+}
+process.stderr.write(`npm error fake npm: unexpected call: npm ${args.join(' ')}\n`);
+process.exit(1);
