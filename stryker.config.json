@@ -23,6 +23,7 @@
     "fileName": "out/mutation.json"
   },
   "concurrency": 8,
+  "timeoutMS": 20000,
   "thresholds": {
     "high": 80,
     "low": 65,

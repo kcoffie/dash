@@ -48,7 +48,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mutation-changed-report
-          path: out/mutation-changed.html
+          path: |
+            out/mutation-changed.html
+            out/mutation-changed.json
 
   # After merge: the whole-project score (slow). Turns main red if it fell below the ratchet.
   mutation-full:
@@ -67,4 +69,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mutation-report
-          path: out/mutation.html
+          path: |
+            out/mutation.html
+            out/mutation.json
