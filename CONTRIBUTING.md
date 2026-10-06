@@ -123,6 +123,8 @@ This is the first scanner module.
 
 ## Testing
 - [x] `npm test`, `npm run lint`, and `npm run build` pass (CI runs all three)
+- [x] `npm run mutate:changed` ≥ 80% on changed scanner/utils lines (CI runs it on PRs)
+- [x] `reviewer` agent run before opening the PR (`.claude/agents/reviewer.md`)
 - [x] Tested on Express.js repo (finds 3+ real CVEs)
 - [x] Tested on repo with no package.json (graceful skip)
 
@@ -200,6 +202,8 @@ Code commit → PR → `test` check (npm ci, npm test, npm run lint, npm run bui
 - Squash is the only allowed merge method
 - Require status checks: the `test` job from `.github/workflows/test.yml` (run locally with `npm test && npm run lint && npm run build`)
 - Block force pushes and branch deletion
+
+Not required (yet), but runs on every PR: the `mutation-changed` job (`npm run mutate:changed`). At least 80% of the planted bugs in the `src/scanner/` and `src/utils/` lines a PR changes must be caught, and `thresholds.break` in `stryker.config.json` can't go down. See [docs/ENGINEERING_PROCESS.md](docs/ENGINEERING_PROCESS.md).
 
 Head branches are not auto-deleted on merge — delete them after merging (GitHub's "Delete branch" button, then `git fetch --prune` and `git branch -D <branch>` locally).
 

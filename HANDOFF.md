@@ -11,7 +11,13 @@
 
 ### Where we are
 **Session 8 (2026-10-06), in progress: team-gates port** (the user picked it). PR #19 merged; every Phase 1 scanner is built; live totals verified 160 / 87 / 65. Baseline matched (10 suites / 153 tests, lint, build; fresh scans at the pinned commits identical to `public/demo` except timestamps, no dependency drift). 0 secret-scanning and 0 Dependabot alerts. Stale branches `docs/session-7-wrap` (local) and `feature/async-scanner` (remote) deleted after checking each tip matched its squash merge.
-**Branch `fix/test-temp-dirs`:** the first Stryker runs were invalid (see "What We Did in Session 8"); the tests now use a unique temp dir per run. Next: the real mutation baseline, then the plan for the user to approve before any gates are added.
+**Team-gates port, user-approved plan** (A gates → B tests → C talk track → D required check):
+- ✅ PR #20 merged: unique temp dir per test run (the first two mutation baselines were invalid, see Session 8).
+- **A. Gates (`chore/team-gates`, PR open):** Stryker 10 (`stryker.config.json`, `npm run mutate`, `npm run mutate:changed` = `scripts/mutate-changed.js`), CI jobs `mutation-changed` (PRs: ≥ 80% on changed `src/scanner`/`src/utils` lines, ratchet can't drop) and `mutation-full` (push to `main`), ratchet `break` 56, dash-specific `.claude/agents/reviewer.md` + `architect.md`, `docs/ENGINEERING_PROCESS.md` (method, proof the gate works, score log). `qs` overridden to ^6.16.0 (user decision: Stryker's `typed-rest-client` pins a vulnerable 6.15.1).
+- **B. Tests (next, worst first):** `report.js` + `pattern-scanner.js` tests from PRD §3 (both 0%); dependency test → recorded `npm audit` response + one live test behind an opt-in env var (user decision); then each scanner's survivors triaged against the answer keys / DESIGN scoring model, tests named as rules. Raise the ratchet after each PR and log the score in `docs/ENGINEERING_PROCESS.md`.
+- **C.** Talk track ("how to talk about it") in `docs/ENGINEERING_PROCESS.md`, from the measured before/after numbers only.
+- **D.** Ask the user before adding `mutation-changed` to the `main` ruleset's required checks (repo setting).
+- Every PR from now: run the `reviewer` agent before opening it, and `npm run mutate:changed` when scanner/utils code changed. Mutation runs: `caffeinate -dims`, lid open.
 
 **Then ask the user which of these is next** (no default; they choose):
 1. **Team-gates port** (from the user's memory note `team-gates-port`): read `~/Documents/projs/dos/TEAM.md`, `.claude/agents/reviewer.md`, `.claude/agents/architect.md`, `scripts/mutate-changed.js`, `.github/workflows/ci.yml` in dos. Measure a Stryker mutation baseline over `src/scanner/` first (command runner over `npm test`; the tests are plain Node scripts, not a framework), adapt the agents to dash's PRD/DESIGN, add a changed-lines mutation job to `.github/workflows/test.yml` (≥ 80% killed on changed lines + a ratchet), and write `docs/ENGINEERING_PROCESS.md` with the talk track from real before/after numbers. **Ask before changing branch protection / required checks** (repo setting).
@@ -89,6 +95,8 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 - ✅ START HERE steps 1–3 (see "Where we are"). No files changed by those steps.
 - ⚠ **First two Stryker baselines were invalid.** Run 1 (95.47%) overlapped a lid-closed sleep: 138 timeouts bunched in three consecutive files, all 42 `src/scanner/index.js` mutants "timed out" though no test loads `index.js`. Run 2 (96.79%, Mac kept awake with `caffeinate`) still "killed" 38 `index.js` mutants. Cause: seven test files used a fixed fixture folder in the repo root and `rm -rf` it; Stryker's workers share one sandbox, so parallel `npm test` runs deleted each other's fixtures and random failures counted as kills. Proof: 8 concurrent `npm test` in one directory, 8/8 failed.
 - ✅ **Fix (`fix/test-temp-dirs`):** `fs.mkdtempSync(...)` per test file, same location, no assertions changed. After: 3 rounds × 8 concurrent runs, 24/24 passed; 153 tests serially; no leftover `.test-tmp*` folders.
+- ✅ **Valid baseline: 56.3% (2210 / 3927)** at `bc19ae6`, 8 workers, 20 m 25 s. `report.js` / `pattern-scanner.js` / `index.js` 0% (no tests; all 185 survived, which is how we know runs are isolated now). Pattern scanners 53–59%; 467 of 730 regex mutants survive. All 37 timeouts read by hand: genuine infinite loops. With the committed config (`index.js` excluded): **56.9% (2210 / 3885)**, per-file counts identical to the run above (deterministic). Ratchet 56.
+- ✅ Gate proven both ways: an untested planted rule scored 50.0% on its changed line and failed; with a test written from the rule (which failed without the rule, 21/22) it scored 94.4% and passed. Demo files restored.
 - Lessons for mutation runs: keep the Mac awake (`caffeinate -dims`, lid open), add the `progress-append-only` reporter (the default progress bar needs a TTY), and treat any "killed" mutant in a file no test loads as a sign the runs aren't isolated.
 
 ## What We Did in Session 7 (2026-10-06)
@@ -399,6 +407,7 @@ src/scanner/
 
 | Document | Purpose |
 |----------|---------|
+| `docs/ENGINEERING_PROCESS.md` | Team gates, test rules, mutation testing, score log (session 8) |
 | **PRD.md** | Requirements, output schema (§3), edge cases (§5) |
 | **DESIGN.md** | Contextual scoring model, per-scanner context ideas |
 | **CONTRIBUTING.md** | Git flow, PR template, commit format |
