@@ -17,5 +17,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
+      - run: npm run lint
       # Catches a dashboard that no longer compiles
       - run: npm run build
