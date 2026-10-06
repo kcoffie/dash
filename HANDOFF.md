@@ -1,15 +1,17 @@
 # Project Handoff — Security Audit Platform
 
 **Last updated:** 2026-10-05 (session 6)
-**Branch:** `main` @ `849861e` has everything through PR #13 (live URL + Task #7 docs). The scanner-accuracy work is on `fix/scanner-accuracy`, open as a PR for the user to merge. No other branches.
-**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy fixes in review (`fix/scanner-accuracy`) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
-**Next step:** If the `fix/scanner-accuracy` PR is still open, the user merges it (Vercel then redeploys the new demo data). Then the ESLint config TODO, then #2.4 crypto / #2.5 async.
+**Branch:** `main` @ `c2f12b6` has everything through PR #14 (scanner accuracy). This wrap-up is PR #15 (`docs/session-6-wrap`, docs only); if it's still open, the user merges it. No other branches.
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy ✅ (PR #14; live demo now Juice Shop 125 / DVNA 70 / Express 64) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
+**Next step:** ESLint flat config + a lint step in CI (START HERE step 6a, own PR). Then #2.4 insecure-crypto scanner (step 6b).
 
 ---
 
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
+**Session 6 in one line:** deployed (https://dash-jade-nine.vercel.app/), README/screenshots/talking points shipped (PR #13), then an accuracy pass on the dependency + secrets scanners and the file walker (PR #14) that fixed a silent failure (DVNA showed 0 dependency CVEs; it has 58). Phase 1 is done except #3's crypto/async scanners. Everything is merged; nothing is in flight.
+
 The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). Dashboard polish (dark mode, findings-by-type chart, phone layout) is merged (PR #9). Demo data for all three scan targets (redacted) plus a "Demo scan" picker is merged (PR #10), so a static deploy has something to show. **It's live at https://dash-jade-nine.vercel.app/** (Vercel; every merge to `main` redeploys, PRs get preview URLs). The README has screenshots, how it works, measured results, and talking points (Task #7). CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
 
 ### Do these, in order
@@ -40,10 +42,14 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    gh api repos/kcoffie/dash/secret-scanning/alerts --jq 'length' # was 0 at end of session 5
    ```
    If alerts show up, list them (`--jq '.[] | {number, secret_type_display_name, state, path: .first_location_detected.path}'`) and tell the user before doing anything. They're most likely the fake keys in test fixtures (`src/scanner/__tests__/hardcoded-secrets.test.js` uses AWS's documented example key). The demo files were checked and contain no key formats. Don't dismiss alerts yourself; that's the user's call.
-5. **Deploy (Task #6) ✅** — https://dash-jade-nine.vercel.app/. Imported by the user (Vite auto-detected, no `vercel.json`, production branch `main`). Verified in session 6: Juice Shop opens by default, picker switches to DVNA (11) / Express (59), light + dark, 390px with no horizontal scroll, no console errors, `/scanner-output.json` 404s (expected).
+5. **Deploy (Task #6) ✅** — https://dash-jade-nine.vercel.app/. Imported by the user (Vite auto-detected, no `vercel.json`, production branch `main`). Verified in session 6: Juice Shop opens by default, picker switches to DVNA / Express (totals now 125 / 70 / 64 after PR #14; checked live via `/demo/index.json`), light + dark, 390px with no horizontal scroll, no console errors, `/scanner-output.json` 404s (expected).
    - **README screenshots:** `npm run screenshots [-- <url>]` (`scripts/screenshots.js`) drives headless Chrome over the DevTools protocol and rewrites `docs/screenshots/` (light, dark, expanded login SQLi finding, phone). Defaults to the live URL; set `CHROME` if Chrome isn't at the macOS path. Re-run after visible dashboard or demo-data changes.
    - **Regenerating demo data:** re-clone the targets (step 1), run `npm run demo:export`, review the diff, and commit `public/demo/`. The export redacts secret snippets and ids and **fails** if any finding still contains an AWS key, private-key header, GitHub/GitLab token, or Slack/Discord webhook.
-6. **Next:** the ESLint config TODO (own PR), then #2.4 crypto / #2.5 async. After any scanner change: `npm run demo:export -- <targets-dir>`, review the diff, then `npm run screenshots -- http://localhost:4173/` against a `vite preview` build (the live site only updates after merge).
+6. **Next, in order** (each its own branch + PR; ask the user before any scoring/severity judgment call — they've made every one so far):
+   - **a. ESLint (`npm run lint` is broken).** ESLint 9 is a devDependency but there's no `eslint.config.js`. Add a flat config: `@eslint/js` recommended + `globals` (browser for `src/` except `src/scanner/`, node for `src/scanner/`, `scripts/`, tests), `eslint-plugin-react-hooks` + `eslint-plugin-react-refresh` for the JSX (those two need adding as devDependencies; check the current versions on npm, don't guess). Ignore `dist/`, `public/demo/`, `.test-tmp*`. Run it, fix real findings in small commits (don't blanket-disable rules), then add `npm run lint` to `.github/workflows/test.yml` before the build step. CI must stay green.
+   - **b. #2.4 Insecure crypto scanner** (`src/scanner/patterns/insecure-crypto.js`, type `crypto-misuse`, already reserved in the schema and coverage list). Follow "How the Pattern Scanners Work" below. Candidates: `createHash('md5'|'sha1')` used on passwords vs non-sensitive hashing (context decides severity), `createCipher` (deprecated, no IV), `Math.random()` for tokens/ids, hardcoded keys/IVs passed to `createCipheriv`, `jwt.sign` with `none`/weak secrets. **Measure first:** grep the three targets for these sinks and build an answer key (Juice Shop: `lib/insecurity.ts:41` `hash()` is `createHash('md5')`, and `routes/login.ts` hashes passwords with it, a planted vuln. DVNA: `docs/solution/a2-broken-auth.md` and `a3-sensitive-data-exposure.md`, plus the `md5` package in its dependencies) before writing patterns. Then move `Insecure Crypto Usage` from `notYetChecked` to `checked` in `report.js`.
+   - **c. #2.5 Async footguns** (type `async-footgun`): same approach, after (b).
+   - After any scanner change: re-clone targets if needed (step 1), `npm run demo:export -- <targets-dir>`, review the diff (no local paths, snippets redacted), `npm run build && npx vite preview`, check the dashboard, `npm run screenshots -- http://localhost:4173/`, update README results table + HANDOFF snapshot. The live site only updates after merge.
 
 ### Dashboard map
 - `src/App.jsx`: loads `/scanner-output.json` first, otherwise the first scan in `/demo/index.json`. A non-JSON response means "not there" (Vite and static hosts answer missing files with `index.html` + 200). "Demo scan" picker (manifest validated by `normalizeDemoManifest()`), file picker via `normalizeReport()`, target linked to the scanned commit via `sourceLink()`.
@@ -61,11 +67,16 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 - Work on a branch, open PRs with the CONTRIBUTING.md template, **squash merge only when the user says so**. Delete merged branches. `main` is protected — direct pushes and force pushes are rejected.
 - **The repo is public** (since 2026-10-01). Commits in this repo use the GitHub noreply email (`git config user.email` is set locally); don't put personal info in commits, docs, or PRs.
 - Track limitations as checkboxes in **Open TODOs** below, and check them off when fixed — user wants limitations visible until they're gone.
-- Confirm a new test actually fails against the old code before calling a fix done.
+- Confirm a new test actually fails against the old code before calling a fix done (`git stash` the source change, run the test, `git stash pop`).
+- **Measure, don't assume:** before changing a scanner, read the actual findings on all three targets; after, diff against `public/demo/` finding by finding. Every number in README/docs must come from data you just looked at.
+- **Scoring/severity rules are the user's call.** Present the trade-off with real counts (AskUserQuestion) instead of picking one.
+- Don't let local paths leak into anything published (demo reports, errors, docs). npm's debug-log path lives in the home directory.
 
 ---
 
 ## What We Did in Session 6 (2026-10-05)
+
+**Part 3: wrap-up.** PR #14 merged by the user; live site verified serving the new demo totals (125 / 70 / 64). This doc + STATUS refreshed (PR #15).
 
 **Part 2: scanner accuracy (`fix/scanner-accuracy`, PR for the user to merge).** Every fix has tests that were run against the old code first and failed.
 - 🔴 **Silent failure fixed:** `npm audit` needs a lockfile. DVNA has none, so audit failed with ENOLOCK, and `{ "error": … }` parsed as "no vulnerabilities" with no error. The demo said DVNA had 0 dependency CVEs; it has **58 (15 critical)**. Express and Juice Shop only worked because their `.npmrc` sets `package-lock=false`. Now: lockfile → audit as is; no lockfile → resolve into a temp dir (target untouched); npm errors → `coverage.errors`.
