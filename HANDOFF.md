@@ -1,9 +1,9 @@
 # Project Handoff — Security Audit Platform
 
 **Last updated:** 2026-10-06 (session 7)
-**Branch:** `main` @ `26f8757` has everything through PR #17 (crypto scanner). This wrap-up is PR #18 (`docs/session-7-wrap`, docs only); if it's still open, the user merges it. Merged branches `docs/session-6-wrap`, `chore/eslint`, `feature/crypto-scanner` may still exist locally/on origin: the agent's branch deletion was blocked by its permission mode, so the user deletes them.
-**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS, crypto) · CI gate ✅ (test + lint) · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy ✅ (PR #14) · ESLint ✅ (PR #16) · crypto scanner ✅ (PR #17; live demo now Juice Shop 144 / DVNA 72 / Express 65, verified on the live `/demo/*.json`) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
-**Next step:** #2.5 async-footgun scanner (START HERE step 6c), same measure-first approach.
+**Branch:** `main` @ `2ede14b` has everything through PR #18. The async-footgun scanner is on `feature/async-scanner` (PR open, user merges). After it merges, Phase 1 is complete.
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS, crypto; async ✅ PR open) · CI gate ✅ (test + lint) · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy ✅ (PR #14) · ESLint ✅ (PR #16) · crypto scanner ✅ (PR #17; live demo now Juice Shop 144 / DVNA 72 / Express 65, verified on the live `/demo/*.json`) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
+**Next step:** after the async PR merges, ask the user what's next. Candidates: the team-gates port (mutation-testing gate in CI; see the user's memory note and `~/Documents/projs/dos/TEAM.md`; ask before changing repo settings), template injection (XSS TODO), Phase 2.
 
 ---
 
@@ -29,12 +29,12 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    `npm ci` warns that esbuild's install script wasn't approved — harmless (the build works; CI is green).
 2. **Verify baseline**
    ```bash
-   npm test                                 # 9 suites, 129 tests: crypto 26/26, demo export 6/6, dependency 4/4, file utils 4/4, secrets 19/19, npm audit client 13/13, SQLi 21/21, XSS 22/22, dashboard helpers 14/14
+   npm test                                 # 10 suites, 153 tests: async 24/24, crypto 26/26, demo export 6/6, dependency 4/4, file utils 4/4, secrets 19/19, npm audit client 13/13, SQLi 21/21, XSS 22/22, dashboard helpers 14/14
    npm run lint                             # must be clean (CI runs it, session 7)
    npm run build                            # must succeed (CI runs it)
    ```
    Scanner counts (run from a scratch dir — `index.js` writes `scanner-output.json` to the cwd):
-   Juice Shop 67 deps / 27 secrets / 13 SQLi / 19 XSS / 18 crypto = 144 · DVNA 58 / 1 / 1 / 10 / 2 = 72 · Express 5 / 6 / 0 / 54 / 0 = 65 (all low). (Session 7, at the demo commits; dependency counts include a `sprintf-js` advisory published after session 6.)
+   Juice Shop 67 deps / 27 secrets / 13 SQLi / 19 XSS / 18 crypto / 16 async = 160 · DVNA 58 / 1 / 1 / 10 / 2 / 15 = 87 · Express 5 / 6 / 0 / 54 / 0 / 0 = 65 (all low). (Session 7, at the demo commits; dependency counts include a `sprintf-js` advisory published after session 6.)
    To check out the demo commits exactly: `git clone --filter=blob:none <url> <dir> && git -C <dir> checkout <commit> && git -C <dir> config core.abbrev 7` (commits are in `public/demo/index.json`; `core.abbrev` keeps `demo:export`'s short SHA at 7 chars).
    **Dependency counts drift:** none of the three targets commits a lockfile, so npm resolves versions at scan time and advisories change. Pattern counts (secrets/SQLi/XSS/crypto) are stable at a pinned commit.
 3. **See the dashboard**: from the repo root, `npm run scan /tmp/juice-shop` (writes the gitignored `scanner-output.json` the dev server serves), then `npm run dev` → http://localhost:5173. Without a local report, the dashboard opens the committed Juice Shop demo. The "Demo scan" picker switches demos; "Load scan file…" loads any other report.
@@ -50,7 +50,7 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 6. **Next, in order** (each its own branch + PR; ask the user before any scoring/severity judgment call — they've made every one so far):
    - **a. ✅ ESLint (session 7, `chore/eslint`).** Done as described below; see "What We Did in Session 7". Original plan: ESLint 9 is a devDependency but there's no `eslint.config.js`. Add a flat config: `@eslint/js` recommended + `globals` (browser for `src/` except `src/scanner/`, node for `src/scanner/`, `scripts/`, tests), `eslint-plugin-react-hooks` + `eslint-plugin-react-refresh` for the JSX (those two need adding as devDependencies; check the current versions on npm, don't guess). Ignore `dist/`, `public/demo/`, `.test-tmp*`. Run it, fix real findings in small commits (don't blanket-disable rules), then add `npm run lint` to `.github/workflows/test.yml` before the build step. CI must stay green.
    - **b. ✅ #2.4 Insecure crypto scanner** (session 7, `feature/crypto-scanner`): see "Insecure crypto answer key + recall" below and Session 7.
-   - **c. #2.5 Async footguns** (type `async-footgun`): same approach, after (b).
+   - **c. ✅ #2.5 Async footguns** (session 7, `feature/async-scanner`): see "Async footgun ground truth" below.
    - After any scanner change: re-clone targets if needed (step 1), `npm run demo:export -- <targets-dir>`, review the diff (no local paths, snippets redacted), `npm run build && npx vite preview`, check the dashboard, `npm run screenshots -- http://localhost:4173/`, update README results table + HANDOFF snapshot. The live site only updates after merge.
 
 ### Dashboard map
@@ -85,6 +85,8 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
   - Real findings fixed, no rules disabled: severity color constants moved to `severity-styles.js` (Fast Refresh; built CSS byte-identical); dependency-scanner tests now assert error paths return no findings (mutation-checked: fail when an error path returns a finding); unused `catch (error)` bindings in SQLi/XSS (surfaced the silent-skip TODO).
   - CI: `npm run lint` between test and build. Checked it exits 1 on an error.
 - ✅ **Insecure crypto scanner (PR #17, merged by the user; live site verified: 18 / 2 / 0 crypto findings, 5 categories checked, HMAC key redacted)**: answer key + candidate counts measured first, then 7 scoring decisions by the user (see the answer-key section). 26 tests, mutation-checked (a stub fails 21/26; each removed rule fails a test). Demo export now also redacts hardcoded-key crypto snippets (test failed against the old export). `Insecure Crypto Usage` moved to `coverage.checked`. Demo data regenerated (Juice Shop 125 → 144, DVNA 70 → 72, Express 64 → 65; nothing removed), screenshots retaken from a local build and checked (light, dark, phone).
+
+- ✅ **Async footgun scanner (`feature/async-scanner`, PR for the user to merge)**: measured first (ground truth above), then 4 scoring decisions by the user. 24 tests: a stub fails 16 of the first 21, 13 mutations each fail a test, and 3 regression tests (chain continued on a new line, deep route context, helpers with extra params) failed against the first implementation, which had a phantom chain in Juice Shop's `datacreator.ts`, a false positive on `basketItems.ts:85`, and DVNA `appHandler.js:175` as low instead of medium. Demo data regenerated (Juice Shop 144 → 160, DVNA 72 → 87, Express 65; only async findings added), screenshots retaken and checked.
 
 ## What We Did in Session 6 (2026-10-05)
 
@@ -159,13 +161,29 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 
 ### Scan results snapshot
 
-| Target | Dependency CVEs | Secrets | SQL injection | XSS | Insecure crypto |
-|---|---|---|---|---|---|
-| Express (`/tmp/express`) | 5 (all dev-only → low) | 6 (all `examples/`, low) | 0 (correct — no SQL) | 54 (all low — all in `test/` + `examples/`) | 0 (no crypto sinks) |
-| Juice Shop (`/tmp/juice-shop`) | 67 (3 dev-only → low) | 27 (3 private keys critical, 1 high, 23 seed medium) | 13 (1 critical, 1 high + 11 low snippets) | 19 (5 high, 8 medium + 6 low snippets) | 18 (5 high, 7 medium, 6 low) |
-| DVNA (`/tmp/dvna`) | 58 (15 critical; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) | 2 (high) |
+| Target | Dependency CVEs | Secrets | SQL injection | XSS | Insecure crypto | Async |
+|---|---|---|---|---|---|---|
+| Express (`/tmp/express`) | 5 (all dev-only → low) | 6 (all `examples/`, low) | 0 (correct — no SQL) | 54 (all low — all in `test/` + `examples/`) | 0 (no crypto sinks) | 0 |
+| Juice Shop (`/tmp/juice-shop`) | 67 (3 dev-only → low) | 27 (3 private keys critical, 1 high, 23 seed medium) | 13 (1 critical, 1 high + 11 low snippets) | 19 (5 high, 8 medium + 6 low snippets) | 18 (5 high, 7 medium, 6 low) | 16 (1 medium, 15 low) |
+| DVNA (`/tmp/dvna`) | 58 (15 critical; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) | 2 (high) | 15 (8 high, 7 medium) |
 
-*(Updated session 7 with the crypto scanner; dependency counts drift because no target commits a lockfile.)*
+*(Updated session 7 with the crypto + async scanners; dependency counts drift because no target commits a lockfile.)*
+
+### Async footgun ground truth (session 7)
+
+Neither target publishes async bugs as challenges, so every hit was read by hand at the demo commits.
+
+| Target | What's there | Scanner |
+|---|---|---|
+| DVNA (Express 4, `node:carbon`) | 15 Sequelize promise chains with no `.catch()`: 11 in route handlers (`core/appHandler.js`, `core/authHandler.js`), 4 in passport callbacks. A DB error or a `TypeError` inside `.then` (e.g. `user` null in `userEditSubmit`) is unhandled. Node ≥ 15 exits; Node 8 hangs the request. | 15: 8 high (`req.*` feeds the query), 7 medium |
+| Juice Shop (Express 4, Node 22–26) | 45 async `(req, res)` handlers; 21 have an `await` outside try/catch, **all 21 registered via `utils.asyncHandler()`** in `server.ts` (`Promise.resolve(fn(…)).catch(next)`), checked one by one | 0 (a rule ignoring the wrapper: 21 false positives) |
+| Juice Shop | `async function quantityCheck(req, res, next, id, quantity)` (`basketItems.ts:85`) is a helper, not a handler | 0 (only `(req, res[, next])` signatures count) |
+| Juice Shop | Chains with no `.catch()`: 10 browser (`import('…').then`, `firstValueFrom(…).then`, `timeout().then`), `routes/search.ts:47` (`void` query in a route handler, medium), `routes/verify.ts:218` (`void osaft.reload().then`, challenge check, low), 4 in `test/cypress/support/commands.ts` (low; `cy.request().then` isn't a real promise, so these are noise) | 16: 1 medium, 15 low |
+| Express | none | 0 |
+| All | `forEach(async)`, `new Promise(async)`, async timers, async `.on()` listeners: 0 hits | unit tests only |
+
+**User decisions (session 7):** chains → medium in route handlers / auth callbacks, high when `req.*` feeds the promise, low elsewhere and in the browser; `void` / `import()` still reported with a "looks deliberate" factor; unwrapped async handler → high (suppressed when wrapped, Express 5, or `express-async-errors`); the 0-hit callback patterns → medium server / low browser.
+**Agent choices (tell the user if challenged):** a handler whose registration can't be found is still reported high, at confidence 0.5, with a factor saying so; any wrapper call at registration counts as wrapping (not just names like `asyncHandler`).
 
 ### Insecure crypto answer key + recall (session 7)
 
@@ -218,7 +236,7 @@ Design decisions: template files (`.html/.ejs/.pug/.hbs/.vue`) are scanned for X
 
 ```
 Design Phase     ████████████████████████████████ 100% ✅
-Week 1 Scanner   █████████████████████████████░░░  90% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ✅ PR #17 | async ⏳)
+Week 1 Scanner   █████████████████████████████░░░  90% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ✅ PR #17 | async ✅ PR open)
 Week 2 Dashboard ████████████████████████████████ 100% ✅  (core ✅ PR #7 | polish ✅ PR #9)
 Week 3 Deploy    ████████████████░░░░░░░░░░░░░░░░  50% 🟡  (demo data + picker ✅ PR #10 | Vercel import ⏳ user | README/demo ⏳)
 ```
@@ -230,7 +248,7 @@ Week 3 Deploy    ████████████████░░░░░
 | #2.2 SQL injection | ✅ Merged to `main` (PR #2) | `src/scanner/patterns/sql-injection.js` |
 | #2.3 XSS | ✅ Merged to `main` (PR #2) — see TODOs | `src/scanner/patterns/xss.js` |
 | #2.4 Insecure crypto | ✅ Merged to `main` (PR #17) | `src/scanner/patterns/insecure-crypto.js` |
-| #2.5 Async footguns | ⏳ Deferred until after dashboard (confirm with user) | — |
+| #2.5 Async footguns | ✅ PR open (session 7) | `src/scanner/patterns/async-footguns.js` |
 | #4 Dashboard Core | ✅ Merged to `main` (PR #7) | `src/App.jsx`, `src/pages/Dashboard.jsx`, `src/components/`, `src/utils/findings.js` |
 | #5 Dashboard Polish | ✅ Merged to `main` (PR #9) | `src/components/TypeChart.jsx`, `SummaryCards.jsx`, `dark:` variants throughout |
 | #6 Deploy (Vercel) | 🟡 Demo data + picker merged (PR #10) → user imports in Vercel | `scripts/export-demo.js`, `src/scanner/demo-export.js`, `public/demo/` |
@@ -260,11 +278,14 @@ Week 3 Deploy    ████████████████░░░░░
 - [ ] **Dependency results drift without a lockfile.** None of the three targets commits one, so each scan resolves today's versions. The factor says so; nothing else to do unless we pin by committing resolved lockfiles for the demo targets.
 - [ ] **Dependencies: yarn.lock / pnpm-lock.yaml targets** are audited from a freshly resolved npm lockfile (with a factor saying so), not their real lockfile.
 - [x] **`npm run lint` is broken.** Fixed (session 7): `eslint.config.js` (flat), lint step in CI.
-- [ ] **Pattern scanners skip unreadable files silently** (secrets, SQLi, XSS, crypto: `catch { continue }`). Coverage claims the file was checked. Should go to `coverage.errors` like npm failures. Found via ESLint's unused `error` bindings.
+- [ ] **Pattern scanners skip unreadable files silently** (secrets, SQLi, XSS, crypto, async: `catch { continue }`). Coverage claims the file was checked. Should go to `coverage.errors` like npm failures. Found via ESLint's unused `error` bindings.
 - [ ] **ESLint 10 is out** (10.12.0 on 2026-10-06). We stay on 9 for now; 10 tracks JSX references in core `no-unused-vars`, so `eslint-plugin-react` (used only for `jsx-uses-vars`) could be dropped after upgrading.
 - [ ] **Crypto: z85 / base64 "encryption" not detected** (Juice Shop Forged Coupon). Left out by user decision; revisit if a generic signal appears (e.g. an encoded value compared for authorization).
 - [ ] **Crypto: hardcoded IVs aren't flagged** (`createCipheriv(alg, key, 'literal')`). Only literal keys are. Needs a severity call from the user.
 - [ ] **Crypto: "enclosing function" is the nearest named function within 15 lines above**, not a parsed scope. Fine on the three targets (three.js `generateUUID` is out of reach, as intended), but a sibling function's name can leak into the next one.
+- [ ] **Async: unawaited calls to local async functions aren't detected.** Juice Shop `routes/basketItems.ts:75` `void quantityCheck(...)` has no `.catch()` (line 60 does). Needs a "call to a known-async function as a statement" rule plus a severity call.
+- [ ] **Async: Cypress `cy.*().then()` chains are reported** (4 low in Juice Shop `test/cypress/`). Cypress chainables aren't promises. Could skip `cy.` heads.
+- [ ] **Async: wrapper detection accepts any call around the handler at registration** (`rateLimit(handler())` would count as wrapped), and follows names, not imports.
 - [ ] **Crypto: helper tracing matches callers by name in files that import the helper's module** (basename match). A re-export through an index file isn't followed.
 - [x] **Deploy needs committed demo data.** Done (PR #10, merged): all three scans under `public/demo/`, generated by `npm run demo:export` with secret snippets redacted, and a picker in the dashboard.
 - [ ] **Demo data is a snapshot.** It's pinned to the target commits above, so it won't change when the scanners improve. Re-run `npm run demo:export` after scanner changes and commit the diff (last regenerated session 6, after the accuracy fixes).
@@ -337,13 +358,14 @@ src/scanner/
 ├── demo-export.js            ← toDemoReport(): redact secrets, record source, refuse key material
 ├── dependency-scanner.js     ← Task #1: package.json checks, then runNpmAudit + parseAuditResults
 ├── npm-audit-client.js       ← Task #1: lockfile or temp-resolved audit, --omit=dev pass, versions, fix text
-├── pattern-scanner.js        ← runs each pattern scanner (async TODO here)
+├── pattern-scanner.js        ← runs each pattern scanner
 ├── file-utils.js             ← shared: walkDir, skip rules, toStatements, USER_INPUT, ROUTE_HANDLER
 ├── patterns/
 │   ├── hardcoded-secrets.js  ← Task #2.1
 │   ├── sql-injection.js      ← Task #2.2
 │   ├── xss.js                ← Task #2.3
-│   └── insecure-crypto.js    ← Task #2.4 (two passes: sites, then weak-hash helpers scored by their callers)
+│   ├── insecure-crypto.js    ← Task #2.4 (two passes: sites, then weak-hash helpers scored by their callers)
+│   └── async-footguns.js     ← Task #2.5 (masks strings/comments; chains, handlers + their registrations, dropped callbacks)
 └── __tests__/
     ├── demo-export.test.js
     ├── dependency-scanner.test.js   (no-lockfile case needs the npm registry)
@@ -352,7 +374,8 @@ src/scanner/
     ├── npm-audit-client.test.js     (fixtures copied from real npm 11 output)
     ├── sql-injection.test.js
     ├── xss.test.js
-    └── insecure-crypto.test.js
+    ├── insecure-crypto.test.js
+    └── async-footguns.test.js
 ```
 `scripts/export-demo.js` (`npm run demo:export`) regenerates `public/demo/`. Dashboard files: see "Dashboard map" in START HERE.
 
