@@ -1,5 +1,5 @@
 import { summarySeverities } from '../utils/findings.js';
-import { SEVERITY_STYLES } from './SeverityBadge.jsx';
+import { SEVERITY_STYLES } from './severity-styles.js';
 
 // One card per severity; clicking a card filters the table to that severity (click again to clear)
 export default function SummaryCards({ counts, selected, onSelect }) {
