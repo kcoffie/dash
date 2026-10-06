@@ -1,14 +1,14 @@
 # Project Status Dashboard
 
-**Last Updated:** 2026-10-05  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14)
+**Last Updated:** 2026-10-06  
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI (PR #16 open) · insecure-crypto scanner (PR open)
 
 ---
 
 ## Overall Progress
 
 ```
-Phase 1 (MVP)      █████████░ 90%  (6⅓ of 7 tasks: #1 #2 #4 #5 #6 #7 done; #3 1 of 3 scanners)
+Phase 1 (MVP)      █████████░ 95%  (6⅔ of 7 tasks: #1 #2 #4 #5 #6 #7 done; #3 2 of 3 scanners once the crypto PR merges)
 Phase 2 (Depth)    ░░░░░░░░░░  0%  (PRD §6 Phase 2 — PDF export, FP tuning, 3+ repos; dark mode + chart pulled into #5)
 Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDEAS.md)
 ```
@@ -44,9 +44,9 @@ Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDE
 |------|--------|---------------|
 | **#1: Dependency Scanner** | ✅ Merged | Parse JSON, query npm audit API, output CVE findings |
 | **#2: Pattern Scanners (Secrets + SQL)** | ✅ Merged (PR #2) | Regex for hardcoded secrets, SQL patterns, 3+ context factors |
-| **#3: Pattern Scanners (XSS, Crypto, Async)** | 🟡 XSS ✅ merged (PR #2); crypto + async deferred until after dashboard | XSS, MD5/SHA1, async footguns, integrated output |
+| **#3: Pattern Scanners (XSS, Crypto, Async)** | 🟡 XSS ✅ merged (PR #2); crypto ✅ PR open (session 7); async next | XSS, MD5/SHA1, async footguns, integrated output |
 
-**Deliverable:** `scanner-output.json` with 5 finding types + context factors — 4 of 5 shipped (dependency CVEs, secrets, SQLi, XSS). Validated against OWASP Juice Shop + DVNA answer keys: SQLi 3/3, XSS 8/9 Juice Shop challenges + 3/3 DVNA. Accuracy pass (session 6, PR #14 merged): dependency scan no longer reads npm audit failures as clean (DVNA 0 → 58 CVEs), dev-only advisories → low, secrets 41 → 27 on Juice Shop with fewer misses. Details in HANDOFF.md.
+**Deliverable:** `scanner-output.json` with 5 finding types + context factors — 5 of 6 shipped (dependency CVEs, secrets, SQLi, XSS, insecure crypto). Validated against OWASP Juice Shop + DVNA answer keys: SQLi 3/3, XSS 8/9 Juice Shop challenges + 3/3 DVNA, crypto 5/6 Juice Shop challenges + 1/1 DVNA. Accuracy pass (session 6, PR #14 merged): dependency scan no longer reads npm audit failures as clean (DVNA 0 → 58 CVEs), dev-only advisories → low, secrets 41 → 27 on Juice Shop with fewer misses. Details in HANDOFF.md.
 
 ### Week 2: Build Dashboard
 
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** ESLint flat config + lint in CI (HANDOFF START HERE 6a), then the insecure-crypto scanner (#2.4, 6b), then async footguns (#2.5). Talking points live in README.md. Every PR must pass `npm test` + `npm run build`.
+**Next Step:** user merges PR #16 (ESLint) and the crypto PR; then async footguns (#2.5, HANDOFF START HERE 6c). Talking points live in README.md. Every PR must pass `npm test` + `npm run build`.

@@ -50,7 +50,7 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 - [x] Detects hardcoded secrets (AWS keys, API tokens, DB passwords)
 - [x] Detects SQL injection patterns (string concatenation and template literals, multi-line). Recall 3/3 on Juice Shop + DVNA
 - [x] Detects XSS patterns (DOM sinks, Angular/React bypasses, unescaped template output, `res.send` of HTML). Recall 8/9 Juice Shop challenges, 3/3 DVNA
-- [ ] Detects insecure crypto (MD5/SHA1 for passwords, hardcoded keys) (*deferred until after deploy*)
+- [x] Detects insecure crypto (MD5/SHA1 for passwords incl. through a helper, hardcoded keys, broken ciphers, `Math.random()` for secrets, JWT without an algorithm allowlist, Hashids salts). Recall 5/6 Juice Shop code-level challenges, 1/1 DVNA
 - [ ] Detects async footguns (unhandled promises, fire-and-forget fetch) (*deferred until after deploy*)
 - [ ] False positive rate < 40% (tolerable for MVP) (*not measured yet. Juice Shop secrets are noisy: 30 of 41 are seed-data "passwords"*)
 
@@ -75,7 +75,7 @@ Build a **real, working security vulnerability scanner** that demonstrates techn
 **What:** Show what was checked, even if nothing found  
 **Why:** Demonstrates thoroughness, builds confidence  
 **Acceptance Criteria:**
-- [x] Dashboard shows all 9 check categories (hardcoded secrets, SQL injection, XSS, crypto, CORS, async, permissions, logging PII, CVEs) (*4 as "checked", 5 as "not yet checked", so a 0 never pretends to be "clean"*)
+- [x] Dashboard shows all 9 check categories (hardcoded secrets, SQL injection, XSS, crypto, CORS, async, permissions, logging PII, CVEs) (*5 as "checked", 4 as "not yet checked", so a 0 never pretends to be "clean"*)
 - [x] Collapsible section (doesn't clutter main view)
 - [x] Shows # of findings per category
 
@@ -144,9 +144,9 @@ This is the canonical schema; DESIGN.md points here. Notes:
     }
   ],
   "coverage": {
-    "checked": ["Dependency CVEs", "Hardcoded Secrets", "SQL Injection Patterns", "XSS Vulnerabilities"],
-    "checkedCount": 4,
-    "notYetChecked": ["Insecure Crypto Usage", "CORS Misconfiguration", "Async Footguns", "Permission Creep", "Logging PII"],
+    "checked": ["Dependency CVEs", "Hardcoded Secrets", "SQL Injection Patterns", "XSS Vulnerabilities", "Insecure Crypto Usage"],
+    "checkedCount": 5,
+    "notYetChecked": ["CORS Misconfiguration", "Async Footguns", "Permission Creep", "Logging PII"],
     "findingsByType": {
       "dependency-cve": 3,
       "hardcoded-secret": 2,
@@ -230,7 +230,8 @@ This is the canonical schema; DESIGN.md points here. Notes:
 **Week 1:**
 - [x] Dependency scanner (parse + npm audit API)
 - [x] Pattern scanners: hardcoded secrets, SQL injection, XSS
-- [ ] Pattern scanners: insecure crypto, async (deferred until after dashboard)
+- [x] Pattern scanner: insecure crypto (session 7)
+- [ ] Pattern scanner: async (deferred until after dashboard)
 - [x] JSON output generation
 - [x] Test on 1 real repo (Express.js) — plus OWASP Juice Shop + DVNA as known answer keys
 
@@ -263,7 +264,8 @@ This is the canonical schema; DESIGN.md points here. Notes:
 - [x] Add severity chart (done early, Task #5, as a findings-by-type bar chart split by severity, since bars compare better than pie slices)
 - [x] Test on 3+ different repos (Express, Juice Shop, DVNA)
 - [ ] Write README with screenshots
-- [ ] Insecure crypto + async footgun scanners (deferred from Week 1)
+- [x] Insecure crypto scanner (deferred from Week 1; session 7)
+- [ ] Async footgun scanner (deferred from Week 1)
 
 **Definition of Done (Phase 2):**
 - ✅ No obvious UX friction

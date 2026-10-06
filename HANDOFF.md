@@ -1,9 +1,9 @@
 # Project Handoff — Security Audit Platform
 
-**Last updated:** 2026-10-05 (session 6)
-**Branch:** `main` @ `c2f12b6` has everything through PR #14 (scanner accuracy). This wrap-up is PR #15 (`docs/session-6-wrap`, docs only); if it's still open, the user merges it. No other branches.
-**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy ✅ (PR #14; live demo now Juice Shop 125 / DVNA 70 / Express 64) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
-**Next step:** ESLint flat config + a lint step in CI (START HERE step 6a, own PR). Then #2.4 insecure-crypto scanner (step 6b).
+**Last updated:** 2026-10-06 (session 7)
+**Branch:** `main` @ `ca33230` has everything through PR #15. Two PRs open for the user to merge, **#16 first** (`chore/eslint`: ESLint + lint in CI), then the crypto PR (`feature/crypto-scanner`), which will need a rebase on `main` after #16 for HANDOFF/STATUS/README conflicts. `docs/session-6-wrap` (merged) still exists locally + on origin: deleting it was blocked by the agent's permission mode, so the user deletes it.
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS; crypto ✅ PR open) · CI gate ✅ · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy ✅ (PR #14; live demo now Juice Shop 125 / DVNA 70 / Express 64) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
+**Next step:** after both PRs merge: #2.5 async-footgun scanner (START HERE step 6c), same measure-first approach.
 
 ---
 
@@ -29,11 +29,12 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    `npm ci` warns that esbuild's install script wasn't approved — harmless (the build works; CI is green).
 2. **Verify baseline**
    ```bash
-   npm test                                 # 8 suites, 102 tests: demo export 5/5, dependency 4/4, file utils 4/4, secrets 19/19, npm audit client 13/13, SQLi 21/21, XSS 22/22, dashboard helpers 14/14
+   npm test                                 # 9 suites, 129 tests: crypto 26/26, demo export 6/6, dependency 4/4, file utils 4/4, secrets 19/19, npm audit client 13/13, SQLi 21/21, XSS 22/22, dashboard helpers 14/14
    npm run build                            # must succeed (CI runs it)
    ```
    Scanner counts (run from a scratch dir — `index.js` writes `scanner-output.json` to the cwd):
-   Juice Shop 66 deps / 27 secrets / 13 SQLi / 19 XSS = 125 · DVNA 58 / 1 / 1 / 10 = 70 · Express 4 / 6 / 0 / 54 = 64 (all low).
+   Juice Shop 67 deps / 27 secrets / 13 SQLi / 19 XSS / 18 crypto = 144 · DVNA 58 / 1 / 1 / 10 / 2 = 72 · Express 5 / 6 / 0 / 54 / 0 = 65 (all low). (Session 7, at the demo commits; dependency counts include a `sprintf-js` advisory published after session 6.)
+   To check out the demo commits exactly: `git clone --filter=blob:none <url> <dir> && git -C <dir> checkout <commit> && git -C <dir> config core.abbrev 7` (commits are in `public/demo/index.json`; `core.abbrev` keeps `demo:export`'s short SHA at 7 chars).
    **Dependency counts drift:** none of the three targets commits a lockfile, so npm resolves versions at scan time and advisories change. Pattern counts (secrets/SQLi/XSS) are stable at a pinned commit.
 3. **See the dashboard**: from the repo root, `npm run scan /tmp/juice-shop` (writes the gitignored `scanner-output.json` the dev server serves), then `npm run dev` → http://localhost:5173. Without a local report, the dashboard opens the committed Juice Shop demo. The "Demo scan" picker switches demos; "Load scan file…" loads any other report.
 4. **Check secret scanning** (enabled by the user at the end of session 5; the first scan of history can take a while):
@@ -47,7 +48,8 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
    - **Regenerating demo data:** re-clone the targets (step 1), run `npm run demo:export`, review the diff, and commit `public/demo/`. The export redacts secret snippets and ids and **fails** if any finding still contains an AWS key, private-key header, GitHub/GitLab token, or Slack/Discord webhook.
 6. **Next, in order** (each its own branch + PR; ask the user before any scoring/severity judgment call — they've made every one so far):
    - **a. ESLint (`npm run lint` is broken).** ESLint 9 is a devDependency but there's no `eslint.config.js`. Add a flat config: `@eslint/js` recommended + `globals` (browser for `src/` except `src/scanner/`, node for `src/scanner/`, `scripts/`, tests), `eslint-plugin-react-hooks` + `eslint-plugin-react-refresh` for the JSX (those two need adding as devDependencies; check the current versions on npm, don't guess). Ignore `dist/`, `public/demo/`, `.test-tmp*`. Run it, fix real findings in small commits (don't blanket-disable rules), then add `npm run lint` to `.github/workflows/test.yml` before the build step. CI must stay green.
-   - **b. #2.4 Insecure crypto scanner** (`src/scanner/patterns/insecure-crypto.js`, type `crypto-misuse`, already reserved in the schema and coverage list). Follow "How the Pattern Scanners Work" below. Candidates: `createHash('md5'|'sha1')` used on passwords vs non-sensitive hashing (context decides severity), `createCipher` (deprecated, no IV), `Math.random()` for tokens/ids, hardcoded keys/IVs passed to `createCipheriv`, `jwt.sign` with `none`/weak secrets. **Measure first:** grep the three targets for these sinks and build an answer key (Juice Shop: `lib/insecurity.ts:41` `hash()` is `createHash('md5')`, and `routes/login.ts` hashes passwords with it, a planted vuln. DVNA: `docs/solution/a2-broken-auth.md` and `a3-sensitive-data-exposure.md`, plus the `md5` package in its dependencies) before writing patterns. Then move `Insecure Crypto Usage` from `notYetChecked` to `checked` in `report.js`.
+   - **a. ESLint**: done in session 7 (PR #16, `chore/eslint`).
+   - **b. ✅ #2.4 Insecure crypto scanner** (session 7, `feature/crypto-scanner`): see "Insecure crypto answer key + recall" below and Session 7.
    - **c. #2.5 Async footguns** (type `async-footgun`): same approach, after (b).
    - After any scanner change: re-clone targets if needed (step 1), `npm run demo:export -- <targets-dir>`, review the diff (no local paths, snippets redacted), `npm run build && npx vite preview`, check the dashboard, `npm run screenshots -- http://localhost:4173/`, update README results table + HANDOFF snapshot. The live site only updates after merge.
 
@@ -73,6 +75,14 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 - Don't let local paths leak into anything published (demo reports, errors, docs). npm's debug-log path lives in the home directory.
 
 ---
+
+## What We Did in Session 7 (2026-10-06)
+
+- ✅ PR #15 merged by the user. Baseline: 8 suites / 102 tests, build OK (`npm ci` was blocked by the agent's permission mode, so this ran on the existing `node_modules`, which contains Finder duplicate folders like `@babel/code-frame 3`; harmless, a clean `npm ci` removes them).
+- ✅ `/tmp` targets had been pruned by macOS again; re-cloned into a scratch dir at the demo commits (upstream HEADs are still those commits). Pattern counts matched `public/demo/` exactly. Dependency drift: one new `sprintf-js` advisory (Juice Shop +1 medium production, Express +1 low dev-only).
+- ✅ Secret scanning + push protection on, **0 alerts**; Dependabot security updates also enabled, 0 alerts.
+- ✅ **ESLint (PR #16, `chore/eslint`)**: flat config, real findings fixed in small commits, `npm run lint` in CI (details in that PR).
+- ✅ **Insecure crypto scanner (`feature/crypto-scanner`, PR for the user to merge)**: answer key + candidate counts measured first, then 7 scoring decisions by the user (see the answer-key section). 26 tests, mutation-checked (a stub fails 21/26; each removed rule fails a test). Demo export now also redacts hardcoded-key crypto snippets (test failed against the old export). `Insecure Crypto Usage` moved to `coverage.checked`. Demo data regenerated (Juice Shop 125 → 144, DVNA 70 → 72, Express 64 → 65; nothing removed), screenshots retaken from a local build and checked (light, dark, phone).
 
 ## What We Did in Session 6 (2026-10-05)
 
@@ -147,13 +157,34 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 
 ### Scan results snapshot
 
-| Target | Dependency CVEs | Secrets | SQL injection | XSS |
-|---|---|---|---|---|
-| Express (`/tmp/express`) | 4 (all dev-only → low) | 6 (all `examples/`, low) | 0 (correct — no SQL) | 54 (all low — all in `test/` + `examples/`) |
-| Juice Shop (`/tmp/juice-shop`) | 66 (3 dev-only → low) | 27 (3 private keys critical, 1 high, 23 seed medium) | 13 (1 critical, 1 high + 11 low snippets) | 19 (5 high, 8 medium + 6 low snippets) |
-| DVNA (`/tmp/dvna`) | 58 (15 critical; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) |
+| Target | Dependency CVEs | Secrets | SQL injection | XSS | Insecure crypto |
+|---|---|---|---|---|---|
+| Express (`/tmp/express`) | 5 (all dev-only → low) | 6 (all `examples/`, low) | 0 (correct — no SQL) | 54 (all low — all in `test/` + `examples/`) | 0 (no crypto sinks) |
+| Juice Shop (`/tmp/juice-shop`) | 67 (3 dev-only → low) | 27 (3 private keys critical, 1 high, 23 seed medium) | 13 (1 critical, 1 high + 11 low snippets) | 19 (5 high, 8 medium + 6 low snippets) | 18 (5 high, 7 medium, 6 low) |
+| DVNA (`/tmp/dvna`) | 58 (15 critical; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) | 2 (high) |
 
-*(Updated session 6 after the scanner-accuracy fixes; dependency counts drift because no target commits a lockfile.)*
+*(Updated session 7 with the crypto scanner; dependency counts drift because no target commits a lockfile.)*
+
+### Insecure crypto answer key + recall (session 7)
+
+Measured at the demo commits with a prototype run through the scanner's own walker (`walkDir` + `toStatements`, comments skipped). Juice Shop's crypto challenges come from `data/static/challenges.yml`; DVNA's from `docs/solution/a2-broken-auth.md`.
+
+| Challenge | Sink | Found | Severity |
+|---|---|---|---|
+| Password Strength (`weakPasswordChallenge`) + Weird Crypto ("md5") | `lib/insecurity.ts:41` `hash = createHash('md5')`; vuln-line `models/user.ts:73` `security.hash(clearTextPassword)` | ✅ at the helper (factor lists the 6 password callers: `user.ts:73`, `login.ts:34`, `changePassword.ts:39`, `:54`, `2fa.ts:107`, `:152`) | high |
+| Imaginary Challenge + Weird Crypto ("hashids") | `routes/continueCode.ts:13/25/38`, `routes/restoreProgress.ts:18/42/62` | ✅ 6 | medium |
+| Unsigned JWT, Forged Signed JWT | vulnerable `jsonwebtoken` 0.4.0 / `express-jwt` 0.1.3 / `jws` (dependency scanner) + `lib/insecurity.ts:52` `expressJwt({ secret: publicKey })`, `:189` `jwt.verify(token, publicKey, cb)` | ✅ | high |
+| Forged Coupon + Weird Crypto ("z85") | `lib/insecurity.ts:99/106` z85 coupon encode/decode | ❌ by choice (user decision: an encoder alone doesn't say it protects anything) | — |
+| (no challenge) security-answer HMAC with a literal key | `lib/insecurity.ts:42` — the secrets scanner misses it | ✅ | high |
+| Nested Easter Egg, Premium Paywall | ciphertext / key files, not code | out of scope | — |
+| DVNA reset token = `md5(login)` | `core/authHandler.js:49`, `:78` | ✅ 2 | high |
+
+**Recall: 5/6 code-level Juice Shop challenges, DVNA 1/1. Express: 0 crypto sinks, 0 findings** (`examples/auth` uses `pbkdf2-password`, correctly not flagged).
+Other Juice Shop findings: `insecurity.ts:53` `denyAll` (`expressJwt({ secret: '' + Math.random() })`, one merged finding, medium), `routes/verify.ts:125` (challenge-check `jwt.verify` with the public key, high), `routes/captcha.ts:14-19` (5 × low: captcha operands), `scripts/package.mjs:121` (MD5 release checksum, low).
+Not reported (by rule): 15 other `Math.random()` hits (9 vendored `three.js`, 4 seed data, shuffle / UI ids), `utils.ts:80` HMAC-SHA1 (not broken), 7 non-password `security.hash()` callers (order ids, email hashes).
+
+**User decisions (session 7):** weak-hash helpers scored by tracing callers (one finding at the helper); `Math.random()` only in security context (medium when the line names a secret/token/…, low when only the function or file name does); JWT without `algorithms` → medium, high with a public key; Hashids literal salt → medium, z85 not flagged; literal HMAC/cipher key → high; `createCipher` and DES/RC4/ECB → high; one finding per line (merged, highest severity).
+**Extrapolated by the agent (0 hits on the targets; tell the user if challenged):** `jwt.sign` with algorithm `none` / `algorithms` allowing `none` → high; a literal secret passed to `jwt.sign`/`jwt.verify`/express-jwt → high (same rule as the literal HMAC key).
 
 ### XSS answer key + recall (session 4)
 
@@ -185,7 +216,7 @@ Design decisions: template files (`.html/.ejs/.pug/.hbs/.vue`) are scanned for X
 
 ```
 Design Phase     ████████████████████████████████ 100% ✅
-Week 1 Scanner   ██████████████████████████░░░░░░  80% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ⏳ async ⏳ deferred)
+Week 1 Scanner   █████████████████████████████░░░  90% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ✅ PR open | async ⏳)
 Week 2 Dashboard ████████████████████████████████ 100% ✅  (core ✅ PR #7 | polish ✅ PR #9)
 Week 3 Deploy    ████████████████░░░░░░░░░░░░░░░░  50% 🟡  (demo data + picker ✅ PR #10 | Vercel import ⏳ user | README/demo ⏳)
 ```
@@ -196,7 +227,7 @@ Week 3 Deploy    ████████████████░░░░░
 | #2.1 Hardcoded secrets | ✅ Merged to `main` (PR #2) | `src/scanner/patterns/hardcoded-secrets.js` |
 | #2.2 SQL injection | ✅ Merged to `main` (PR #2) | `src/scanner/patterns/sql-injection.js` |
 | #2.3 XSS | ✅ Merged to `main` (PR #2) — see TODOs | `src/scanner/patterns/xss.js` |
-| #2.4 Insecure crypto | ⏳ Deferred until after dashboard (confirm with user) | — |
+| #2.4 Insecure crypto | ✅ PR open (session 7) | `src/scanner/patterns/insecure-crypto.js` |
 | #2.5 Async footguns | ⏳ Deferred until after dashboard (confirm with user) | — |
 | #4 Dashboard Core | ✅ Merged to `main` (PR #7) | `src/App.jsx`, `src/pages/Dashboard.jsx`, `src/components/`, `src/utils/findings.js` |
 | #5 Dashboard Polish | ✅ Merged to `main` (PR #9) | `src/components/TypeChart.jsx`, `SummaryCards.jsx`, `dark:` variants throughout |
@@ -226,7 +257,11 @@ Week 3 Deploy    ████████████████░░░░░
 - [x] **`npm audit` failures read as zero findings.** Fixed (session 6): DVNA showed 0 dependency CVEs (ENOLOCK); errors now reported, no-lockfile targets resolved in a temp dir.
 - [ ] **Dependency results drift without a lockfile.** None of the three targets commits one, so each scan resolves today's versions. The factor says so; nothing else to do unless we pin by committing resolved lockfiles for the demo targets.
 - [ ] **Dependencies: yarn.lock / pnpm-lock.yaml targets** are audited from a freshly resolved npm lockfile (with a factor saying so), not their real lockfile.
-- [ ] **`npm run lint` is broken** — ESLint 9 needs an `eslint.config.js`; none exists. Add a flat config (React + hooks plugins), then a lint step in CI.
+- [ ] **`npm run lint` is broken** — fixed in PR #16 (open); check this off when it merges.
+- [ ] **Crypto: z85 / base64 "encryption" not detected** (Juice Shop Forged Coupon). Left out by user decision; revisit if a generic signal appears (e.g. an encoded value compared for authorization).
+- [ ] **Crypto: hardcoded IVs aren't flagged** (`createCipheriv(alg, key, 'literal')`). Only literal keys are. Needs a severity call from the user.
+- [ ] **Crypto: "enclosing function" is the nearest named function within 15 lines above**, not a parsed scope. Fine on the three targets (three.js `generateUUID` is out of reach, as intended), but a sibling function's name can leak into the next one.
+- [ ] **Crypto: helper tracing matches callers by name in files that import the helper's module** (basename match). A re-export through an index file isn't followed.
 - [x] **Deploy needs committed demo data.** Done (PR #10, merged): all three scans under `public/demo/`, generated by `npm run demo:export` with secret snippets redacted, and a picker in the dashboard.
 - [ ] **Demo data is a snapshot.** It's pinned to the target commits above, so it won't change when the scanners improve. Re-run `npm run demo:export` after scanner changes and commit the diff (last regenerated session 6, after the accuracy fixes).
 - [x] **PRD.md / DESIGN.md were partly stale.** Fixed in session 5 (PR #9). PRD checkboxes now match the build, with italic notes where it differs; DESIGN describes the scoring model and dashboard as built and marks *(not built)* ideas; README, CONTRIBUTING (everything goes through PRs; task numbers, not issues), TPM_STRATEGY, and FUTURE_IDEAS refreshed; the original brief (`security-audit-platform-overview.md`) is kept as-is with a "what changed" note.
@@ -298,12 +333,13 @@ src/scanner/
 ├── demo-export.js            ← toDemoReport(): redact secrets, record source, refuse key material
 ├── dependency-scanner.js     ← Task #1: package.json checks, then runNpmAudit + parseAuditResults
 ├── npm-audit-client.js       ← Task #1: lockfile or temp-resolved audit, --omit=dev pass, versions, fix text
-├── pattern-scanner.js        ← runs each pattern scanner (crypto/async TODOs here)
+├── pattern-scanner.js        ← runs each pattern scanner (async TODO here)
 ├── file-utils.js             ← shared: walkDir, skip rules, toStatements, USER_INPUT, ROUTE_HANDLER
 ├── patterns/
 │   ├── hardcoded-secrets.js  ← Task #2.1
 │   ├── sql-injection.js      ← Task #2.2
-│   └── xss.js                ← Task #2.3
+│   ├── xss.js                ← Task #2.3
+│   └── insecure-crypto.js    ← Task #2.4 (two passes: sites, then weak-hash helpers scored by their callers)
 └── __tests__/
     ├── demo-export.test.js
     ├── dependency-scanner.test.js   (no-lockfile case needs the npm registry)
@@ -311,7 +347,8 @@ src/scanner/
     ├── hardcoded-secrets.test.js
     ├── npm-audit-client.test.js     (fixtures copied from real npm 11 output)
     ├── sql-injection.test.js
-    └── xss.test.js
+    ├── xss.test.js
+    └── insecure-crypto.test.js
 ```
 `scripts/export-demo.js` (`npm run demo:export`) regenerates `public/demo/`. Dashboard files: see "Dashboard map" in START HERE.
 

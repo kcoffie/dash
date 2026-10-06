@@ -76,7 +76,7 @@ The full schema is **PRD.md §3**. One finding:
 }
 ```
 
-`type` is one of `dependency-cve`, `hardcoded-secret`, `sql-injection`, `xss`, plus `crypto-misuse` and `async-footgun`, which are reserved and not built yet.
+`type` is one of `dependency-cve`, `hardcoded-secret`, `sql-injection`, `xss`, `crypto-misuse`, plus `async-footgun`, which is reserved and not built yet.
 
 ---
 
@@ -93,9 +93,9 @@ The full schema is **PRD.md §3**. One finding:
 2. **SQL Injection**: string concatenation and template literals that look like SQL (uppercase keywords anywhere, lowercase only at the start). Context: see the scoring model above.
 3. **XSS**: `bypassSecurityTrust*`, `dangerouslySetInnerHTML`, `innerHTML`, `document.write` / `insertAdjacentHTML` / jQuery `.html()`, unescaped template output (EJS/Handlebars/Pug/Vue), `res.send()` of HTML or raw `req.*`. Template files are scanned for XSS only. Angular `[innerHTML]` isn't flagged, because Angular sanitizes it.
 4. **Async Footguns** *(not built, deferred)*: `fetch()` without `await` / `.catch()`; is an error handler present, and does an unhandled rejection crash the server?
-5. **Insecure Crypto** *(not built, deferred)*: MD5/SHA1 for passwords, hardcoded keys; is it real auth or non-sensitive hashing?
+5. **Insecure Crypto** (`crypto-misuse`): MD5/SHA-1 (`createHash`, `md5`/`sha1` packages, CryptoJS), hardcoded HMAC/cipher/JWT keys, `createCipher` and DES/RC4/ECB, `Math.random()` for security values, JWT verified without an `algorithms` allowlist (or with `none`), Hashids with a literal salt. Context: a weak hash on a password/token line or compared to `req.*` → high; a file checksum → low; inside a small helper → scored by its callers (files importing the helper's module; training snippets don't count); `Math.random()` → medium when the line names a secret/token/salt…, low when only the function or file name does, otherwise not reported; JWT → high with a public key (algorithm confusion), medium otherwise. One finding per line, at the highest severity of its issues. Severity rules are the user's (session 7).
 
-Validation: Juice Shop and DVNA are intentionally vulnerable, so they have known answers. SQLi finds 3/3. XSS finds 8/9 Juice Shop challenges and 3/3 DVNA. Express is a false-positive check: 0 SQLi. The answer key is in HANDOFF.md.
+Validation: Juice Shop and DVNA are intentionally vulnerable, so they have known answers. SQLi finds 3/3. XSS finds 8/9 Juice Shop challenges and 3/3 DVNA. Crypto finds 5/6 code-level Juice Shop challenges and 1/1 DVNA. Express is a false-positive check: 0 SQLi, 0 crypto. The answer key is in HANDOFF.md.
 
 ---
 
@@ -110,13 +110,12 @@ One horizontal bar per finding type, biggest first, split into severity segments
 ### 3. Coverage Report (Collapsible)
 Shows what was checked and what wasn't, so "0 findings" means "checked and clean", not "never looked":
 ```
-Coverage: checked 4 categories · 5 not yet supported
-✓ Dependency CVEs          66 found      Not yet checked
-✓ Hardcoded Secrets        27 found      – Insecure Crypto Usage
-✓ SQL Injection Patterns   13 found      – CORS Misconfiguration
-✓ XSS Vulnerabilities      19 found      – Async Footguns
-                                         – Permission Creep
-                                         – Logging PII
+Coverage: checked 5 categories · 4 not yet supported
+✓ Dependency CVEs          67 found      Not yet checked
+✓ Hardcoded Secrets        27 found      – CORS Misconfiguration
+✓ SQL Injection Patterns   13 found      – Async Footguns
+✓ XSS Vulnerabilities      19 found      – Permission Creep
+✓ Insecure Crypto Usage    18 found      – Logging PII
 ```
 Scan errors, if any, appear here too.
 
