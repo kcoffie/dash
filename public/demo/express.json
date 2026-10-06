@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-06T18:36:55.727Z",
+  "timestamp": "2026-10-06T19:03:41.529Z",
   "targetPath": "express",
   "findings": [
     {
@@ -1905,12 +1905,12 @@
       "Hardcoded Secrets",
       "SQL Injection Patterns",
       "XSS Vulnerabilities",
-      "Insecure Crypto Usage"
+      "Insecure Crypto Usage",
+      "Async Footguns"
     ],
-    "checkedCount": 5,
+    "checkedCount": 6,
     "notYetChecked": [
       "CORS Misconfiguration",
-      "Async Footguns",
       "Permission Creep",
       "Logging PII"
     ],

@@ -76,7 +76,7 @@ The full schema is **PRD.md §3**. One finding:
 }
 ```
 
-`type` is one of `dependency-cve`, `hardcoded-secret`, `sql-injection`, `xss`, `crypto-misuse`, plus `async-footgun`, which is reserved and not built yet.
+`type` is one of `dependency-cve`, `hardcoded-secret`, `sql-injection`, `xss`, `crypto-misuse`, or `async-footgun`.
 
 ---
 
@@ -92,10 +92,10 @@ The full schema is **PRD.md §3**. One finding:
 1. **Hardcoded Secrets**: AWS keys (`AKIA`/`ASIA`), private keys (PKCS#1/#8, encrypted, OpenSSH, PGP), GitHub (`ghp_`, `gho_`, `ghs_`, `github_pat_`…) and GitLab (`glpat-`) tokens, Slack/Discord webhooks, and literal values for password / token / API-key / secret keys (quoted JSON keys too; unquoted `KEY=value` in `.env` files, where the key must end in the secret word). Context: value (placeholder, entropy), file kind (test/example, snippet, seed data, translation, `.env`), comment. Factors never include the secret's value.
 2. **SQL Injection**: string concatenation and template literals that look like SQL (uppercase keywords anywhere, lowercase only at the start). Context: see the scoring model above.
 3. **XSS**: `bypassSecurityTrust*`, `dangerouslySetInnerHTML`, `innerHTML`, `document.write` / `insertAdjacentHTML` / jQuery `.html()`, unescaped template output (EJS/Handlebars/Pug/Vue), `res.send()` of HTML or raw `req.*`. Template files are scanned for XSS only. Angular `[innerHTML]` isn't flagged, because Angular sanitizes it.
-4. **Async Footguns** *(not built, deferred)*: `fetch()` without `await` / `.catch()`; is an error handler present, and does an unhandled rejection crash the server?
+4. **Async Footguns** (`async-footgun`): promise chains with no `.catch()` that aren't returned, awaited, or assigned; async `(req, res[, next])` handlers with awaits outside try/catch; `forEach(async …)`, `new Promise(async …)`, async timer callbacks and event listeners. Strings and comments are masked first, and context comes from the signatures of the enclosing functions, not a fixed line window. Context: chain in a route handler or passport callback → medium, high when `req.*` feeds the promise; other server code → low; browser code → low; `void` and `import()` are noted as deliberate. Async handlers → high, but not reported when every registration goes through a wrapper (`asyncHandler(…)`-style), on Express 5, or with `express-async-errors`. Severity rules are the user's (session 7).
 5. **Insecure Crypto** (`crypto-misuse`): MD5/SHA-1 (`createHash`, `md5`/`sha1` packages, CryptoJS), hardcoded HMAC/cipher/JWT keys, `createCipher` and DES/RC4/ECB, `Math.random()` for security values, JWT verified without an `algorithms` allowlist (or with `none`), Hashids with a literal salt. Context: a weak hash on a password/token line or compared to `req.*` → high; a file checksum → low; inside a small helper → scored by its callers (files importing the helper's module; training snippets don't count); `Math.random()` → medium when the line names a secret/token/salt…, low when only the function or file name does, otherwise not reported; JWT → high with a public key (algorithm confusion), medium otherwise. One finding per line, at the highest severity of its issues. Severity rules are the user's (session 7).
 
-Validation: Juice Shop and DVNA are intentionally vulnerable, so they have known answers. SQLi finds 3/3. XSS finds 8/9 Juice Shop challenges and 3/3 DVNA. Crypto finds 5/6 code-level Juice Shop challenges and 1/1 DVNA. Express is a false-positive check: 0 SQLi, 0 crypto. The answer key is in HANDOFF.md.
+Validation: Juice Shop and DVNA are intentionally vulnerable, so they have known answers. SQLi finds 3/3. XSS finds 8/9 Juice Shop challenges and 3/3 DVNA. Crypto finds 5/6 code-level Juice Shop challenges and 1/1 DVNA. Async: DVNA 15 chains without `.catch()` (hand-checked); Juice Shop's 21 wrapped handlers produce no findings. Express is a false-positive check: 0 SQLi, 0 crypto, 0 async. The answer key is in HANDOFF.md.
 
 ---
 
@@ -110,12 +110,13 @@ One horizontal bar per finding type, biggest first, split into severity segments
 ### 3. Coverage Report (Collapsible)
 Shows what was checked and what wasn't, so "0 findings" means "checked and clean", not "never looked":
 ```
-Coverage: checked 5 categories · 4 not yet supported
+Coverage: checked 6 categories · 3 not yet supported
 ✓ Dependency CVEs          67 found      Not yet checked
 ✓ Hardcoded Secrets        27 found      – CORS Misconfiguration
-✓ SQL Injection Patterns   13 found      – Async Footguns
-✓ XSS Vulnerabilities      19 found      – Permission Creep
-✓ Insecure Crypto Usage    18 found      – Logging PII
+✓ SQL Injection Patterns   13 found      – Permission Creep
+✓ XSS Vulnerabilities      19 found      – Logging PII
+✓ Insecure Crypto Usage    18 found
+✓ Async Footguns           16 found
 ```
 Scan errors, if any, appear here too.
 
@@ -155,7 +156,7 @@ Scan errors, if any, appear here too.
 **"Why focus on AI code?"**
 - AI-generated code has unique blind spots (copy-paste, async, type assumptions)
 - Shows knowledge of modern dev workflows
-- The async-footgun scanner is the piece that targets this most directly, and it's deferred. Say so if asked.
+- The async-footgun scanner targets this most directly: unhandled rejections are an easy thing for generated Express 4 code to get wrong, and on Node ≥ 15 they crash the server.
 
 **"Why this over existing tools (SonarQube, Snyk)?"**
 - This is smaller, focused, understandable end-to-end

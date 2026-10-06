@@ -7,7 +7,7 @@
       "file": "juice-shop.json",
       "repo": "https://github.com/juice-shop/juice-shop",
       "commit": "1618a61",
-      "total": 144
+      "total": 160
     },
     {
       "id": "dvna",
@@ -16,7 +16,7 @@
       "file": "dvna.json",
       "repo": "https://github.com/appsecco/dvna",
       "commit": "9ba473a",
-      "total": 72
+      "total": 87
     },
     {
       "id": "express",
