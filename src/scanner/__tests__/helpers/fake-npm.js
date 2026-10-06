@@ -1,10 +1,11 @@
 // Puts a stand-in `npm` (./bin/npm) first on PATH, so tests exercise the real dependency
-// scanner without the registry. It answers `npm audit --json [--omit=dev]` with a response
-// recorded from real npm, and fails anything else. Only the boundary is faked:
+// scanner without the registry. It replays `npm audit --json [--omit=dev]` as recorded from
+// real npm (stdout, stderr, exit code), and fails anything else. Only the boundary is faked:
 // npm-audit-client still runs.
 //
 // Recorded responses live in fixtures/npm-audit/<name>/ (recorded with npm 11.19.1 on
-// 2026-10-06). The fixture's package.json / package-lock.json are stored as *.fixture.json
+// 2026-10-06; registry-down = `--registry=http://127.0.0.1:9`, home path in the log line
+// replaced). The fixture's package.json / package-lock.json are stored as *.fixture.json
 // so GitHub's dependency graph doesn't raise alerts for the vulnerable test package.
 import fs from 'fs';
 import path from 'path';
@@ -21,14 +22,11 @@ export function writeRecordedProject(name, targetPath) {
   fs.copyFileSync(path.join(dir, 'package-lock.fixture.json'), path.join(targetPath, 'package-lock.json'));
 }
 
-// Runs fn with the fake npm first on PATH. `fail`: npm's stderr text, to simulate a failing
-// registry (exit 1, no JSON on stdout).
-export async function withFakeNpm(name, fn, { fail } = {}) {
-  const saved = { PATH: process.env.PATH, FAKE_NPM_RESPONSES: process.env.FAKE_NPM_RESPONSES, FAKE_NPM_FAIL: process.env.FAKE_NPM_FAIL };
+// Runs fn with the fake npm first on PATH, replaying fixtures/npm-audit/<name>/
+export async function withFakeNpm(name, fn) {
+  const saved = { PATH: process.env.PATH, FAKE_NPM_RESPONSES: process.env.FAKE_NPM_RESPONSES };
   process.env.PATH = `${BIN}${path.delimiter}${process.env.PATH}`;
   process.env.FAKE_NPM_RESPONSES = path.join(FIXTURES, name);
-  if (fail) process.env.FAKE_NPM_FAIL = fail;
-  else delete process.env.FAKE_NPM_FAIL;
   try {
     return await fn();
   } finally {

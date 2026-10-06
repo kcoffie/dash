@@ -10,7 +10,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const tmpDir = fs.mkdtempSync(path.join(__dirname, '..', '..', '..', '.test-tmp-report-'));
 
 const STARTED = Date.now();
+// Built from parts so this file doesn't contain key-shaped strings (same values as hardcoded-secrets.test.js)
 const AWS_KEY = ['AKIA', 'IOSFODNN7EXAMPLE'].join('');
+const API_TOKEN = ['q8Zr2Lm9Xv4T', 'n7Wb1Kc5Hy3Pd6'].join('');
 
 // One finding per file. Each expected severity follows a rule the scanner's own tests pin
 // (DESIGN.md "Scoring Model"), so the report's counts can be worked out by hand.
@@ -21,7 +23,7 @@ const FIXTURE_FILES = {
     "  res.send('<p>' + req.body.name + '</p>')",
     '}',
   ].join('\n'),
-  'src/client.js': "const api_key = 'q8Zr2Lm9Xv4Tn7Wb1Kc5Hy3Pd6';", // random-looking API token → high
+  'src/client.js': `const api_key = '${API_TOKEN}';`, // random-looking API token → high
   'auth.js': "const stored = crypto.createHash('sha1').update(password).digest('hex')", // SHA-1 of a password → high
   'db.js': 'const sql = "DELETE FROM sessions WHERE user_id = " + userId;', // SQL concat, no visible input → medium
   'lib/ids.js': "const digest = crypto.createHash('md5').update(value).digest('hex')", // MD5 of an unknown value → medium
@@ -61,18 +63,17 @@ function quietLog() {
   return { lines, log: (line) => lines.push(line), logError: (line) => lines.push(line) };
 }
 
-async function scanFixtureOnce(name, options) {
-  const target = makeTarget(name, FIXTURE_FILES, { recordedProject: 'node-serialize-0.0.4' });
+async function scanFixtureOnce(name, recording) {
+  const target = makeTarget(name, FIXTURE_FILES, { recordedProject: recording });
   const output = quietLog();
-  const report = await withFakeNpm('node-serialize-0.0.4', () => scanTarget(target, output), options);
+  const report = await withFakeNpm(recording, () => scanTarget(target, output));
   return { target, report, lines: output.lines };
 }
 
 // The tests that only read the report share one scan (each scan spawns npm twice)
 let shared = null;
-async function scanFixture(options) {
-  if (options) return scanFixtureOnce('app-variant', options);
-  shared ??= scanFixtureOnce('app');
+function scanFixture() {
+  shared ??= scanFixtureOnce('app', 'node-serialize-0.0.4');
   return shared;
 }
 
@@ -130,14 +131,29 @@ async function testTimestampAndTarget() {
   );
 }
 
-async function testFailedDependencyScanIsAnErrorNotZero() {
-  const { report: result } = await scanFixture({ fail: 'npm error code E503\nnpm error 503 Service Unavailable' });
+async function testRegistryDownIsAnErrorWithNpmsMessage() {
+  // Recorded: real npm 11.19.1 with the registry unreachable. It exits 1 and prints
+  // { "message": "...ECONNREFUSED...", "error": { "summary": "", "detail": "" } } on stdout
+  const { report: result } = await scanFixtureOnce('registry-down', 'registry-down');
   const patternOnly = EXPECTED_FINDINGS.filter((f) => !f.startsWith('dependency-cve'));
+  const expected = ['Dependency scan failed: error: request to http://127.0.0.1:9/-/npm/v1/security/advisories/bulk failed, reason: connect ECONNREFUSED 127.0.0.1:9'];
   return report(
-    'A failed npm audit is listed in errors, and the other scanners still report',
-    same(result.errors, ['Dependency scan failed: npm audit failed: code E503 · 503 Service Unavailable'])
-      && same(describe(result.findings), patternOnly) && result.summary.total === 9 && result.coverage.findingsByType['dependency-cve'] === 0,
+    'Registry unreachable: npm\'s own message is listed in errors, and the other scanners still report',
+    same(result.errors, expected) && same(describe(result.findings), patternOnly)
+      && result.summary.total === 9 && result.coverage.findingsByType['dependency-cve'] === 0,
     JSON.stringify({ errors: result.errors, findings: describe(result.findings) }),
+  );
+}
+
+async function testDependencyScannerCrashIsAnError() {
+  // scanDependencies checks the path outside its own try, so a non-string target throws
+  const output = quietLog();
+  const result = await scanTarget(null, output);
+  const message = 'Dependency scanning failed: The "path" argument must be of type string. Received null';
+  return report(
+    'A dependency scanner crash is listed in errors and logged, not swallowed',
+    result.errors?.[0] === message && output.lines[0] === `✗ ${message}`,
+    JSON.stringify({ errors: result.errors, lines: output.lines }),
   );
 }
 
@@ -192,7 +208,7 @@ async function testScanPatternsCombinesAllFive() {
 const results = [];
 for (const test of [
   testEveryScannerContributes, testSummaryCountsBySeverity, testFindingsByType, testCoverageCategories,
-  testNoErrorsKeyWhenAllScannersSucceed, testTimestampAndTarget, testFailedDependencyScanIsAnErrorNotZero,
+  testNoErrorsKeyWhenAllScannersSucceed, testTimestampAndTarget, testRegistryDownIsAnErrorWithNpmsMessage, testDependencyScannerCrashIsAnError,
   testNoPackageJsonIsAnError, testProgressLogStatesCounts, testCleanAuditSaysNoVulnerabilities, testScanPatternsCombinesAllFive,
 ]) {
   results.push(await test());

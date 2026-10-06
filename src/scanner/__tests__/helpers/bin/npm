@@ -1,19 +1,20 @@
 #!/usr/bin/env node
-// Stand-in `npm` for tests (see ../fake-npm.js). Answers `npm audit --json [--omit=dev]` with
-// a recorded response and fails anything else. Uses process.getBuiltinModule so it runs the
-// same whether Node treats this extensionless file as CommonJS or ESM.
+// Stand-in `npm` for tests (see ../fake-npm.js). Replays a recorded `npm audit --json
+// [--omit=dev]`: stdout (audit.json / audit-omit-dev.json), stderr (audit.stderr, if
+// recorded), and the exit code real npm uses (1 on an error or any vulnerability, else 0).
+// Anything else fails. Uses process.getBuiltinModule so it runs the same whether Node treats
+// this extensionless file as CommonJS or ESM.
 const fs = process.getBuiltinModule('fs');
 const path = process.getBuiltinModule('path');
 const args = process.argv.slice(2);
-if (process.env.FAKE_NPM_FAIL) {
-  process.stderr.write(`${process.env.FAKE_NPM_FAIL}\n`);
-  process.exit(1);
-}
+const dir = process.env.FAKE_NPM_RESPONSES;
 if (args[0] === 'audit' && args.includes('--json')) {
-  const file = args.includes('--omit=dev') ? 'audit-omit-dev.json' : 'audit.json';
-  const json = fs.readFileSync(path.join(process.env.FAKE_NPM_RESPONSES, file), 'utf-8');
+  const json = fs.readFileSync(path.join(dir, args.includes('--omit=dev') ? 'audit-omit-dev.json' : 'audit.json'), 'utf-8');
+  const stderr = path.join(dir, 'audit.stderr');
   process.stdout.write(json);
-  process.exit(JSON.parse(json).metadata.vulnerabilities.total > 0 ? 1 : 0); // as real npm
+  if (fs.existsSync(stderr)) process.stderr.write(fs.readFileSync(stderr, 'utf-8'));
+  const audit = JSON.parse(json);
+  process.exit(audit.error || audit.metadata.vulnerabilities.total > 0 ? 1 : 0);
 }
 process.stderr.write(`npm error fake npm: unexpected call: npm ${args.join(' ')}\n`);
 process.exit(1);
