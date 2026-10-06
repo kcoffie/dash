@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-05T17:56:49.596Z",
+  "timestamp": "2026-10-06T18:36:55.727Z",
   "targetPath": "express",
   "findings": [
     {
@@ -100,6 +100,39 @@
         "npm-audit",
         "CWE-400",
         "CWE-834",
+        "dev-only"
+      ]
+    },
+    {
+      "id": 1241202,
+      "type": "dependency-cve",
+      "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+      "severity": "low",
+      "confidence": 0.95,
+      "description": "sprintf-js vulnerable to denial of service through unbounded precision specifiers in sprintf-js (CWE-1284).",
+      "package": "sprintf-js",
+      "packageVersion": "1.0.3",
+      "affectedVersions": "<=1.1.3",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": true,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ sprintf-js 1.0.3 is in the affected range <=1.1.3",
+        "✓ Pulled in by nyc",
+        "⚠ Dev-only dependency (not installed in production): advisory severity medium, scored low",
+        "✓ Fix available: upgrade nyc to 18.0.0 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade nyc to 18.0.0 (major version change: check for breaking changes); it depends on sprintf-js, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+      "references": [
+        "https://github.com/advisories/GHSA-hp3w-g68c-fv3c"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1284",
         "dev-only"
       ]
     },
@@ -1871,18 +1904,18 @@
       "Dependency CVEs",
       "Hardcoded Secrets",
       "SQL Injection Patterns",
-      "XSS Vulnerabilities"
+      "XSS Vulnerabilities",
+      "Insecure Crypto Usage"
     ],
-    "checkedCount": 4,
+    "checkedCount": 5,
     "notYetChecked": [
-      "Insecure Crypto Usage",
       "CORS Misconfiguration",
       "Async Footguns",
       "Permission Creep",
       "Logging PII"
     ],
     "findingsByType": {
-      "dependency-cve": 4,
+      "dependency-cve": 5,
       "hardcoded-secret": 6,
       "sql-injection": 0,
       "xss": 54,
@@ -1891,11 +1924,11 @@
     }
   },
   "summary": {
-    "total": 64,
+    "total": 65,
     "critical": 0,
     "high": 0,
     "medium": 0,
-    "low": 64,
+    "low": 65,
     "info": 0
   },
   "source": {

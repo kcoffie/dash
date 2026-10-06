@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-05T17:56:46.052Z",
+  "timestamp": "2026-10-06T18:36:42.097Z",
   "targetPath": "juice-shop",
   "findings": [
     {
@@ -1657,6 +1657,38 @@
         "npm-audit",
         "CWE-20",
         "CWE-754"
+      ]
+    },
+    {
+      "id": 1241202,
+      "type": "dependency-cve",
+      "title": "sprintf-js vulnerable to denial of service through unbounded precision specifiers",
+      "severity": "medium",
+      "confidence": 0.95,
+      "description": "sprintf-js vulnerable to denial of service through unbounded precision specifiers in sprintf-js (CWE-1284).",
+      "package": "sprintf-js",
+      "packageVersion": "1.0.3, 1.1.3",
+      "affectedVersions": "<=1.1.3",
+      "patchedVersions": null,
+      "advisorySeverity": "medium",
+      "devOnly": false,
+      "file": "package.json",
+      "line": null,
+      "context": [
+        "✓ sprintf-js 1.0.3, 1.1.3 is in the affected range <=1.1.3",
+        "✓ Pulled in by i18n, js-yaml, nyc",
+        "✓ Installed in production (not dev-only)",
+        "✓ Fix available: upgrade i18n to 0.15.4 (major version change: check for breaking changes)",
+        "? No lockfile: versions are what npm resolves today, so results can change between scans"
+      ],
+      "remediation": "Upgrade i18n to 0.15.4 (major version change: check for breaking changes); it depends on sprintf-js, and that version no longer pulls in a vulnerable one. Details: https://github.com/advisories/GHSA-hp3w-g68c-fv3c",
+      "references": [
+        "https://github.com/advisories/GHSA-hp3w-g68c-fv3c"
+      ],
+      "tags": [
+        "dependency",
+        "npm-audit",
+        "CWE-1284"
       ]
     },
     {
@@ -3771,6 +3803,478 @@
         "injection",
         "response"
       ]
+    },
+    {
+      "id": "crypto-lib_insecurity_ts-41",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Weak Hash (MD5))",
+      "severity": "high",
+      "confidence": 0.85,
+      "description": "MD5 is used where its output may protect a secret. It is fast to brute-force and collisions are practical, so hashed passwords and tokens derived from guessable values can be recovered or forged.",
+      "file": "lib/insecurity.ts",
+      "line": 41,
+      "snippet": "export const hash = (data: string) => crypto.createHash('md5').update(data).digest('hex')",
+      "context": [
+        "✓ MD5 is broken for security use (fast to brute-force, practical collisions)",
+        "✓ hash() is called on passwords / tokens: models/user.ts:73, routes/2fa.ts:107 (+4 more)",
+        "⚠ No salt visible (identical inputs give identical hashes)"
+      ],
+      "remediation": "Passwords: use a slow, salted KDF: await bcrypt.hash(password, 12) or crypto.scryptSync(password, salt, 64). Tokens: generate them randomly (crypto.randomBytes(32).toString('hex')) and store a SHA-256 of the token. Integrity checks: use SHA-256.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-hash"
+      ]
+    },
+    {
+      "id": "crypto-lib_insecurity_ts-42",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Hardcoded HMAC Key)",
+      "severity": "high",
+      "confidence": 0.85,
+      "description": "The HMAC key is written into the code, so it is shared with everyone who can read the repository or the built bundle.",
+      "file": "lib/insecurity.ts",
+      "line": 42,
+      "snippet": "[redacted in demo report]",
+      "context": [
+        "✓ HMAC key is a string literal in the source",
+        "✓ Anyone with the source can compute valid MACs",
+        "⚠ Already in version control history: rotate it, don't just move it"
+      ],
+      "remediation": "Load the key from the environment or a secrets manager (const key = process.env.HMAC_KEY), fail at startup if it is missing, and rotate the exposed key.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "hardcoded-key"
+      ]
+    },
+    {
+      "id": "crypto-lib_insecurity_ts-52",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (JWT Verified Without Algorithm Allowlist)",
+      "severity": "high",
+      "confidence": 0.7,
+      "description": "The token header picks the algorithm. Without an allowlist, an attacker can switch it (e.g. RS256 → HS256 using the public key as the HMAC secret, or none on old library versions) and forge tokens.",
+      "file": "lib/insecurity.ts",
+      "line": 52,
+      "snippet": "export const isAuthorized = () => expressJwt(({ secret: publicKey }) as any)",
+      "context": [
+        "✓ express-jwt called without an algorithms: [...] allowlist",
+        "✓ Verified with a public key: a token HMAC-signed with that public key can pass (algorithm confusion)",
+        "⚠ Older jsonwebtoken / express-jwt versions also accept alg: none (check dependency findings)"
+      ],
+      "remediation": "Pin the algorithms: jwt.verify(token, publicKey, { algorithms: ['RS256'] }) / expressjwt({ secret: publicKey, algorithms: ['RS256'] }), and keep jsonwebtoken ≥ 9 / express-jwt ≥ 7.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "jwt"
+      ]
+    },
+    {
+      "id": "crypto-lib_insecurity_ts-53",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Math.random() for a Security Value + JWT Verified Without Algorithm Allowlist)",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "Math.random() is a fast, predictable generator. Values used as secrets, tokens, or challenges can be guessed by an attacker who has seen a few earlier outputs. The token header picks the algorithm. Without an allowlist, an attacker can switch it (e.g. RS256 → HS256 using the public key as the HMAC secret, or none on old library versions) and forge tokens.",
+      "file": "lib/insecurity.ts",
+      "line": 53,
+      "snippet": "export const denyAll = () => expressJwt({ secret: '' + Math.random() } as any)",
+      "context": [
+        "✓ Math.random() is not cryptographically secure (its output can be predicted from earlier outputs)",
+        "✓ Value feeds something security-related on this line (secret / token / password / salt …)",
+        "? Check whether an attacker benefits from guessing the value",
+        "✓ express-jwt called without an algorithms: [...] allowlist",
+        "? Key type unclear: the risk is highest when a public (RSA/EC) key is used",
+        "⚠ Older jsonwebtoken / express-jwt versions also accept alg: none (check dependency findings)"
+      ],
+      "remediation": "Use the crypto module: crypto.randomBytes(32).toString('hex') for tokens, crypto.randomInt(min, max) for numbers, crypto.randomUUID() for ids. Pin the algorithms: jwt.verify(token, publicKey, { algorithms: ['RS256'] }) / expressjwt({ secret: publicKey, algorithms: ['RS256'] }), and keep jsonwebtoken ≥ 9 / express-jwt ≥ 7.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-random",
+        "jwt"
+      ]
+    },
+    {
+      "id": "crypto-lib_insecurity_ts-189",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (JWT Verified Without Algorithm Allowlist)",
+      "severity": "high",
+      "confidence": 0.7,
+      "description": "The token header picks the algorithm. Without an allowlist, an attacker can switch it (e.g. RS256 → HS256 using the public key as the HMAC secret, or none on old library versions) and forge tokens.",
+      "file": "lib/insecurity.ts",
+      "line": 189,
+      "snippet": "jwt.verify(token, publicKey, (err: Error | null, decoded: any) => {",
+      "context": [
+        "✓ jwt.verify called without an algorithms: [...] allowlist",
+        "✓ Verified with a public key: a token HMAC-signed with that public key can pass (algorithm confusion)",
+        "⚠ Older jsonwebtoken / express-jwt versions also accept alg: none (check dependency findings)"
+      ],
+      "remediation": "Pin the algorithms: jwt.verify(token, publicKey, { algorithms: ['RS256'] }) / expressjwt({ secret: publicKey, algorithms: ['RS256'] }), and keep jsonwebtoken ≥ 9 / express-jwt ≥ 7.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "jwt"
+      ]
+    },
+    {
+      "id": "crypto-routes_captcha_ts-14",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Math.random() for a Security Value)",
+      "severity": "low",
+      "confidence": 0.35,
+      "description": "Math.random() is a fast, predictable generator. Values used as secrets, tokens, or challenges can be guessed by an attacker who has seen a few earlier outputs.",
+      "file": "routes/captcha.ts",
+      "line": 14,
+      "snippet": "const firstTerm = Math.floor((Math.random() * 10) + 1)",
+      "context": [
+        "✓ Math.random() is not cryptographically secure (its output can be predicted from earlier outputs)",
+        "⚠ Inside captchas(), which sounds security-related",
+        "? Check whether an attacker benefits from guessing the value"
+      ],
+      "remediation": "Use the crypto module: crypto.randomBytes(32).toString('hex') for tokens, crypto.randomInt(min, max) for numbers, crypto.randomUUID() for ids.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-random"
+      ]
+    },
+    {
+      "id": "crypto-routes_captcha_ts-15",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Math.random() for a Security Value)",
+      "severity": "low",
+      "confidence": 0.35,
+      "description": "Math.random() is a fast, predictable generator. Values used as secrets, tokens, or challenges can be guessed by an attacker who has seen a few earlier outputs.",
+      "file": "routes/captcha.ts",
+      "line": 15,
+      "snippet": "const secondTerm = Math.floor((Math.random() * 10) + 1)",
+      "context": [
+        "✓ Math.random() is not cryptographically secure (its output can be predicted from earlier outputs)",
+        "⚠ Inside captchas(), which sounds security-related",
+        "? Check whether an attacker benefits from guessing the value"
+      ],
+      "remediation": "Use the crypto module: crypto.randomBytes(32).toString('hex') for tokens, crypto.randomInt(min, max) for numbers, crypto.randomUUID() for ids.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-random"
+      ]
+    },
+    {
+      "id": "crypto-routes_captcha_ts-16",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Math.random() for a Security Value)",
+      "severity": "low",
+      "confidence": 0.35,
+      "description": "Math.random() is a fast, predictable generator. Values used as secrets, tokens, or challenges can be guessed by an attacker who has seen a few earlier outputs.",
+      "file": "routes/captcha.ts",
+      "line": 16,
+      "snippet": "const thirdTerm = Math.floor((Math.random() * 10) + 1)",
+      "context": [
+        "✓ Math.random() is not cryptographically secure (its output can be predicted from earlier outputs)",
+        "⚠ Inside captchas(), which sounds security-related",
+        "? Check whether an attacker benefits from guessing the value"
+      ],
+      "remediation": "Use the crypto module: crypto.randomBytes(32).toString('hex') for tokens, crypto.randomInt(min, max) for numbers, crypto.randomUUID() for ids.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-random"
+      ]
+    },
+    {
+      "id": "crypto-routes_captcha_ts-18",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Math.random() for a Security Value)",
+      "severity": "low",
+      "confidence": 0.35,
+      "description": "Math.random() is a fast, predictable generator. Values used as secrets, tokens, or challenges can be guessed by an attacker who has seen a few earlier outputs.",
+      "file": "routes/captcha.ts",
+      "line": 18,
+      "snippet": "const firstOperator = operators[Math.floor((Math.random() * 3))]",
+      "context": [
+        "✓ Math.random() is not cryptographically secure (its output can be predicted from earlier outputs)",
+        "⚠ Inside captchas(), which sounds security-related",
+        "? Check whether an attacker benefits from guessing the value"
+      ],
+      "remediation": "Use the crypto module: crypto.randomBytes(32).toString('hex') for tokens, crypto.randomInt(min, max) for numbers, crypto.randomUUID() for ids.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-random"
+      ]
+    },
+    {
+      "id": "crypto-routes_captcha_ts-19",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Math.random() for a Security Value)",
+      "severity": "low",
+      "confidence": 0.35,
+      "description": "Math.random() is a fast, predictable generator. Values used as secrets, tokens, or challenges can be guessed by an attacker who has seen a few earlier outputs.",
+      "file": "routes/captcha.ts",
+      "line": 19,
+      "snippet": "const secondOperator = operators[Math.floor((Math.random() * 3))]",
+      "context": [
+        "✓ Math.random() is not cryptographically secure (its output can be predicted from earlier outputs)",
+        "⚠ Inside captchas(), which sounds security-related",
+        "? Check whether an attacker benefits from guessing the value"
+      ],
+      "remediation": "Use the crypto module: crypto.randomBytes(32).toString('hex') for tokens, crypto.randomInt(min, max) for numbers, crypto.randomUUID() for ids.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-random"
+      ]
+    },
+    {
+      "id": "crypto-routes_continueCode_ts-13",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Hashids With Hardcoded Salt)",
+      "severity": "medium",
+      "confidence": 0.7,
+      "description": "Hashids only obfuscates numbers. With the salt in the source, encoded values can be decoded and new valid ones generated.",
+      "file": "routes/continueCode.ts",
+      "line": 13,
+      "snippet": "const hashids = new Hashids('this is my salt', 60, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')",
+      "context": [
+        "✓ Hashids salt is a literal (or missing)",
+        "✓ Hashids is reversible encoding, not encryption: with the salt, anyone can decode and mint ids",
+        "? Check whether the encoded ids grant access or progress (e.g. continue codes, share links)"
+      ],
+      "remediation": "Don't use Hashids for anything an attacker shouldn't forge. Use random tokens (crypto.randomBytes) stored server-side, or sign the value (HMAC with a key from the environment).",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "encoding-as-crypto"
+      ]
+    },
+    {
+      "id": "crypto-routes_continueCode_ts-25",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Hashids With Hardcoded Salt)",
+      "severity": "medium",
+      "confidence": 0.7,
+      "description": "Hashids only obfuscates numbers. With the salt in the source, encoded values can be decoded and new valid ones generated.",
+      "file": "routes/continueCode.ts",
+      "line": 25,
+      "snippet": "const hashids = new Hashids('this is the salt for findIt challenges', 60, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRS",
+      "context": [
+        "✓ Hashids salt is a literal (or missing)",
+        "✓ Hashids is reversible encoding, not encryption: with the salt, anyone can decode and mint ids",
+        "? Check whether the encoded ids grant access or progress (e.g. continue codes, share links)"
+      ],
+      "remediation": "Don't use Hashids for anything an attacker shouldn't forge. Use random tokens (crypto.randomBytes) stored server-side, or sign the value (HMAC with a key from the environment).",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "encoding-as-crypto"
+      ]
+    },
+    {
+      "id": "crypto-routes_continueCode_ts-38",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Hashids With Hardcoded Salt)",
+      "severity": "medium",
+      "confidence": 0.7,
+      "description": "Hashids only obfuscates numbers. With the salt in the source, encoded values can be decoded and new valid ones generated.",
+      "file": "routes/continueCode.ts",
+      "line": 38,
+      "snippet": "const hashids = new Hashids('yet another salt for the fixIt challenges', 60, 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOP",
+      "context": [
+        "✓ Hashids salt is a literal (or missing)",
+        "✓ Hashids is reversible encoding, not encryption: with the salt, anyone can decode and mint ids",
+        "? Check whether the encoded ids grant access or progress (e.g. continue codes, share links)"
+      ],
+      "remediation": "Don't use Hashids for anything an attacker shouldn't forge. Use random tokens (crypto.randomBytes) stored server-side, or sign the value (HMAC with a key from the environment).",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "encoding-as-crypto"
+      ]
+    },
+    {
+      "id": "crypto-routes_restoreProgress_ts-18",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Hashids With Hardcoded Salt)",
+      "severity": "medium",
+      "confidence": 0.7,
+      "description": "Hashids only obfuscates numbers. With the salt in the source, encoded values can be decoded and new valid ones generated.",
+      "file": "routes/restoreProgress.ts",
+      "line": 18,
+      "snippet": "const hashids = new Hashids('this is my salt', 60, hashidsAlphabet)",
+      "context": [
+        "✓ Hashids salt is a literal (or missing)",
+        "✓ Hashids is reversible encoding, not encryption: with the salt, anyone can decode and mint ids",
+        "? Check whether the encoded ids grant access or progress (e.g. continue codes, share links)"
+      ],
+      "remediation": "Don't use Hashids for anything an attacker shouldn't forge. Use random tokens (crypto.randomBytes) stored server-side, or sign the value (HMAC with a key from the environment).",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "encoding-as-crypto"
+      ]
+    },
+    {
+      "id": "crypto-routes_restoreProgress_ts-42",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Hashids With Hardcoded Salt)",
+      "severity": "medium",
+      "confidence": 0.7,
+      "description": "Hashids only obfuscates numbers. With the salt in the source, encoded values can be decoded and new valid ones generated.",
+      "file": "routes/restoreProgress.ts",
+      "line": 42,
+      "snippet": "const hashids = new Hashids('this is the salt for findIt challenges', 60, hashidsAlphabet)",
+      "context": [
+        "✓ Hashids salt is a literal (or missing)",
+        "✓ Hashids is reversible encoding, not encryption: with the salt, anyone can decode and mint ids",
+        "? Check whether the encoded ids grant access or progress (e.g. continue codes, share links)"
+      ],
+      "remediation": "Don't use Hashids for anything an attacker shouldn't forge. Use random tokens (crypto.randomBytes) stored server-side, or sign the value (HMAC with a key from the environment).",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "encoding-as-crypto"
+      ]
+    },
+    {
+      "id": "crypto-routes_restoreProgress_ts-62",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Hashids With Hardcoded Salt)",
+      "severity": "medium",
+      "confidence": 0.7,
+      "description": "Hashids only obfuscates numbers. With the salt in the source, encoded values can be decoded and new valid ones generated.",
+      "file": "routes/restoreProgress.ts",
+      "line": 62,
+      "snippet": "const hashids = new Hashids('yet another salt for the fixIt challenges', 60, hashidsAlphabet)",
+      "context": [
+        "✓ Hashids salt is a literal (or missing)",
+        "✓ Hashids is reversible encoding, not encryption: with the salt, anyone can decode and mint ids",
+        "? Check whether the encoded ids grant access or progress (e.g. continue codes, share links)"
+      ],
+      "remediation": "Don't use Hashids for anything an attacker shouldn't forge. Use random tokens (crypto.randomBytes) stored server-side, or sign the value (HMAC with a key from the environment).",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "encoding-as-crypto"
+      ]
+    },
+    {
+      "id": "crypto-routes_verify_ts-125",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (JWT Verified Without Algorithm Allowlist)",
+      "severity": "high",
+      "confidence": 0.7,
+      "description": "The token header picks the algorithm. Without an allowlist, an attacker can switch it (e.g. RS256 → HS256 using the public key as the HMAC secret, or none on old library versions) and forge tokens.",
+      "file": "routes/verify.ts",
+      "line": 125,
+      "snippet": "jwt.verify(token, security.publicKey, (err: jwt.VerifyErrors | null) => {",
+      "context": [
+        "✓ jwt.verify called without an algorithms: [...] allowlist",
+        "✓ Verified with a public key: a token HMAC-signed with that public key can pass (algorithm confusion)",
+        "⚠ Older jsonwebtoken / express-jwt versions also accept alg: none (check dependency findings)"
+      ],
+      "remediation": "Pin the algorithms: jwt.verify(token, publicKey, { algorithms: ['RS256'] }) / expressjwt({ secret: publicKey, algorithms: ['RS256'] }), and keep jsonwebtoken ≥ 9 / express-jwt ≥ 7.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "jwt"
+      ]
+    },
+    {
+      "id": "crypto-scripts_package_mjs-121",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Weak Hash (MD5))",
+      "severity": "low",
+      "confidence": 0.4,
+      "description": "MD5 is used where its output may protect a secret. It is fast to brute-force and collisions are practical, so hashed passwords and tokens derived from guessable values can be recovered or forged.",
+      "file": "scripts/package.mjs",
+      "line": 121,
+      "snippet": "const hash = crypto.createHash('md5').update(content).digest('hex')",
+      "context": [
+        "✓ MD5 is broken for security use (fast to brute-force, practical collisions)",
+        "⚠ Looks like a file checksum (integrity, not secrecy)",
+        "? Collisions still matter if an attacker can supply the file"
+      ],
+      "remediation": "Passwords: use a slow, salted KDF: await bcrypt.hash(password, 12) or crypto.scryptSync(password, salt, 64). Tokens: generate them randomly (crypto.randomBytes(32).toString('hex')) and store a SHA-256 of the token. Integrity checks: use SHA-256.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-hash"
+      ]
     }
   ],
   "coverage": {
@@ -3778,31 +4282,31 @@
       "Dependency CVEs",
       "Hardcoded Secrets",
       "SQL Injection Patterns",
-      "XSS Vulnerabilities"
+      "XSS Vulnerabilities",
+      "Insecure Crypto Usage"
     ],
-    "checkedCount": 4,
+    "checkedCount": 5,
     "notYetChecked": [
-      "Insecure Crypto Usage",
       "CORS Misconfiguration",
       "Async Footguns",
       "Permission Creep",
       "Logging PII"
     ],
     "findingsByType": {
-      "dependency-cve": 66,
+      "dependency-cve": 67,
       "hardcoded-secret": 27,
       "sql-injection": 13,
       "xss": 19,
-      "crypto-misuse": 0,
+      "crypto-misuse": 18,
       "async-footgun": 0
     }
   },
   "summary": {
-    "total": 125,
+    "total": 144,
     "critical": 12,
-    "high": 34,
-    "medium": 57,
-    "low": 22,
+    "high": 39,
+    "medium": 65,
+    "low": 28,
     "info": 0
   },
   "source": {

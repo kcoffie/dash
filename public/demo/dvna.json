@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-05T17:56:47.822Z",
+  "timestamp": "2026-10-06T18:36:50.961Z",
   "targetPath": "dvna",
   "findings": [
     {
@@ -2196,6 +2196,60 @@
         "injection",
         "dom"
       ]
+    },
+    {
+      "id": "crypto-core_authHandler_js-49",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Weak Hash (MD5))",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "MD5 is used where its output may protect a secret. It is fast to brute-force and collisions are practical, so hashed passwords and tokens derived from guessable values can be recovered or forged.",
+      "file": "core/authHandler.js",
+      "line": 49,
+      "snippet": "if (req.query.token == md5(req.query.login)) {",
+      "context": [
+        "✓ MD5 is broken for security use (fast to brute-force, practical collisions)",
+        "✓ Hashes or compares a password / token / secret on this line",
+        "✓ Request input (req.*) on the same line",
+        "⚠ No salt visible (identical inputs give identical hashes)"
+      ],
+      "remediation": "Passwords: use a slow, salted KDF: await bcrypt.hash(password, 12) or crypto.scryptSync(password, salt, 64). Tokens: generate them randomly (crypto.randomBytes(32).toString('hex')) and store a SHA-256 of the token. Integrity checks: use SHA-256.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-hash"
+      ]
+    },
+    {
+      "id": "crypto-core_authHandler_js-78",
+      "type": "crypto-misuse",
+      "title": "Insecure Crypto (Weak Hash (MD5))",
+      "severity": "high",
+      "confidence": 0.8,
+      "description": "MD5 is used where its output may protect a secret. It is fast to brute-force and collisions are practical, so hashed passwords and tokens derived from guessable values can be recovered or forged.",
+      "file": "core/authHandler.js",
+      "line": 78,
+      "snippet": "if (req.body.token == md5(req.body.login)) {",
+      "context": [
+        "✓ MD5 is broken for security use (fast to brute-force, practical collisions)",
+        "✓ Hashes or compares a password / token / secret on this line",
+        "✓ Request input (req.*) on the same line",
+        "⚠ No salt visible (identical inputs give identical hashes)"
+      ],
+      "remediation": "Passwords: use a slow, salted KDF: await bcrypt.hash(password, 12) or crypto.scryptSync(password, salt, 64). Tokens: generate them randomly (crypto.randomBytes(32).toString('hex')) and store a SHA-256 of the token. Integrity checks: use SHA-256.",
+      "references": [
+        "https://owasp.org/Top10/A02_2021-Cryptographic_Failures/",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Cryptographic_Storage_Cheat_Sheet.html",
+        "https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html"
+      ],
+      "tags": [
+        "crypto",
+        "weak-hash"
+      ]
     }
   ],
   "coverage": {
@@ -2203,11 +2257,11 @@
       "Dependency CVEs",
       "Hardcoded Secrets",
       "SQL Injection Patterns",
-      "XSS Vulnerabilities"
+      "XSS Vulnerabilities",
+      "Insecure Crypto Usage"
     ],
-    "checkedCount": 4,
+    "checkedCount": 5,
     "notYetChecked": [
-      "Insecure Crypto Usage",
       "CORS Misconfiguration",
       "Async Footguns",
       "Permission Creep",
@@ -2218,14 +2272,14 @@
       "hardcoded-secret": 1,
       "sql-injection": 1,
       "xss": 10,
-      "crypto-misuse": 0,
+      "crypto-misuse": 2,
       "async-footgun": 0
     }
   },
   "summary": {
-    "total": 70,
+    "total": 72,
     "critical": 16,
-    "high": 20,
+    "high": 22,
     "medium": 28,
     "low": 6,
     "info": 0
