@@ -19,11 +19,11 @@ async function testMissingPackageJson() {
   const testPath = setup('missing-package-json');
   const { findings, errors } = await scanDependencies(testPath);
 
-  if (errors.length > 0 && errors[0].includes('No package.json')) {
+  if (findings.length === 0 && errors.length > 0 && errors[0].includes('No package.json')) {
     console.log('✓ Missing package.json: gracefully skipped');
     return true;
   }
-  console.log('✗ Missing package.json: should have errored');
+  console.log('✗ Missing package.json: should error with no findings');
   return false;
 }
 
@@ -33,11 +33,11 @@ async function testMalformedJson() {
 
   const { findings, errors } = await scanDependencies(testPath);
 
-  if (errors.length > 0 && errors[0].includes('Malformed')) {
+  if (findings.length === 0 && errors.length > 0 && errors[0].includes('Malformed')) {
     console.log('✓ Malformed JSON: error caught');
     return true;
   }
-  console.log('✗ Malformed JSON: should have errored');
+  console.log('✗ Malformed JSON: should error with no findings');
   return false;
 }
 
