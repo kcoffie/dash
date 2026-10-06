@@ -8,6 +8,8 @@
     "demo:export": "node scripts/export-demo.js",
     "screenshots": "node scripts/screenshots.js",
     "test": "node --test 'src/**/__tests__/*.test.js'",
+    "mutate": "stryker run",
+    "mutate:changed": "node scripts/mutate-changed.js",
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
@@ -20,6 +22,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@stryker-mutator/core": "^10.0.0",
     "@tailwindcss/vite": "^4.2.1",
     "@vitejs/plugin-react": "^5.1.1",
     "eslint": "^9.39.1",
@@ -29,5 +32,8 @@
     "globals": "^17.13.0",
     "tailwindcss": "^4.1.18",
     "vite": "^7.2.4"
+  },
+  "overrides": {
+    "qs": "^6.16.0"
   }
 }

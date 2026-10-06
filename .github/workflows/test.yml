@@ -20,3 +20,51 @@ jobs:
       - run: npm run lint
       # Catches a dashboard that no longer compiles
       - run: npm run build
+
+  # PRs: only the scanner/utils lines this PR changed are mutated (fast). At least 80% of
+  # planted bugs must be caught. A PR also can't lower the ratchet (thresholds.break).
+  # See docs/ENGINEERING_PROCESS.md.
+  mutation-changed:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Ratchet can only go up
+        run: |
+          base=$(git show origin/${{ github.base_ref }}:stryker.config.json 2>/dev/null | node -pe 'try { JSON.parse(require("fs").readFileSync(0)).thresholds.break ?? 0 } catch { 0 }')
+          head=$(node -pe 'require("./stryker.config.json").thresholds.break')
+          echo "break: base $base, this PR $head"
+          node -e "process.exit(Number($head) >= Number($base) ? 0 : 1)" || { echo "::error::thresholds.break was lowered ($base -> $head)"; exit 1; }
+      - run: npm run mutate:changed -- origin/${{ github.base_ref }} --concurrency 4
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-changed-report
+          path: out/mutation-changed.html
+
+  # After merge: the whole-project score (slow). Turns main red if it fell below the ratchet.
+  mutation-full:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx stryker run --concurrency 4
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mutation-report
+          path: out/mutation.html
