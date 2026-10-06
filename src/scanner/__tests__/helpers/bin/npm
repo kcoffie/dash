@@ -2,7 +2,7 @@
 // Stand-in `npm` for tests (see ../fake-npm.js). Replays a recorded `npm audit --json
 // [--omit=dev]`: stdout (audit.json / audit-omit-dev.json), stderr (audit.stderr, if
 // recorded), and the exit code real npm uses (1 on an error or any vulnerability, else 0).
-// Anything else fails. Uses process.getBuiltinModule so it runs the same whether Node treats
+// `npm install --package-lock-only` writes the recorded lockfile. Anything else fails. Uses process.getBuiltinModule so it runs the same whether Node treats
 // this extensionless file as CommonJS or ESM.
 const fs = process.getBuiltinModule('fs');
 const path = process.getBuiltinModule('path');
@@ -15,6 +15,11 @@ if (args[0] === 'audit' && args.includes('--json')) {
   if (fs.existsSync(stderr)) process.stderr.write(fs.readFileSync(stderr, 'utf-8'));
   const audit = JSON.parse(json);
   process.exit(audit.error || audit.metadata.vulnerabilities.total > 0 ? 1 : 0);
+}
+// No lockfile: the scanner resolves one in a temp dir first. Replay it from the recording.
+if (args[0] === 'install' && args.includes('--package-lock-only')) {
+  fs.copyFileSync(path.join(dir, 'package-lock.fixture.json'), path.join(process.cwd(), 'package-lock.json'));
+  process.exit(0);
 }
 process.stderr.write(`npm error fake npm: unexpected call: npm ${args.join(' ')}\n`);
 process.exit(1);
