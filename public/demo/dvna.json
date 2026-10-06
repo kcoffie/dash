@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-06T18:36:50.961Z",
+  "timestamp": "2026-10-06T19:03:35.373Z",
   "targetPath": "dvna",
   "findings": [
     {
@@ -2250,6 +2250,396 @@
         "crypto",
         "weak-hash"
       ]
+    },
+    {
+      "id": "async-core_appHandler_js-48",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/appHandler.js",
+      "line": 48,
+      "snippet": "db.Product.findAll().then(products => {",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "? Errors thrown inside the .then() callbacks become rejections too"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_appHandler_js-59",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/appHandler.js",
+      "line": 59,
+      "snippet": "db.Product.findAll({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "✓ Request input (req.*) feeds the promise: a crafted request can make it reject"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_appHandler_js-85",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/appHandler.js",
+      "line": 85,
+      "snippet": "db.Product.find({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "✓ Request input (req.*) feeds the promise: a crafted request can make it reject"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_appHandler_js-107",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/appHandler.js",
+      "line": 107,
+      "snippet": "db.Product.find({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "✓ Request input (req.*) feeds the promise: a crafted request can make it reject"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_appHandler_js-145",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/appHandler.js",
+      "line": 145,
+      "snippet": "db.User.find({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "✓ Request input (req.*) feeds the promise: a crafted request can make it reject"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_appHandler_js-175",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/appHandler.js",
+      "line": 175,
+      "snippet": "user.save().then(function () {",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "? Errors thrown inside the .then() callbacks become rejections too"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_appHandler_js-207",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/appHandler.js",
+      "line": 207,
+      "snippet": "db.User.findAll({}).then(users => {",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "? Errors thrown inside the .then() callbacks become rejections too"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_authHandler_js-21",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/authHandler.js",
+      "line": 21,
+      "snippet": "db.User.find({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "✓ Request input (req.*) feeds the promise: a crafted request can make it reject"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_authHandler_js-43",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/authHandler.js",
+      "line": 43,
+      "snippet": "db.User.find({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "✓ Request input (req.*) feeds the promise: a crafted request can make it reject"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_authHandler_js-72",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/authHandler.js",
+      "line": 72,
+      "snippet": "db.User.find({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "✓ Request input (req.*) feeds the promise: a crafted request can make it reject"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_authHandler_js-80",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/authHandler.js",
+      "line": 80,
+      "snippet": "user.save().then(function () {",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn't catch it), otherwise the request hangs",
+        "? Errors thrown inside the .then() callbacks become rejections too"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_passport_js-13",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/passport.js",
+      "line": 13,
+      "snippet": "db.User.findOne({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside an auth callback (passport): a rejection exits the process on Node ≥ 15, otherwise login hangs",
+        "? Errors thrown inside the .then() callbacks become rejections too"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_passport_js-31",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/passport.js",
+      "line": 31,
+      "snippet": "db.User.findOne({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside an auth callback (passport): a rejection exits the process on Node ≥ 15, otherwise login hangs",
+        "? Errors thrown inside the .then() callbacks become rejections too"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_passport_js-55",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "medium",
+      "confidence": 0.6,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/passport.js",
+      "line": 55,
+      "snippet": "db.User.findOne({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside an auth callback (passport): a rejection exits the process on Node ≥ 15, otherwise login hangs",
+        "? Errors thrown inside the .then() callbacks become rejections too"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
+    },
+    {
+      "id": "async-core_passport_js-65",
+      "type": "async-footgun",
+      "title": "Async Footgun (Promise Without .catch())",
+      "severity": "high",
+      "confidence": 0.75,
+      "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
+      "file": "core/passport.js",
+      "line": 65,
+      "snippet": "db.User.create({",
+      "context": [
+        "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
+        "✓ Inside an auth callback (passport): a rejection exits the process on Node ≥ 15, otherwise login hangs",
+        "✓ Request input (req.*) feeds the promise: a crafted request can make it reject"
+      ],
+      "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
+      "references": [
+        "https://nodejs.org/api/cli.html#--unhandled-rejectionsmode",
+        "https://expressjs.com/en/guide/error-handling.html",
+        "https://cwe.mitre.org/data/definitions/248.html"
+      ],
+      "tags": [
+        "async",
+        "unhandled-rejection"
+      ]
     }
   ],
   "coverage": {
@@ -2258,12 +2648,12 @@
       "Hardcoded Secrets",
       "SQL Injection Patterns",
       "XSS Vulnerabilities",
-      "Insecure Crypto Usage"
+      "Insecure Crypto Usage",
+      "Async Footguns"
     ],
-    "checkedCount": 5,
+    "checkedCount": 6,
     "notYetChecked": [
       "CORS Misconfiguration",
-      "Async Footguns",
       "Permission Creep",
       "Logging PII"
     ],
@@ -2273,14 +2663,14 @@
       "sql-injection": 1,
       "xss": 10,
       "crypto-misuse": 2,
-      "async-footgun": 0
+      "async-footgun": 15
     }
   },
   "summary": {
-    "total": 72,
+    "total": 87,
     "critical": 16,
-    "high": 22,
-    "medium": 28,
+    "high": 30,
+    "medium": 35,
     "low": 6,
     "info": 0
   },
