@@ -20,7 +20,7 @@ Real vulnerability scanner + interactive dashboard for portfolio. It scores find
 ## Features
 
 - **Dependency Scanning**: Parse `package.json` → npm audit advisories with the patched version (Node.js only for now)
-- **Pattern Detection**: hardcoded secrets, SQL injection, XSS. Insecure crypto and async footguns are planned.
+- **Pattern Detection**: hardcoded secrets, SQL injection, XSS, insecure crypto (weak hashes, hardcoded keys, broken ciphers, `Math.random()` for secrets, JWT algorithm confusion, Hashids salts). Async footguns are planned.
 - **Contextual Scoring**: Not just "vuln found" → "exploitable if X AND Y AND Z". Each finding lists the ✓ / ⚠ / ? factors that moved its severity (user input on the line, route handler, escaping nearby, test or training code).
 - **Coverage Report**: Shows what was checked *and* what isn't supported yet, so 0 findings means "clean", not "never looked"
 - **Interactive Dashboard**: Severity cards, a findings-by-type chart, search, severity and type filters, expandable rows explaining each score. Dark mode follows the system setting, and the layout works on phones.
@@ -61,15 +61,16 @@ The same construct in Juice Shop's `data/static/codefixes/` training snippets ne
 
 The live demo shows these scans. Each one is committed under `public/demo/` with secrets redacted and pinned to the commit shown.
 
-| Target | Dependency CVEs | Secrets | SQL injection | XSS | Total |
-|---|---|---|---|---|---|
-| [OWASP Juice Shop](https://github.com/juice-shop/juice-shop) @ `1618a61` | 66 (8 critical, 27 high; 3 dev-only → low) | 27 (3 private keys, 1 hardcoded test password, 23 seed-data passwords → medium) | 13 (1 critical, 1 high, 11 low snippets) | 19 (5 high, 8 medium, 6 low snippets) | 125 |
-| [DVNA](https://github.com/appsecco/dvna) @ `9ba473a` | 58 (15 critical, 19 high; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) | 70 |
-| [Express](https://github.com/expressjs/express) @ `7ef9844` | 4 (all dev-only → low) | 6 (all in `examples/`, low) | 0 (it has no SQL) | 54 (all low: `test/`, `examples/`) | 64 |
+| Target | Dependency CVEs | Secrets | SQL injection | XSS | Insecure crypto | Total |
+|---|---|---|---|---|---|---|
+| [OWASP Juice Shop](https://github.com/juice-shop/juice-shop) @ `1618a61` | 67 (8 critical, 27 high; 3 dev-only → low) | 27 (3 private keys, 1 hardcoded test password, 23 seed-data passwords → medium) | 13 (1 critical, 1 high, 11 low snippets) | 19 (5 high, 8 medium, 6 low snippets) | 18 (5 high, 7 medium, 6 low) | 144 |
+| [DVNA](https://github.com/appsecco/dvna) @ `9ba473a` | 58 (15 critical, 19 high; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) | 2 (high: MD5 reset token) | 72 |
+| [Express](https://github.com/expressjs/express) @ `7ef9844` | 5 (all dev-only → low) | 6 (all in `examples/`, low) | 0 (it has no SQL) | 54 (all low: `test/`, `examples/`) | 0 (no crypto sinks) | 65 |
 
 **Recall against known answers.** Juice Shop and DVNA document their intended vulnerabilities, which gives an answer key:
 - **SQL injection:** 3/3 found (`juice-shop/routes/login.ts:34`, `juice-shop/routes/search.ts:23`, `dvna/core/appHandler.js:10`). Juice Shop's static query and its "correct fix" files are not flagged.
 - **XSS:** 8 of 9 Juice Shop challenges and 3/3 DVNA. The miss is Juice Shop's CSP Bypass: user input is spliced into a Pug template string that is then compiled. That's template injection, which the scanner doesn't detect yet.
+- **Insecure crypto:** 5 of 6 code-level Juice Shop crypto challenges (Password Strength, Weird Crypto, Imaginary Challenge, Unsigned JWT, Forged Signed JWT) and 1/1 DVNA (reset token = `md5(login)`, both sites). The miss is Forged Coupon (z85 encoding used as if it were crypto), left out on purpose: an encoder call alone doesn't say it protects anything. Juice Shop's MD5 lives in a generic `hash()` helper; the scanner traces its callers and reports it **high** because 6 of them hash passwords. Express has no crypto sinks and gets 0 findings.
 
 **Known limitations** (tracked in [HANDOFF.md → Open TODOs](HANDOFF.md#open-todos)):
 - **Versions are resolved at scan time without a lockfile.** None of the three targets commits one, so npm resolves what it would install today, and counts can change between scans. Each finding says so.
@@ -95,8 +96,8 @@ Without a local `scanner-output.json`, the dashboard opens the Juice Shop demo. 
 ## Talking Points
 
 - **The problem:** pattern scanners flag every match, so real issues drown in noise. This one scores exploitability and shows its reasoning: the login SQL injection above is critical for stated reasons, and the identical code in a training snippet is low.
-- **Measured, not claimed:** checked against two intentionally vulnerable apps with documented answers. SQL injection 3/3; XSS 8/9 Juice Shop challenges + 3/3 DVNA. The one miss is a known gap (template injection).
-- **Honest coverage:** the report lists the 5 categories it doesn't check yet, so "0 findings" can't be mistaken for "secure".
+- **Measured, not claimed:** checked against two intentionally vulnerable apps with documented answers. SQL injection 3/3; XSS 8/9 Juice Shop challenges + 3/3 DVNA; insecure crypto 5/6 Juice Shop challenges + 1/1 DVNA. The misses are known gaps (template injection, z85 coupons).
+- **Honest coverage:** the report lists the 4 categories it doesn't check yet, so "0 findings" can't be mistaken for "secure".
 - **A silent failure I found in my own scanner:** `npm audit` needs a lockfile. On DVNA it failed, and the failure was read as "no vulnerabilities", so the demo showed 0 dependency CVEs. There are 58, 15 of them critical. Errors now surface in the report, and targets without a lockfile are resolved in a temp directory.
 - **Noise is a bug too:** Juice Shop's secret findings went from 41 (38 high) to 27. Fourteen were templated values like `${var.project_name}`, and the 23 seed-data passwords are now medium. The same pass closed blind spots that tests now cover: PKCS#8 private keys, GitLab tokens (the pattern had the wrong prefix), passwords in JSON, and session secrets (DVNA's).
 - **Trade-offs:**
@@ -104,12 +105,12 @@ Without a local `scanner-output.json`, the dashboard opens the Juice Shop demo. 
   - **Node.js only.**
   - **Recall over precision for now:** the secret noise is visible, not hidden.
 - **Engineering:**
-  - **Tests:** 102 across 8 suites (scanners, file walker, npm audit parsing, demo export, dashboard logic).
+  - **Tests:** 129 across 9 suites (scanners, file walker, npm audit parsing, demo export, dashboard logic).
   - **Protected `main`:** CI must pass (`npm ci` → `npm test` → `npm run lint` → `npm run build`) before anything merges.
   - **Fail-closed demo export:** it refuses to write a file that still contains a key format.
   - **Repo hygiene:** secret scanning and push protection are on.
   - **Accessibility:** contrast measured in light and dark mode, and chart colors checked for color-vision deficiency.
-- **Next:** the insecure-crypto and async scanners, then template injection.
+- **Next:** the async-footgun scanner, then template injection.
 
 ## Project Structure
 
@@ -127,7 +128,8 @@ public/demo/       # Committed, redacted demo scans served by the deployed dashb
 
 - [x] Week 1: Dependency scanner (npm audit integration)
 - [x] Week 1: Pattern scanner (hardcoded secrets, SQL injection, XSS)
-- [ ] Deferred: Pattern scanner (insecure crypto, async footguns)
+- [x] Deferred: Insecure crypto scanner
+- [ ] Deferred: Async footguns scanner
 - [x] Week 2: React dashboard with table, search, filtering, coverage report
 - [x] Week 2: Severity visualization, dark mode, phone layout
 - [x] Week 3: Demo data for three scans with a picker

@@ -61,10 +61,10 @@ export async function scanTarget(targetPath, { log = console.log, logError = con
         'Hardcoded Secrets',
         'SQL Injection Patterns',
         'XSS Vulnerabilities',
-      ],
-      checkedCount: 4,
-      notYetChecked: [
         'Insecure Crypto Usage',
+      ],
+      checkedCount: 5,
+      notYetChecked: [
         'CORS Misconfiguration',
         'Async Footguns',
         'Permission Creep',

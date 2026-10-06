@@ -1,8 +1,8 @@
 /**
  * Turns a scanner report into a demo report that's safe to commit to this public repo.
  * Scan targets like Juice Shop plant real-looking private keys, and a secret finding's
- * snippet (and id) would republish them, so those are redacted, and the result is checked
- * for key material before it's written.
+ * snippet (and id) would republish them, so those are redacted (as are hardcoded crypto keys),
+ * and the result is checked for key material before it's written.
  */
 
 import { PATTERNS } from './patterns/hardcoded-secrets.js';
@@ -28,9 +28,16 @@ export function keyMaterialIn(finding) {
 
 // source: { name, repo, commit } — name replaces the local scan path (e.g. /tmp/juice-shop)
 export function toDemoReport(report, { name, repo, commit }) {
-  const findings = report.findings.map((finding) => (finding.type === 'hardcoded-secret'
-    ? { ...finding, id: `secret-${finding.file}-${finding.line}`, snippet: REDACTED }
-    : finding));
+  const findings = report.findings.map((finding) => {
+    if (finding.type === 'hardcoded-secret') {
+      return { ...finding, id: `secret-${finding.file}-${finding.line}`, snippet: REDACTED };
+    }
+    // A hardcoded crypto key's snippet is the key itself (the id is just file + line)
+    if (finding.type === 'crypto-misuse' && finding.tags?.includes('hardcoded-key')) {
+      return { ...finding, snippet: REDACTED };
+    }
+    return finding;
+  });
 
   const leaks = findings
     .map((finding) => ({ finding, formats: keyMaterialIn(finding) }))

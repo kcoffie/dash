@@ -37,6 +37,24 @@ function testRedactsSecrets() {
   );
 }
 
+function testRedactsHardcodedCryptoKeys() {
+  // Juice Shop lib/insecurity.ts:42 — the snippet holds the HMAC key itself
+  const KEYED = {
+    id: 'crypto-lib_insecurity_ts-42', type: 'crypto-misuse', title: 'Insecure Crypto (Hardcoded HMAC Key)', severity: 'high',
+    file: 'lib/insecurity.ts', line: 42, snippet: "crypto.createHmac('sha256', 'not-a-real-key-123')", tags: ['crypto', 'hardcoded-key'],
+  };
+  const WEAK_HASH = {
+    id: 'crypto-lib_insecurity_ts-41', type: 'crypto-misuse', title: 'Insecure Crypto (Weak Hash (MD5))', severity: 'high',
+    file: 'lib/insecurity.ts', line: 41, snippet: "crypto.createHash('md5').update(data)", tags: ['crypto', 'weak-hash'],
+  };
+  const [keyed, weakHash] = toDemoReport(scan([KEYED, WEAK_HASH]), SOURCE).findings;
+  return report(
+    'Hardcoded-key crypto snippet redacted, other crypto findings untouched',
+    keyed.snippet === REDACTED && keyed.id === KEYED.id && keyed.title === KEYED.title && weakHash === WEAK_HASH,
+    JSON.stringify([keyed, weakHash]),
+  );
+}
+
 function testReplacesLocalPath() {
   const demo = toDemoReport(scan([SQLI]), SOURCE);
   return report(
@@ -77,6 +95,7 @@ function testKeyDetection() {
 
 const results = [
   testRedactsSecrets(),
+  testRedactsHardcodedCryptoKeys(),
   testReplacesLocalPath(),
   testDoesNotMutateInput(),
   testRefusesKeyMaterialOutsideSecrets(),
