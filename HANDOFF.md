@@ -1,9 +1,9 @@
 # Project Handoff — Security Audit Platform
 
 **Last updated:** 2026-10-06 (session 7)
-**Branch:** `main` @ `90740d7` has everything through PR #16 (ESLint). The crypto scanner is PR #17 (`feature/crypto-scanner`, `main` merged in), for the user to merge. `docs/session-6-wrap` (merged) still exists locally + on origin: deleting it was blocked by the agent's permission mode, so the user deletes it.
-**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS; crypto ✅ PR open) · CI gate ✅ (test + lint) · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy ✅ (PR #14; live demo now Juice Shop 125 / DVNA 70 / Express 64) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
-**Next step:** after PR #17 merges: #2.5 async-footgun scanner (START HERE step 6c), same measure-first approach.
+**Branch:** `main` @ `26f8757` has everything through PR #17 (crypto scanner). This wrap-up is PR #18 (`docs/session-7-wrap`, docs only); if it's still open, the user merges it. Merged branches `docs/session-6-wrap`, `chore/eslint`, `feature/crypto-scanner` may still exist locally/on origin: the agent's branch deletion was blocked by its permission mode, so the user deletes them.
+**Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS, crypto) · CI gate ✅ (test + lint) · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy ✅ (PR #14) · ESLint ✅ (PR #16) · crypto scanner ✅ (PR #17; live demo now Juice Shop 144 / DVNA 72 / Express 65, verified on the live `/demo/*.json`) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
+**Next step:** #2.5 async-footgun scanner (START HERE step 6c), same measure-first approach.
 
 ---
 
@@ -84,7 +84,7 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 - ✅ **ESLint (PR #16, merged by the user):** `eslint.config.js` with `@eslint/js` recommended, `globals` (browser for the dashboard, node for scanner/scripts/tests/configs), `eslint-plugin-react-hooks` 7 (`recommended-latest`), `eslint-plugin-react-refresh` 0.5 (`vite`), plus `eslint-plugin-react` for `jsx-uses-vars` only. Without it, 13 of 17 first-run errors were JSX components reported as unused. Vite's template hides those with `varsIgnorePattern: '^[A-Z_]'`, which would hide real unused capitals too. Stayed on ESLint 9 (10 is out; TODO).
   - Real findings fixed, no rules disabled: severity color constants moved to `severity-styles.js` (Fast Refresh; built CSS byte-identical); dependency-scanner tests now assert error paths return no findings (mutation-checked: fail when an error path returns a finding); unused `catch (error)` bindings in SQLi/XSS (surfaced the silent-skip TODO).
   - CI: `npm run lint` between test and build. Checked it exits 1 on an error.
-- ✅ **Insecure crypto scanner (`feature/crypto-scanner`, PR #17 for the user to merge)**: answer key + candidate counts measured first, then 7 scoring decisions by the user (see the answer-key section). 26 tests, mutation-checked (a stub fails 21/26; each removed rule fails a test). Demo export now also redacts hardcoded-key crypto snippets (test failed against the old export). `Insecure Crypto Usage` moved to `coverage.checked`. Demo data regenerated (Juice Shop 125 → 144, DVNA 70 → 72, Express 64 → 65; nothing removed), screenshots retaken from a local build and checked (light, dark, phone).
+- ✅ **Insecure crypto scanner (PR #17, merged by the user; live site verified: 18 / 2 / 0 crypto findings, 5 categories checked, HMAC key redacted)**: answer key + candidate counts measured first, then 7 scoring decisions by the user (see the answer-key section). 26 tests, mutation-checked (a stub fails 21/26; each removed rule fails a test). Demo export now also redacts hardcoded-key crypto snippets (test failed against the old export). `Insecure Crypto Usage` moved to `coverage.checked`. Demo data regenerated (Juice Shop 125 → 144, DVNA 70 → 72, Express 64 → 65; nothing removed), screenshots retaken from a local build and checked (light, dark, phone).
 
 ## What We Did in Session 6 (2026-10-05)
 
@@ -218,7 +218,7 @@ Design decisions: template files (`.html/.ejs/.pug/.hbs/.vue`) are scanned for X
 
 ```
 Design Phase     ████████████████████████████████ 100% ✅
-Week 1 Scanner   █████████████████████████████░░░  90% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ✅ PR open | async ⏳)
+Week 1 Scanner   █████████████████████████████░░░  90% ✅  (deps ✅ secrets ✅ SQLi ✅ XSS ✅ merged | crypto ✅ PR #17 | async ⏳)
 Week 2 Dashboard ████████████████████████████████ 100% ✅  (core ✅ PR #7 | polish ✅ PR #9)
 Week 3 Deploy    ████████████████░░░░░░░░░░░░░░░░  50% 🟡  (demo data + picker ✅ PR #10 | Vercel import ⏳ user | README/demo ⏳)
 ```
@@ -229,7 +229,7 @@ Week 3 Deploy    ████████████████░░░░░
 | #2.1 Hardcoded secrets | ✅ Merged to `main` (PR #2) | `src/scanner/patterns/hardcoded-secrets.js` |
 | #2.2 SQL injection | ✅ Merged to `main` (PR #2) | `src/scanner/patterns/sql-injection.js` |
 | #2.3 XSS | ✅ Merged to `main` (PR #2) — see TODOs | `src/scanner/patterns/xss.js` |
-| #2.4 Insecure crypto | ✅ PR open (session 7) | `src/scanner/patterns/insecure-crypto.js` |
+| #2.4 Insecure crypto | ✅ Merged to `main` (PR #17) | `src/scanner/patterns/insecure-crypto.js` |
 | #2.5 Async footguns | ⏳ Deferred until after dashboard (confirm with user) | — |
 | #4 Dashboard Core | ✅ Merged to `main` (PR #7) | `src/App.jsx`, `src/pages/Dashboard.jsx`, `src/components/`, `src/utils/findings.js` |
 | #5 Dashboard Polish | ✅ Merged to `main` (PR #9) | `src/components/TypeChart.jsx`, `SummaryCards.jsx`, `dark:` variants throughout |
