@@ -2,6 +2,7 @@ import { scanForSecrets } from './patterns/hardcoded-secrets.js';
 import { scanForSqlInjection } from './patterns/sql-injection.js';
 import { scanForXss } from './patterns/xss.js';
 import { scanForInsecureCrypto } from './patterns/insecure-crypto.js';
+import { scanForAsyncFootguns } from './patterns/async-footguns.js';
 
 export async function scanPatterns(targetPath) {
   const findings = [];
@@ -39,7 +40,13 @@ export async function scanPatterns(targetPath) {
     errors.push(`Insecure crypto scanning failed: ${error.message}`);
   }
 
-  // TODO: Async Footguns patterns (Task #2.5)
+  // Async Footguns
+  try {
+    const asyncFindings = await scanForAsyncFootguns(targetPath);
+    findings.push(...asyncFindings);
+  } catch (error) {
+    errors.push(`Async footgun scanning failed: ${error.message}`);
+  }
 
   return { findings, errors };
 }
