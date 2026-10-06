@@ -1,7 +1,7 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-06  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI (PR #16 open) · insecure-crypto scanner (PR open)
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner (PR #17 open)
 
 ---
 
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** user merges PR #16 (ESLint) and the crypto PR; then async footguns (#2.5, HANDOFF START HERE 6c). Talking points live in README.md. Every PR must pass `npm test` + `npm run build`.
+**Next Step:** user merges PR #17 (crypto scanner); then async footguns (#2.5, HANDOFF START HERE 6c). Talking points live in README.md. Every PR must pass `npm test` + `npm run lint` + `npm run build`.

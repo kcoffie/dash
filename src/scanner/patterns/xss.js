@@ -219,8 +219,8 @@ export async function scanForXss(targetPath) {
       let content;
       try {
         content = fs.readFileSync(file, 'utf-8');
-      } catch (error) {
-        continue;
+      } catch {
+        continue; // Unreadable (permissions, broken symlink)
       }
 
       const relFile = path.relative(targetPath, file);

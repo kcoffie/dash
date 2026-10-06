@@ -1,5 +1,5 @@
 import { SEVERITIES, severityByType, typeLabel } from '../utils/findings.js';
-import { SEVERITY_FILLS } from './SeverityBadge.jsx';
+import { SEVERITY_FILLS } from './severity-styles.js';
 
 const capitalize = (text) => text[0].toUpperCase() + text.slice(1);
 
