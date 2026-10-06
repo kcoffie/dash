@@ -10,14 +10,23 @@
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
-**Session 6 in one line:** deployed (https://dash-jade-nine.vercel.app/), README/screenshots/talking points shipped (PR #13), then an accuracy pass on the dependency + secrets scanners and the file walker (PR #14) that fixed a silent failure (DVNA showed 0 dependency CVEs; it has 58). Phase 1 is done except #3's crypto/async scanners. Everything is merged; nothing is in flight.
+**Session 7 in one line (2026-10-06):** ESLint + lint in CI (PR #16), insecure-crypto scanner (PR #17), wrap-up (PR #18), all merged; async-footgun scanner built (**PR #19, open: the user merges it**). Once #19 merges, **every Phase 1 scanner is built** and the report checks 6 of 9 categories. Live: Juice Shop 144 / DVNA 72 / Express 65 until #19 merges, then 160 / 87 / 65.
 
-The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). Dashboard polish (dark mode, findings-by-type chart, phone layout) is merged (PR #9). Demo data for all three scan targets (redacted) plus a "Demo scan" picker is merged (PR #10), so a static deploy has something to show. **It's live at https://dash-jade-nine.vercel.app/** (Vercel; every merge to `main` redeploys, PRs get preview URLs). The README has screenshots, how it works, measured results, and talking points (Task #7). CI (`test` job: `npm ci` → `npm test` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4) and async (#2.5) scanners are deferred until after the dashboard and deploy (user's call).
+**First thing next session:** check `gh pr view 19 --repo kcoffie/dash --json state`. If it's merged, `git checkout main && git pull`, then `git branch -D feature/async-scanner` (squash merges need `-D`; agent branch deletion was blocked by the permission mode, so the user may have to run it). Verify the live `/demo/index.json` totals are 160 / 87 / 65. If #19 is still open, ask the user before starting new work.
+**Then ask the user which of these is next** (no default; they choose):
+1. **Team-gates port** (from the user's memory note `team-gates-port`): read `~/Documents/projs/dos/TEAM.md`, `.claude/agents/reviewer.md`, `.claude/agents/architect.md`, `scripts/mutate-changed.js`, `.github/workflows/ci.yml` in dos. Measure a Stryker mutation baseline over `src/scanner/` first (command runner over `npm test`; the tests are plain Node scripts, not a framework), adapt the agents to dash's PRD/DESIGN, add a changed-lines mutation job to `.github/workflows/test.yml` (≥ 80% killed on changed lines + a ratchet), and write `docs/ENGINEERING_PROCESS.md` with the talk track from real before/after numbers. **Ask before changing branch protection / required checks** (repo setting).
+2. **Template injection** (open XSS TODO: Juice Shop CSP Bypass, `routes/userProfile.ts:73`).
+3. **Async TODO:** unawaited calls to local async functions (`basketItems.ts:75`). Needs a severity call.
+4. Phase 2 items (PRD §6).
+
+The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` → React dashboard (`npm run dev`). Scanners for dependency CVEs, hardcoded secrets, SQL injection, and XSS are merged and validated against OWASP Juice Shop + DVNA answer keys. The dashboard core (summary cards, coverage report, search/filters, expandable findings with "why this severity") is merged (PR #7). Dashboard polish (dark mode, findings-by-type chart, phone layout) is merged (PR #9). Demo data for all three scan targets (redacted) plus a "Demo scan" picker is merged (PR #10), so a static deploy has something to show. **It's live at https://dash-jade-nine.vercel.app/** (Vercel; every merge to `main` redeploys, PRs get preview URLs). The README has screenshots, how it works, measured results, and talking points (Task #7). CI (`test` job: `npm ci` → `npm test` → `npm run lint` → `npm run build`) must pass before anything merges to `main`. Crypto (#2.4, PR #17) and async (#2.5, PR #19) scanners were built in session 7.
 
 ### Do these, in order
 1. **Setup** (if a PR is still open, check with the user before starting new work)
    ```bash
    git checkout main && git pull
+   # Note: in this shell `gh` is aliased to `history | grep`; use `command gh …`.
+   # Scan targets: macOS prunes /tmp. Session 7 cloned them into the agent's scratchpad at the pinned commits instead (see step 2 for the exact commands).
    npm ci                                   # node_modules isn't committed; needed for dev/build
    # Scan targets live outside the repo — re-clone if /tmp was wiped:
    # macOS prunes old files in /tmp: if `git -C /tmp/juice-shop status` says "not a git repository", delete and re-clone.
