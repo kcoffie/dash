@@ -4,7 +4,8 @@ import { scanForInsecureCrypto } from '../patterns/insecure-crypto.js';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const tmpDir = path.join(__dirname, '..', '..', '..', '.test-tmp-crypto');
+// Unique per run, so parallel runs (Stryker workers) don't delete each other's fixtures
+const tmpDir = fs.mkdtempSync(path.join(__dirname, '..', '..', '..', '.test-tmp-crypto-'));
 
 function setup() {
   if (fs.existsSync(tmpDir)) {

@@ -1,14 +1,14 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-06  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner (PR open)
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team-gates port in progress (session 8)
 
 ---
 
 ## Overall Progress
 
 ```
-Phase 1 (MVP)      ██████████ 100% (7 of 7 tasks, once the async PR merges)
+Phase 1 (MVP)      ██████████ 100% (7 of 7 tasks)
 Phase 2 (Depth)    ░░░░░░░░░░  0%  (PRD §6 Phase 2 — PDF export, FP tuning, 3+ repos; dark mode + chart pulled into #5)
 Phase 3+ (Future)  ░░░░░░░░░░  0%  (Documented in FUTURE_IDEAS.md)
 ```
