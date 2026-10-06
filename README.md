@@ -82,6 +82,7 @@ npm ci
 npm run scan <target-repo-path>  # writes scanner-output.json to the current directory
 npm run dev                       # dashboard at http://localhost:5173 (loads scanner-output.json)
 npm test                          # scanner + dashboard helper tests
+npm run lint                      # ESLint (CI runs it)
 npm run demo:export               # regenerate public/demo/ (needs the three targets cloned under /tmp)
 npm run screenshots               # regenerate docs/screenshots/ from the live site (needs Chrome)
 npm run build                     # production build
@@ -104,7 +105,7 @@ Without a local `scanner-output.json`, the dashboard opens the Juice Shop demo. 
   - **Recall over precision for now:** the secret noise is visible, not hidden.
 - **Engineering:**
   - **Tests:** 102 across 8 suites (scanners, file walker, npm audit parsing, demo export, dashboard logic).
-  - **Protected `main`:** CI must pass (`npm ci` → `npm test` → `npm run build`) before anything merges.
+  - **Protected `main`:** CI must pass (`npm ci` → `npm test` → `npm run lint` → `npm run build`) before anything merges.
   - **Fail-closed demo export:** it refuses to write a file that still contains a key format.
   - **Repo hygiene:** secret scanning and push protection are on.
   - **Accessibility:** contrast measured in light and dark mode, and chart colors checked for color-vision deficiency.

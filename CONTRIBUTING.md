@@ -122,7 +122,7 @@ This is the first scanner module.
 - Handle edge cases: missing packages, network timeouts, malformed JSON
 
 ## Testing
-- [x] `npm test` and `npm run build` pass (CI runs both)
+- [x] `npm test`, `npm run lint`, and `npm run build` pass (CI runs all three)
 - [x] Tested on Express.js repo (finds 3+ real CVEs)
 - [x] Tested on repo with no package.json (graceful skip)
 
@@ -188,7 +188,7 @@ git commit -m "feat: parse package.json (#1)"
 ## Deployment Flow
 
 ```
-Code commit → PR → `test` check (npm ci, npm test, npm run build) → Self-review → Squash-merge to main → Auto-deploy to Vercel (after Task #6)
+Code commit → PR → `test` check (npm ci, npm test, npm run lint, npm run build) → Self-review → Squash-merge to main → Auto-deploy to Vercel (after Task #6)
 ```
 
 ---
@@ -198,7 +198,7 @@ Code commit → PR → `test` check (npm ci, npm test, npm run build) → Self-r
 **Active ruleset on `main`** (Settings → Rules → Rulesets; enforced since the repo went public):
 - Require a pull request before merging — **0 approvals** (GitHub doesn't let you approve your own PR, so solo work self-reviews in the diff view)
 - Squash is the only allowed merge method
-- Require status checks: the `test` job from `.github/workflows/test.yml` (run locally with `npm test`)
+- Require status checks: the `test` job from `.github/workflows/test.yml` (run locally with `npm test && npm run lint && npm run build`)
 - Block force pushes and branch deletion
 
 Head branches are not auto-deleted on merge — delete them after merging (GitHub's "Delete branch" button, then `git fetch --prune` and `git branch -D <branch>` locally).
