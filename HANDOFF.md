@@ -10,9 +10,9 @@
 ## ▶ START HERE (Next Agent)
 
 ### Where we are
-**Session 7 in one line (2026-10-06):** ESLint + lint in CI (PR #16), insecure-crypto scanner (PR #17), wrap-up (PR #18), all merged; async-footgun scanner built (**PR #19, open: the user merges it**). Once #19 merges, **every Phase 1 scanner is built** and the report checks 6 of 9 categories. Live: Juice Shop 144 / DVNA 72 / Express 65 until #19 merges, then 160 / 87 / 65.
+**Session 8 (2026-10-06), in progress: team-gates port** (the user picked it). PR #19 merged; every Phase 1 scanner is built; live totals verified 160 / 87 / 65. Baseline matched (10 suites / 153 tests, lint, build; fresh scans at the pinned commits identical to `public/demo` except timestamps, no dependency drift). 0 secret-scanning and 0 Dependabot alerts. Stale branches `docs/session-7-wrap` (local) and `feature/async-scanner` (remote) deleted after checking each tip matched its squash merge.
+**Branch `fix/test-temp-dirs`:** the first Stryker runs were invalid (see "What We Did in Session 8"); the tests now use a unique temp dir per run. Next: the real mutation baseline, then the plan for the user to approve before any gates are added.
 
-**First thing next session:** check `gh pr view 19 --repo kcoffie/dash --json state`. If it's merged, `git checkout main && git pull`, then `git branch -D feature/async-scanner` (squash merges need `-D`; agent branch deletion was blocked by the permission mode, so the user may have to run it). Verify the live `/demo/index.json` totals are 160 / 87 / 65. If #19 is still open, ask the user before starting new work.
 **Then ask the user which of these is next** (no default; they choose):
 1. **Team-gates port** (from the user's memory note `team-gates-port`): read `~/Documents/projs/dos/TEAM.md`, `.claude/agents/reviewer.md`, `.claude/agents/architect.md`, `scripts/mutate-changed.js`, `.github/workflows/ci.yml` in dos. Measure a Stryker mutation baseline over `src/scanner/` first (command runner over `npm test`; the tests are plain Node scripts, not a framework), adapt the agents to dash's PRD/DESIGN, add a changed-lines mutation job to `.github/workflows/test.yml` (≥ 80% killed on changed lines + a ratchet), and write `docs/ENGINEERING_PROCESS.md` with the talk track from real before/after numbers. **Ask before changing branch protection / required checks** (repo setting).
 2. **Template injection** (open XSS TODO: Juice Shop CSP Bypass, `routes/userProfile.ts:73`).
@@ -84,6 +84,12 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 - Don't let local paths leak into anything published (demo reports, errors, docs). npm's debug-log path lives in the home directory.
 
 ---
+
+## What We Did in Session 8 (2026-10-06)
+- ✅ START HERE steps 1–3 (see "Where we are"). No files changed by those steps.
+- ⚠ **First two Stryker baselines were invalid.** Run 1 (95.47%) overlapped a lid-closed sleep: 138 timeouts bunched in three consecutive files, all 42 `src/scanner/index.js` mutants "timed out" though no test loads `index.js`. Run 2 (96.79%, Mac kept awake with `caffeinate`) still "killed" 38 `index.js` mutants. Cause: seven test files used a fixed fixture folder in the repo root and `rm -rf` it; Stryker's workers share one sandbox, so parallel `npm test` runs deleted each other's fixtures and random failures counted as kills. Proof: 8 concurrent `npm test` in one directory, 8/8 failed.
+- ✅ **Fix (`fix/test-temp-dirs`):** `fs.mkdtempSync(...)` per test file, same location, no assertions changed. After: 3 rounds × 8 concurrent runs, 24/24 passed; 153 tests serially; no leftover `.test-tmp*` folders.
+- Lessons for mutation runs: keep the Mac awake (`caffeinate -dims`, lid open), add the `progress-append-only` reporter (the default progress bar needs a TTY), and treat any "killed" mutant in a file no test loads as a sign the runs aren't isolated.
 
 ## What We Did in Session 7 (2026-10-06)
 
@@ -285,6 +291,7 @@ Week 3 Deploy    ████████████████░░░░░
 - [x] **Secret findings have 1 context factor**, and flag Terraform interpolations. Fixed (session 6): 3–5 factors, templated values skipped.
 - [x] **`npm audit` failures read as zero findings.** Fixed (session 6): DVNA showed 0 dependency CVEs (ENOLOCK); errors now reported, no-lockfile targets resolved in a temp dir.
 - [ ] **Dependency results drift without a lockfile.** None of the three targets commits one, so each scan resolves today's versions. The factor says so; nothing else to do unless we pin by committing resolved lockfiles for the demo targets.
+- [ ] **The dependency-scanner test calls the real npm registry, and passes when it's offline** ("skipped, npm registry unreachable"). A green run can mean the test never checked anything, and every mutation-test run hits the registry (~4,000 times per baseline). Should use a recorded `npm audit` response (fake only the boundary).
 - [ ] **Dependencies: yarn.lock / pnpm-lock.yaml targets** are audited from a freshly resolved npm lockfile (with a factor saying so), not their real lockfile.
 - [x] **`npm run lint` is broken.** Fixed (session 7): `eslint.config.js` (flat), lint step in CI.
 - [ ] **Pattern scanners skip unreadable files silently** (secrets, SQLi, XSS, crypto, async: `catch { continue }`). Coverage claims the file was checked. Should go to `coverage.errors` like npm failures. Found via ESLint's unused `error` bindings.
