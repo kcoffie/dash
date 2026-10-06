@@ -21,17 +21,15 @@ export async function scanTarget(targetPath, { log = console.log, logError = con
       log('✓ Dependency scanning: no vulnerabilities');
     }
   } catch (error) {
-    // Stryker disable all: the catch only runs if a scanner throws; each scanner catches its own errors, so a test would have to fake a scanner
     scanErrors.push(`Dependency scanning failed: ${error.message}`);
     logError(`✗ Dependency scanning failed: ${error.message}`);
   }
-  // Stryker restore all
 
   // Pattern scanning
   try {
     const { findings: patternFindings, errors: patternErrors } = await scanPatterns(targetPath);
     findings.push(...patternFindings);
-    // Stryker disable next-line all: patternErrors is only non-empty if a scanner throws (see the catch below)
+    // Stryker disable next-line all: patternErrors is only non-empty through a scanner bug (see pattern-scanner.js)
     scanErrors.push(...patternErrors);
     if (patternFindings.length > 0) {
       log(`✓ Pattern scanning: ${patternFindings.length} finding(s) detected`);
@@ -39,7 +37,7 @@ export async function scanTarget(targetPath, { log = console.log, logError = con
       log('✓ Pattern scanning: no issues found');
     }
   } catch (error) {
-    // Stryker disable all: the catch only runs if a scanner throws; each scanner catches its own errors, so a test would have to fake a scanner
+    // Stryker disable all: reachable only through a scanner bug (each scanFor* wraps its own failures and rethrows; no real input gets there), so a test would have to inject a failing scanner
     scanErrors.push(`Pattern scanning failed: ${error.message}`);
     logError(`✗ Pattern scanning failed: ${error.message}`);
   }
@@ -52,7 +50,6 @@ export async function scanTarget(targetPath, { log = console.log, logError = con
     high: findings.filter((f) => f.severity === 'high').length,
     medium: findings.filter((f) => f.severity === 'medium').length,
     low: findings.filter((f) => f.severity === 'low').length,
-    // Stryker disable next-line all: no scanner emits 'info' findings yet, so this count is always 0
     info: findings.filter((f) => f.severity === 'info').length,
   };
 
