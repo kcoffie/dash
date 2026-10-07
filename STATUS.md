@@ -1,7 +1,7 @@
 # Project Status Dashboard
 
-**Last Updated:** 2026-10-06  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team-gates port in progress (session 8): mutation baseline 56.3%, gates PR open
+**Last Updated:** 2026-10-07  
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team-gates port in progress (session 8): gates merged (PR #21, baseline 56.9%, ratchet 56); report/dependency tests in PR #22: mutation score 56.89% → 60.55% (measured before/after, same settings), ratchet 60
 
 ---
 
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** user merges the async PR; Phase 1 is then complete. Candidates next: template injection (XSS TODO), the team-gates port (mutation-testing gate, see memory/HANDOFF), Phase 2. Talking points live in README.md. Every PR must pass `npm test` + `npm run lint` + `npm run build`.
+**Next Step:** user merges PR #22 (team-gates B1+B2, measured 56.89% → 60.55%). Then the user picks: B3 (pattern-scanner survivor triage, worst first: crypto 53%, async 55%, SQLi 55%) or something else. Every PR must pass `npm test` + `npm run lint` + `npm run build`.

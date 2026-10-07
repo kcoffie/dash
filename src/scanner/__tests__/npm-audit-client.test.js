@@ -204,6 +204,24 @@ function testAuditErrorsThrow() {
   return report('npm audit errors throw instead of reading as zero findings', failures.length === 0, JSON.stringify(failures));
 }
 
+function testAuditErrorUsesNpmsMessage() {
+  // Real stdout from npm 11.19.1 `npm audit --json` with the registry unreachable: the reason
+  // is in "message"; error.summary is empty
+  const stdout = JSON.stringify({
+    message: 'request to http://127.0.0.1:9/-/npm/v1/security/advisories/bulk failed, reason: connect ECONNREFUSED 127.0.0.1:9',
+    error: { summary: '', detail: '' },
+  });
+  const thrown = (json) => { try { parseAuditJson(json); return null; } catch (error) { return error.message; } };
+  const message = thrown(stdout);
+  const bare = thrown(JSON.stringify({ error: { summary: '' } }));
+  return report(
+    'npm audit error with an empty summary reports npm\'s message instead (or "npm audit failed" if npm gave none)',
+    message === 'error: request to http://127.0.0.1:9/-/npm/v1/security/advisories/bulk failed, reason: connect ECONNREFUSED 127.0.0.1:9'
+      && bare === 'error: npm audit failed',
+    JSON.stringify({ message, bare }),
+  );
+}
+
 function testNpmErrorSummary() {
   // Real stderr from `npm install --package-lock-only` with a package that doesn't exist
   const stderr = [
@@ -234,6 +252,7 @@ const results = [
   testFirstPatchedVersion(),
   testIntroducedByHandlesCycles(),
   testAuditErrorsThrow(),
+  testAuditErrorUsesNpmsMessage(),
   testNpmErrorSummary(),
 ];
 

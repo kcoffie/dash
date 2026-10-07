@@ -9,6 +9,7 @@ const MAX_OUTPUT = 64 * 1024 * 1024;
 
 // Parses `npm audit --json` output. npm reports its own failures (no lockfile, registry
 // errors) as `{ "error": { code, summary } }`; those throw instead of reading as "no findings".
+// A failed registry request (npm 11) leaves summary empty and puts the reason in `message`.
 export function parseAuditJson(stdout) {
   let data;
   try {
@@ -17,7 +18,7 @@ export function parseAuditJson(stdout) {
     throw new Error(`could not parse npm audit output: ${error.message}`);
   }
   if (data.error) {
-    throw new Error(`${data.error.code ?? 'error'}: ${data.error.summary ?? 'npm audit failed'}`);
+    throw new Error(`${data.error.code ?? 'error'}: ${data.error.summary || data.message || 'npm audit failed'}`);
   }
   if (!data.vulnerabilities || typeof data.vulnerabilities !== 'object') {
     throw new Error('npm audit output has no vulnerabilities section (unsupported npm version?)');
