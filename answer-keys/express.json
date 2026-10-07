@@ -1,0 +1,19 @@
+{
+  "target": "express",
+  "repo": "https://github.com/expressjs/express",
+  "commit": "7ef98448f8b38099ab1ded55e458538ad47a51e7",
+  "sources": "DESIGN.md ('Express is a false-positive check: 0 SQLi, 0 crypto, 0 async'); HANDOFF scan snapshot (all findings low, all in test/ and examples/); code read by hand at the pinned commit (2026-10-07)",
+  "nonProduction": [{ "startsWith": "test/" }, { "startsWith": "examples/" }],
+  "rules": {
+    "noFindingsOfType": ["sql-injection", "crypto-misuse", "async-footgun"],
+    "maxSeverity": "low"
+  },
+  "entries": [
+    { "status": "not flagged", "type": "crypto-misuse", "file": "examples/auth/index.js",
+      "why": "pbkdf2-password is a proper password hash (HANDOFF crypto answer key)" },
+    { "status": "not flagged", "type": "sql-injection", "file": "test/express.raw.js",
+      "why": "express.raw() is body parsing, not SQL (HANDOFF SQLi notes)" },
+    { "status": "not flagged", "type": "sql-injection", "file": "test/req.fresh.js", "lines": [64, 82],
+      "why": "supertest .query('/') is an HTTP query string, not SQL (HANDOFF SQLi notes)" }
+  ]
+}
