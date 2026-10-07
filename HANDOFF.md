@@ -210,7 +210,7 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 |---|---|---|---|---|---|---|
 | Express (`/tmp/express`) | 5 (all dev-only → low) | 6 (all `examples/`, low) | 0 (correct — no SQL) | 54 (all low — all in `test/` + `examples/`) | 0 (no crypto sinks) | 0 |
 | Juice Shop (`/tmp/juice-shop`) | 67 (3 dev-only → low) | 27 (3 private keys critical, 1 high, 23 seed medium) | 13 (1 critical, 1 high + 11 low snippets) | 19 (5 high, 8 medium + 6 low snippets) | 18 (5 high, 7 medium, 6 low) | 16 (1 medium, 15 low) |
-| DVNA (`/tmp/dvna`) | 58 (15 critical; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) | 2 (high) | 15 (8 high, 7 medium) |
+| DVNA (`/tmp/dvna`) | 58 (15 critical; all runtime) | 1 (session secret, high) | 1 (critical) | 10 (medium) | 2 (high) | 15 (10 high, 5 medium) |
 
 *(Updated session 7 with the crypto + async scanners; dependency counts drift because no target commits a lockfile.)*
 
@@ -220,7 +220,7 @@ Neither target publishes async bugs as challenges, so every hit was read by hand
 
 | Target | What's there | Scanner |
 |---|---|---|
-| DVNA (Express 4, `node:carbon`) | 15 Sequelize promise chains with no `.catch()`: 11 in route handlers (`core/appHandler.js`, `core/authHandler.js`), 4 in passport callbacks. A DB error or a `TypeError` inside `.then` (e.g. `user` null in `userEditSubmit`) is unhandled. Node ≥ 15 exits; Node 8 hangs the request. | 15: 8 high (`req.*` feeds the query), 7 medium |
+| DVNA (Express 4, `node:carbon`) | 15 Sequelize promise chains with no `.catch()`: 11 in route handlers (`core/appHandler.js`, `core/authHandler.js`), 4 in passport callbacks. A DB error or a `TypeError` inside `.then` (e.g. `user` null in `userEditSubmit`) is unhandled. Node ≥ 15 exits; Node 8 hangs the request. | 15: 10 high (`req.*` feeds the query, or passport-local's username/password: user decision 2026-10-07), 5 medium |
 | Juice Shop (Express 4, Node 22–26) | 45 async `(req, res)` handlers; 21 have an `await` outside try/catch, **all 21 registered via `utils.asyncHandler()`** in `server.ts` (`Promise.resolve(fn(…)).catch(next)`), checked one by one | 0 (a rule ignoring the wrapper: 21 false positives) |
 | Juice Shop | `async function quantityCheck(req, res, next, id, quantity)` (`basketItems.ts:85`) is a helper, not a handler | 0 (only `(req, res[, next])` signatures count) |
 | Juice Shop | Chains with no `.catch()`: 10 browser (`import('…').then`, `firstValueFrom(…).then`, `timeout().then`), `routes/search.ts:47` (`void` query in a route handler, medium), `routes/verify.ts:218` (`void osaft.reload().then`, challenge check, low), 4 in `test/cypress/support/commands.ts` (low; `cy.request().then` isn't a real promise, so these are noise) | 16: 1 medium, 15 low |
@@ -338,6 +338,7 @@ Week 3 Deploy    ████████████████░░░░░
 - [ ] **One new kill tests the fake, not user-visible behaviour:** `npm-audit-client.js:65` `'--package-lock-only'` → `""` is killed only because the fake rejects any other `install` call; real npm would do a full install and give the same report. Either make "no lockfile: npm resolves a lockfile only, never installs" a named rule with a test, or accept it. User's call.
 - [ ] **MD5 of an unknown value → medium** (report.test.js fixture `lib/ids.js`) isn't in DESIGN.md's scoring table (DESIGN:96 gives only password/token → high and checksum → low). Write the rule into DESIGN or change the fixture. User's call (scoring).
 - [ ] **No test checks that the dependency scan's temp folder is created inside the OS temp dir** (`npm-audit-client.js:63`). Emptying the `'scan-audit-'` prefix survives on macOS (creates a folder next to the temp dir) and is killed on Linux only by accident. A test asserting the folder's parent is `os.tmpdir()` (and that it's removed afterwards; see the reviewer's suggested tests) would make both platforms agree.
+- [ ] **Async auth-callback detection is loose (pre-existing):** any `function (…, done)` counts as a passport callback, and a "signature" is the text back to the previous `;`/`{`/`}`, so in semicolon-less code a chain in a plain function right after `passport.use(…)` is scored as an auth callback (medium instead of low). Found while adding the passport-local rule (2026-10-07); pinned by `testClosedLocalStrategyCallDoesNotCount` (line 6 medium). No target is affected today.
 - [ ] **Async: unawaited calls to local async functions aren't detected.** Juice Shop `routes/basketItems.ts:75` `void quantityCheck(...)` has no `.catch()` (line 60 does). Needs a "call to a known-async function as a statement" rule plus a severity call.
 - [ ] **Async: Cypress `cy.*().then()` chains are reported** (4 low in Juice Shop `test/cypress/`). Cypress chainables aren't promises. Could skip `cy.` heads.
 - [ ] **Async: wrapper detection accepts any call around the handler at registration** (`rateLimit(handler())` would count as wrapped), and follows names, not imports.
