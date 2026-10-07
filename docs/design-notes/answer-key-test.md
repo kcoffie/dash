@@ -1,6 +1,6 @@
 # Design note: answer-key regression test
 
-Status: **approved design** (2026-10-07). Architect review done; the user decided the four open questions (below). No code yet.
+Status: **approved design** (2026-10-07), being built in 3 PRs. Architect review done; the user decided the open questions (below).
 
 ## Problem
 dash's main promise is "finds the known vulnerabilities in Juice Shop and DVNA, at the right severity". The recall figures in the PRD and README (SQLi 3/3, XSS 8/9 + 3/3, crypto 5/6 + 1/1, async 15 on DVNA) were checked by hand and live only as tables in `HANDOFF.md`. Secrets, the biggest pattern scanner, has no key at all. Nothing checks any of this automatically: a scanner change that loses a real finding, or moves its severity, passes `npm test`, lint, build and both mutation gates.
@@ -24,7 +24,7 @@ Each entry has `file` (or a file `pattern` for "not flagged"), `type`, `lines: [
 - Given the targets at the keys' commits, every **found** and **reviewed** entry is reported in its range with the expected type and severity; otherwise the check fails and names the entry (missing / moved / wrong severity).
 - Every **not flagged** entry is absent for its type; every **known miss** is absent.
 - **Fail closed:** any non-empty `errors` from `scanPatterns` fails; every file named in the keys must exist and be readable before scanning; every scanner type has at least one **found** entry across the keys (so a crashed or empty scan can't pass the "absent" checks).
-- **Spec rules, not snapshots:** Express has 0 SQLi, 0 crypto, 0 async findings and all its findings are low (DESIGN / HANDOFF); findings in non-production code (`test/`, `codefixes/`, examples) are low.
+- **Spec rules, not snapshots:** Express has 0 SQLi, 0 crypto, 0 async findings and all its findings are low (DESIGN / HANDOFF); findings in non-production code (`test/`, `codefixes/`, examples) are low, **except secrets**: DESIGN says provider-format secrets keep their severity anywhere, and a key can't tell them from generic values, so `hardcoded-secret` is left out of the cap. Non-production paths are written by hand per key (`nonProduction`), not taken from the scanner's own helper.
 - **Every high or critical finding in production code has a key entry** (user decision). Today 7 need one: Juice Shop `lib/insecurity.ts:21`, `infrastructure/terraform/networking.tf:171`, `terraform/networking.tf:171`, `frontend/src/app/login/login.component.ts:63`, `frontend/src/app/data-export/data-export.component.ts:58`, `routes/verify.ts:125`; DVNA `server.js:24`.
 - Recall is printed per challenge, the way the PRD counts it (e.g. Juice Shop XSS 8/9 challenges, 7/8 sites).
 - Infrastructure failures (fetch, wrong commit, dirty tree) are reported separately from key failures. A failed fetch fails; it never passes.
@@ -38,8 +38,9 @@ Transcribed by hand, never from scanner output: Juice Shop `data/static/challeng
 ## User decisions (2026-10-07)
 1. **Secrets:** key the anchors only: challenge-backed and high/critical secrets (about 5 entries). The 23 Juice Shop seed passwords stay unkeyed (precision, measured separately).
 2. **Unkeyed high/critical in production code fails the check.**
-3. **Reviewed findings get keyed** with a pinned severity: the 5 debatable Juice Shop XSS findings and DVNA `views/common/footer.ejs:7`. `footer.ejs:7` is read by hand first and brought to the user before it's keyed.
+3. **Reviewed findings get keyed** with a pinned severity: the 5 debatable Juice Shop XSS findings and DVNA `views/common/footer.ejs:7`. `footer.ejs:7` was read by hand (real sink; all 36 `.markdown` elements are DVNA's static lesson pages with no EJS output tags) and keyed as reviewed at medium (user, 2026-10-07).
 4. **Every sink site is its own entry** (losing any one fails); recall is still reported per challenge.
+5. **Built as 3 PRs:** (1) comparison + unit tests + DVNA and Express keys + the offline check on `public/demo`; (2) the Juice Shop key; (3) the CI job against the live targets.
 Still the user's call later: making `answer-keys` a required check (repo setting).
 
 ## Options considered
