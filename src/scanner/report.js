@@ -37,7 +37,7 @@ export async function scanTarget(targetPath, { log = console.log, logError = con
       log('✓ Pattern scanning: no issues found');
     }
   } catch (error) {
-    // Stryker disable all: reachable only through a scanner bug (each scanFor* wraps its own failures and rethrows; no real input gets there), so a test would have to inject a failing scanner
+    // Stryker disable all: reachable only if scanPatterns itself throws (it catches each scanner's error and returns it in `errors`), which no input does, so a test would have to inject a failing scanPatterns
     scanErrors.push(`Pattern scanning failed: ${error.message}`);
     logError(`✗ Pattern scanning failed: ${error.message}`);
   }
