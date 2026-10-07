@@ -84,6 +84,185 @@ async function testAuthCallbackChainIsMedium() {
   return report('Passport callback chain → medium', findings.length === 1 && findings[0].severity === 'medium', JSON.stringify(findings));
 }
 
+async function testLocalStrategyCredentialsAreRequestInput() {
+  // DVNA core/passport.js:27-35: passport-local takes username/password from req.body (user decision 2026-10-07)
+  const findings = await scanFiles({
+    'core/passport.js': [
+      "passport.use('login', new LocalStrategy({",
+      '    passReqToCallback: true',
+      '  },',
+      '  function (req, username, password, done) {',
+      "    db.User.findOne({ where: { 'login': username } }).then(function (user) {",
+      '      return done(null, user)',
+      '    })',
+      '  }))',
+    ],
+  });
+  return report('passport-local verify callback: a chain fed by the username/password parameters → high, says the credentials come from req.body',
+    findings.length === 1 && findings[0].line === 5 && findings[0].severity === 'high'
+      && findings[0].context.includes('✓ Login credentials feed the promise (passport-local reads them from req.body): a crafted request can make it reject'),
+    JSON.stringify(findings));
+}
+
+async function testLocalStrategyCustomFieldWithoutReq() {
+  // usernameField: 'email' → the first parameter is the email; no req parameter without passReqToCallback
+  const findings = await scanFiles({
+    'auth.js': [
+      "passport.use(new LocalStrategy({ usernameField: 'email' }, function (email, password, done) {",
+      '  User.findOne({ email: email }).then(function (user) { done(null, user) })',
+      '}))',
+    ],
+  });
+  return report('passport-local with a custom field name and no req parameter: the credential parameter still counts → high',
+    findings.length === 1 && findings[0].severity === 'high', JSON.stringify(findings));
+}
+
+async function testLocalStrategyChainWithoutCredentialsIsMedium() {
+  const findings = await scanFiles({
+    'auth.js': [
+      'passport.use(new LocalStrategy(function (username, password, done) {',
+      '  Settings.load().then(function (s) { done(null, false) })',
+      '}))',
+    ],
+  });
+  return report('passport-local callback chain that uses neither credential → medium',
+    findings.length === 1 && findings[0].severity === 'medium', JSON.stringify(findings));
+}
+
+async function testLocalStrategyNestedFunctionAndBlocks() {
+  // DVNA core/passport.js:50-59 signup: the chain sits in an inner function and an if block inside the verify callback
+  const findings = await scanFiles({
+    'core/passport.js': [
+      "passport.use('signup', new LocalStrategy({",
+      '    passReqToCallback: true',
+      '  },',
+      '  function (req, username, password, done) {',
+      '    findOrCreateUser = function () {',
+      '      if (username) {',
+      "        db.User.findOne({ where: { 'email': username } }).then(function (user) {",
+      '          return done(null, user)',
+      '        })',
+      '      }',
+      '    }',
+      '    process.nextTick(findOrCreateUser)',
+      '  }))',
+    ],
+  });
+  return report('passport-local: a credential-fed chain inside an inner function and if block of the verify callback → high',
+    findings.length === 1 && findings[0].line === 7 && findings[0].severity === 'high', JSON.stringify(findings));
+}
+
+async function testLocalStrategyArrowAndCbCallback() {
+  // passport's current docs name the callback cb; arrow functions are common too
+  const findings = await scanFiles({
+    'auth.js': [
+      'passport.use(new LocalStrategy({ passReqToCallback: true }, async (req, username, password, cb) => {',
+      '  db.get(username).then((row) => cb(null, row))',
+      '}))',
+      'passport.use(new LocalStrategy(function verify(username, password, cb) {',
+      '  db.get(username).then((row) => cb(null, row))',
+      '}))',
+    ],
+  });
+  return report('passport-local with an async arrow callback, or a named verify function, and a callback named cb → high',
+    findings.length === 2 && findings.every((f) => f.severity === 'high'), JSON.stringify(findings));
+}
+
+async function testClosedLocalStrategyCallDoesNotCount() {
+  // The LocalStrategy call closes before this function, so its parameters aren't passport-local's
+  const findings = await scanFiles({
+    'auth.js': [
+      'passport.use(new LocalStrategy(verify));',
+      'function sync (username, password, done) {',
+      '  db.get(username).then((row) => done(null, row))',
+      '}',
+      'register(LocalStrategyAdapter(function (username, password, done) {',
+      '  db.get(username).then((row) => done(null, row))',
+      '}))',
+    ],
+  });
+  // Line 6 is still medium: any function (…, done) counts as an auth callback (existing rule); it must not become high
+  const at = (line) => findings.find((f) => f.line === line)?.severity;
+  return report('A LocalStrategy call that already closed, or a callee that merely starts with LocalStrategy, doesn\'t make parameters request input (not high)',
+    findings.length === 2 && at(3) === 'low' && at(6) === 'medium', JSON.stringify(findings));
+}
+
+async function testLocalStrategyArrowWithoutOptions() {
+  const findings = await scanFiles({
+    'auth.js': [
+      'passport.use(new LocalStrategy((username, password, done) => {',
+      '  db.get(username).then((row) => done(null, row))',
+      '}))',
+    ],
+  });
+  return report('passport-local arrow callback with no options object → high',
+    findings.length === 1 && findings[0].severity === 'high', JSON.stringify(findings));
+}
+
+async function testInnerCallbackIsNotTheVerifyCallback() {
+  // forEach's (row, i, all) has three parameters but isn't the verify callback; username still is a credential
+  const findings = await scanFiles({
+    'auth.js': [
+      'passport.use(new LocalStrategy(function (username, password, done) {',
+      '  rows.forEach(function (row, i, all) {',
+      '    db.get(username).then((r) => done(null, r))',
+      '  })',
+      '}))',
+    ],
+  });
+  return report('An inner three-parameter callback inside the verify callback doesn\'t hide the credentials → high',
+    findings.length === 1 && findings[0].severity === 'high', JSON.stringify(findings));
+}
+
+async function testClosedLiteralsAndCallsBeforeTheChain() {
+  const findings = await scanFiles({
+    'auth.js': [
+      "passport.use(new LocalStrategy({ usernameField: 'email' }, [verify]));",
+      'function sync (username, password, done) {',
+      '  db.get(username).then((row) => done(null, row))',
+      '}',
+      'passport.use(new LocalStrategy(verify)); run((x) => {',
+      '  db.get(x).then(ok)',
+      '})',
+      'const a = new LocalStrategy(wrap([verify]));',
+      'const b = new LocalStrategy(wrap({ verify }));',
+      'function sync2 (username, password, done) {',
+      '  db.get(username).then((row) => done(null, row))',
+      '}',
+    ],
+  });
+  const at = (line) => findings.find((f) => f.line === line)?.severity;
+  return report('Object/array literals and a Strategy call that closed before the chain don\'t make it a passport callback → low',
+    findings.length === 3 && at(3) === 'low' && at(6) === 'low' && at(11) === 'low', JSON.stringify(findings));
+}
+
+async function testDeserializeChainInBlockStaysMedium() {
+  const findings = await scanFiles({
+    'core/passport.js': [
+      'passport.deserializeUser(function (uid, done) {',
+      '  if (uid) {',
+      '    db.User.findOne({ where: { id: uid } }).then(function (user) { done(null, user) })',
+      '  }',
+      '})',
+    ],
+  });
+  return report('A deserializeUser chain inside an if block is still a passport callback → medium (uid comes from the session, not the request)',
+    findings.length === 1 && findings[0].severity === 'medium', JSON.stringify(findings));
+}
+
+async function testOtherStrategyParamsAreNotRequestInput() {
+  // Only passport-local reads credentials from the request body; a JWT payload has been verified first
+  const findings = await scanFiles({
+    'auth.js': [
+      'passport.use(new JwtStrategy(opts, function (jwtPayload, extra, done) {',
+      '  User.findOne({ id: jwtPayload.sub }).then(function (user) { done(null, user) })',
+      '}))',
+    ],
+  });
+  return report('Other passport strategies: callback parameters are not request input → medium',
+    findings.length === 1 && findings[0].severity === 'medium', JSON.stringify(findings));
+}
+
 async function testOtherServerChainIsLow() {
   const findings = await scanFiles({
     'lib/cache.js': ['function warm () {', '  loadAll().then(items => store(items))', '}'],
@@ -375,6 +554,17 @@ async function runTests() {
   results.push(await testRouteChainWithRequestInputIsHigh());
   results.push(await testRouteChainWithoutRequestInputIsMedium());
   results.push(await testAuthCallbackChainIsMedium());
+  results.push(await testLocalStrategyCredentialsAreRequestInput());
+  results.push(await testLocalStrategyCustomFieldWithoutReq());
+  results.push(await testLocalStrategyChainWithoutCredentialsIsMedium());
+  results.push(await testLocalStrategyNestedFunctionAndBlocks());
+  results.push(await testLocalStrategyArrowAndCbCallback());
+  results.push(await testClosedLocalStrategyCallDoesNotCount());
+  results.push(await testLocalStrategyArrowWithoutOptions());
+  results.push(await testInnerCallbackIsNotTheVerifyCallback());
+  results.push(await testClosedLiteralsAndCallsBeforeTheChain());
+  results.push(await testDeserializeChainInBlockStaysMedium());
+  results.push(await testOtherStrategyParamsAreNotRequestInput());
   results.push(await testOtherServerChainIsLow());
   results.push(await testBrowserChainIsLow());
   results.push(await testVoidChainReportedWithIntent());
