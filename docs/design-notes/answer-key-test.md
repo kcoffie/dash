@@ -1,36 +1,61 @@
 # Design note: answer-key regression test
 
-Status: proposed (2026-10-07), waiting for the user's sign-off. No code yet.
+Status: **approved design** (2026-10-07). Architect review done; the user decided the four open questions (below). No code yet.
 
 ## Problem
-dash's main promise is "finds the known vulnerabilities in Juice Shop and DVNA, at the right severity". The recall figures in the PRD and README (SQLi 3/3, XSS 8/9 + 3/3, crypto 5/6 + 1/1, async 15 on DVNA) were checked by hand and are written down only as tables in `HANDOFF.md`. Nothing checks them automatically. A scanner change that loses a real finding, or moves its severity, passes `npm test`, lint, build and the mutation gates, and is only noticed if someone regenerates the demo data and reads the diff.
+dash's main promise is "finds the known vulnerabilities in Juice Shop and DVNA, at the right severity". The recall figures in the PRD and README (SQLi 3/3, XSS 8/9 + 3/3, crypto 5/6 + 1/1, async 15 on DVNA) were checked by hand and live only as tables in `HANDOFF.md`. Secrets, the biggest pattern scanner, has no key at all. Nothing checks any of this automatically: a scanner change that loses a real finding, or moves its severity, passes `npm test`, lint, build and both mutation gates.
+
+## Design
+**Answer keys as data** in `answer-keys/{juice-shop,dvna,express}.json`. Each file owns its target: repo URL and the **full** pinned commit (`1618a611b173b4bf114028e6e02549950606e29d`, `9ba473add536f66ac9007966acb2a775dd31277a`, `7ef98448f8b38099ab1ded55e458538ad47a51e7`). `public/demo/index.json` is not the source: `demo:export` rewrites it from whatever commit the target folder is on.
+
+Each entry has `file` (or a file `pattern` for "not flagged"), `type`, `lines: [start, end]` (hand-written range), `severity`, `status`, `challenges: []`, and `why` (the rule or user decision the expected value comes from, e.g. "req.* feeds the promise → high (session 7)"). Never snippets, ids or descriptions. Statuses:
+- **found**: reported in the range, with this type and severity.
+- **reviewed**: not a challenge, but read by hand; reported with this type and severity (pinned so a change shows up). Has a `reason`.
+- **not flagged**: deliberate non-finding (a line range or a file pattern like `**/*_correct.ts`), for the given type.
+- **known miss**: still absent (CSP Bypass, `routes/userProfile.ts:73`). If it starts being found, the check fails with "update the answer key".
+
+**The comparison** is a pure function in `src/utils/answer-keys.js` with unit tests, one per failure reason, each seen failing once: missing, wrong severity, moved (same type elsewhere in the same file: reported separately from missing), not-flagged appears, known miss appears, scanner errors present, unkeyed high/critical. Being under `src/utils/`, it is mutation-tested like everything else.
+
+**Two callers:**
+1. `npm test`, offline, against `public/demo/*.json` (milliseconds): guards what the live site shows and catches an export that drops findings.
+2. CI job `answer-keys` on PRs **and** pushes to `main`: fetches each target with `actions/checkout` (`repository`, `ref` = full commit, `path`, `persist-credentials: false`), checks `git rev-parse HEAD` equals the key's commit and the tree is clean, checks that `index.json`'s short commit is a prefix of it, runs `scanPatterns`, and compares. `timeout-minutes` set. Cache only if measurement shows the fetch is slow. Job-level `if:` (no workflow-level `paths:` filter), so it can become a required check later without blocking.
 
 ## Acceptance criteria
-- Given the three targets at the commits in `public/demo/index.json`, when the check runs, then every answer-key entry marked **found** is reported at its file and line with the expected type and severity; otherwise the check fails and names the entry.
-- Every entry marked **not flagged** (deliberate non-findings, e.g. Juice Shop `*_correct.ts` codefixes, z85 coupons, `utils.ts:80` HMAC-SHA1, Express's `pbkdf2-password`) is absent; otherwise it fails.
-- Every entry marked **known miss** (XSS CSP Bypass `routes/userProfile.ts:73`) is still absent. If it starts being found, the check fails with "update the answer key", so the key never goes stale in a good direction either.
-- Expected values are transcribed by hand from the answer-key tables (the challenge lists `data/static/challenges.yml`, `vuln-code-snippet` markers, DVNA's `docs/solution/*.md`) and the user's recorded severity decisions. They are never copied from scanner output.
-- Out of scope: dependency CVEs (no target commits a lockfile, so advisories drift daily); precision / false-positive rate (PRD's open item, measured separately); total counts per target (asserting them would be a snapshot, which `ENGINEERING_PROCESS.md` rule 5 forbids). The check prints count differences against `public/demo` as information only.
+- Given the targets at the keys' commits, every **found** and **reviewed** entry is reported in its range with the expected type and severity; otherwise the check fails and names the entry (missing / moved / wrong severity).
+- Every **not flagged** entry is absent for its type; every **known miss** is absent.
+- **Fail closed:** any non-empty `errors` from `scanPatterns` fails; every file named in the keys must exist and be readable before scanning; every scanner type has at least one **found** entry across the keys (so a crashed or empty scan can't pass the "absent" checks).
+- **Spec rules, not snapshots:** Express has 0 SQLi, 0 crypto, 0 async findings and all its findings are low (DESIGN / HANDOFF); findings in non-production code (`test/`, `codefixes/`, examples) are low.
+- **Every high or critical finding in production code has a key entry** (user decision). Today 7 need one: Juice Shop `lib/insecurity.ts:21`, `infrastructure/terraform/networking.tf:171`, `terraform/networking.tf:171`, `frontend/src/app/login/login.component.ts:63`, `frontend/src/app/data-export/data-export.component.ts:58`, `routes/verify.ts:125`; DVNA `server.js:24`.
+- Recall is printed per challenge, the way the PRD counts it (e.g. Juice Shop XSS 8/9 challenges, 7/8 sites).
+- Infrastructure failures (fetch, wrong commit, dirty tree) are reported separately from key failures. A failed fetch fails; it never passes.
+- Output prints only file:line, type, severity and target-relative paths. No snippets, no descriptions, no raw-report artifacts (CI logs on a public repo are public).
+- The first Linux CI run is compared finding by finding against `public/demo` (measured so far on macOS only).
+- Out of scope: dependency CVEs (no target commits a lockfile; advisories drift); precision / false-positive rate (separate PRD item); total counts (rule 5). Counts against `public/demo` are printed as information only.
 
-## Options
-1. **Answer keys as data + a separate CI job (proposed).** `answer-keys/{juice-shop,dvna,express}.json`, one entry per sink: `file`, `line`, `type`, `severity`, `status` (found / not flagged / known miss), `source` (which challenge or doc it comes from). `scripts/check-answer-keys.js` clones each target at its pinned commit (partial clone), runs the pattern scanners, and compares. A new CI job `answer-keys` runs it on every PR, with clones cached by commit.
-2. **Inside `npm test`.** Simplest wiring, but `npm test` must stay offline and fast: it's the command Stryker runs thousands of times, and the network inside it is what made earlier scores invalid. Rejected.
-3. **Vendor the target files into the repo** (only the files the keys reference). Offline and fast, but it copies third-party code into a public repo (licences: Juice Shop MIT, DVNA MIT, Express MIT, so allowed), and it loses cross-file behaviour (e.g. the crypto scanner traces password callers across 6 files; async needs `server.ts` for wrapper detection). Partial copies would test a different program than the real scan.
+## Where expected values come from
+Transcribed by hand, never from scanner output: Juice Shop `data/static/challenges.yml` and `vuln-code-snippet` markers, DVNA `docs/solution/*.md`, the answer-key tables in HANDOFF, and the user's recorded severity decisions. Groups the tables give only as totals (DVNA's 15 async chains, Juice Shop's 10 browser chains, 5 captcha lines) are worked out by reading the target code. The reviewer agent re-works a sample of entries independently.
 
-## Measured cost (2026-10-07, this laptop)
+## User decisions (2026-10-07)
+1. **Secrets:** key the anchors only: challenge-backed and high/critical secrets (about 5 entries). The 23 Juice Shop seed passwords stay unkeyed (precision, measured separately).
+2. **Unkeyed high/critical in production code fails the check.**
+3. **Reviewed findings get keyed** with a pinned severity: the 5 debatable Juice Shop XSS findings and DVNA `views/common/footer.ejs:7`. `footer.ejs:7` is read by hand first and brought to the user before it's keyed.
+4. **Every sink site is its own entry** (losing any one fails); recall is still reported per challenge.
+Still the user's call later: making `answer-keys` a required check (repo setting).
+
+## Options considered
+1. **Keys as data + separate CI job + offline run on the demo files** (chosen).
+2. **Inside `npm test` against the live targets.** Rejected: `npm test` must stay offline and fast; Stryker runs it thousands of times, and network inside it is what made earlier scores invalid.
+3. **Vendor the referenced target files.** Rejected: the crypto scanner traces password callers across 6 files and async needs `server.ts` for wrapper detection, so partial copies test a different program. (Licences would allow it: all three targets are MIT, checked.)
+
+## Measured cost (2026-10-07, macOS)
 - Partial clones at the pinned commits: Juice Shop 13 s / 65 MB, DVNA 4 s / 8 MB, Express 4 s / 6 MB.
-- Pattern scan: Juice Shop **96 s**, DVNA 0.04 s, Express 0.4 s. Of Juice Shop's 96 s, the crypto scanner takes **94 s** (others: secrets 0.6 s, SQLi 0.04 s, XSS 0.07 s, async 0.6 s). That's a separate performance bug (logged in Open TODOs); the check works without fixing it, at about 2 minutes per CI run.
-- A fresh scan today matches the committed demo data exactly for every pattern type on all three targets, so the answer keys describe current behaviour.
+- Pattern scan: Juice Shop 96 s (crypto scanner **94 s** of it; logged as a separate TODO), DVNA 0.04 s, Express 0.4 s. Expect slower on a GitHub runner.
+- A fresh scan today matches `public/demo` exactly for every pattern type on all three targets, with 0 errors (checked independently by the architect too).
 
 ## What breaks
-- A target repo is deleted or force-pushed: the pinned commit disappears and the job fails to clone (it says so; it doesn't pass). Mitigation if it ever happens: a fork under the user's account.
-- GitHub is unreachable in CI: the job fails, it never passes silently.
-- A deliberate scoring change (user decision) fails the check until the key is updated in the same PR. That's intended: the key change shows up in review as the record of the decision.
+- A target repo deletes the pinned commit: fetch fails, the job fails and says so. Mitigation then: a fork under the user's account.
+- GitHub unreachable: the job fails (infrastructure failure), never passes.
+- A deliberate scoring change fails the check until the key is updated in the same PR, which puts the decision in front of review.
 
 ## What could leak
-Nothing new is published. The check prints file:line, type and severity of entries in public repos; it writes no snippets to disk outside the CI workspace and uploads no artifacts.
-
-## Decisions for the user
-1. Run on every PR (proposed) or only on `main` after merge.
-2. Whether `answer-keys` becomes a required check (repo setting; can come later, like `mutation-changed`).
-3. Whether a known miss that starts being found fails the check (proposed) or only warns.
+Key files hold no snippet text (secret entries would trip push protection, or worse, slip past it). Output prints key fields only. No raw scanner output is uploaded; if an artifact is ever needed, it goes through `toDemoReport` / `keyMaterialIn` (`src/scanner/demo-export.js`) first.
