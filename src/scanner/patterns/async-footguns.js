@@ -11,6 +11,9 @@ const FUNCTION_LOOKBACK = 15;
 
 // Callbacks that run while authenticating a request (passport strategies and session hooks)
 const AUTH_CALLBACK = /passport\.(use|serializeUser|deserializeUser)\b|Strategy\s*\(|function\s*\([^)]*\bdone\s*\)/;
+// Files that use passport (a …Strategy( call counts as a passport callback only there: user decision 2026-10-07)
+const PASSPORT_IMPORT = /(?:require\s*\(\s*|from\s+|import\s+)['"]passport(?:-[\w-]+)?['"]/;
+const PASSPORT_LOCAL_IMPORT = /(?:require\s*\(\s*|from\s+|import\s+)['"]passport-local['"]/;
 
 // Express route registration: app.get(…), router.post(…), apiRouter.use(…)
 const ROUTE_REGISTRATION = /\b(?:app|router|[\w$]*[Rr]outer)\s*\.\s*(?:get|post|put|patch|delete|all|use|options|head)\s*\(/g;
@@ -124,13 +127,15 @@ function insideCallTo(code, index, callee) {
 // passport-local's verify callback gets the username and password straight from req.body, so its
 // credential parameters are request input (user decision, 2026-10-07). Other strategies' parameters
 // (a verified JWT payload, an OAuth profile) are not.
-function usesLocalStrategyCredentials(code, index, signatures, head) {
-  if (!insideCallTo(code, index, /\bLocalStrategy\s*$/)) return false;
+function usesLocalStrategyCredentials(code, index, signatures, head, passportLocal) {
+  // Only in files that import passport-local: LocalStrategy, or its Strategy under its own name (new Strategy(, passportLocal.Strategy()
+  if (!passportLocal || !insideCallTo(code, index, /(?:\bLocalStrategy|(?<![\w$])Strategy)\s*$/)) return false;
   for (const signature of signatures) {
     // The parameter list a function's body follows: function name (a, b) { … } or (a, b) => { … }
-    const params = signature.match(/\(([^()]*)\)\s*(?:=>\s*)?$/);
+    const params = signature.match(/\(([^()]*)\)\s*(?::\s*[\w$.<>[\]| ]+)?\s*(?:=>\s*)?$/);
     if (!params) continue;
-    const names = params[1].split(',').map((p) => p.trim()).filter(Boolean);
+    // TypeScript annotations are dropped: (username: string, done: Function)
+    const names = params[1].split(',').map((p) => p.replace(/:[\s\S]*$/, '').trim()).filter(Boolean);
     if (names.length < 3 || !/^(done|cb|callback|verified|next)$/.test(names[names.length - 1])) continue;
     const credentials = names.slice(names[0] === 'req' ? 1 : 0, -1);
     return credentials.some((name) => new RegExp(`(?<![\\w$.])${escapeRegex(name)}(?![\\w$])`).test(head));
@@ -209,7 +214,7 @@ function chainIsHandled(code, index) {
   }
 }
 
-function promiseChainIssues({ code, lines, lineOf, browser }) {
+function promiseChainIssues({ code, lines, lineOf, browser, passport, passportLocal }) {
   const issues = [];
   const starts = new Set();
   const then = /\.\s*then\s*\(/g;
@@ -233,7 +238,7 @@ function promiseChainIssues({ code, lines, lineOf, browser }) {
     const startLine = lineOf(start);
     const signatures = enclosingSignatures(code, start);
     const inRoute = signatures.some((signature) => ROUTE_HANDLER.test(signature));
-    const inAuth = signatures.some((signature) => AUTH_CALLBACK.test(signature)) || insideCallTo(code, start, /Strategy\s*$/);
+    const inAuth = signatures.some((signature) => AUTH_CALLBACK.test(signature)) || (passport && insideCallTo(code, start, /Strategy\s*$/));
     const factors = ['✓ Promise chain has no .catch() and isn\'t returned or awaited, so a rejection is unhandled'];
     let severity = 'low';
     let confidence = 0.4;
@@ -246,7 +251,7 @@ function promiseChainIssues({ code, lines, lineOf, browser }) {
       factors.push(inRoute
         ? '✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn\'t catch it), otherwise the request hangs'
         : '✓ Inside an auth callback (passport): a rejection exits the process on Node ≥ 15, otherwise login hangs');
-      const credentials = !USER_INPUT.test(head) && usesLocalStrategyCredentials(code, start, signatures, head);
+      const credentials = !USER_INPUT.test(head) && usesLocalStrategyCredentials(code, start, signatures, head, passportLocal);
       if (USER_INPUT.test(head) || credentials) {
         severity = 'high';
         confidence = 0.75;
@@ -521,6 +526,7 @@ export async function scanForAsyncFootguns(targetPath) {
       const relFile = path.relative(targetPath, file);
       sources.push({
         relFile, content, code, lines: content.split('\n'), lineOf: lineIndex(code), browser: isBrowserFile(relFile, content),
+        passport: PASSPORT_IMPORT.test(content), passportLocal: PASSPORT_LOCAL_IMPORT.test(content),
       });
     }
 
