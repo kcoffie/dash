@@ -1,9 +1,9 @@
 # Project Handoff — Security Audit Platform
 
-**Last updated:** 2026-10-06 (session 7)
-**Branch:** `main` @ `2ede14b` has everything through PR #18. The async-footgun scanner is on `feature/async-scanner` (PR open, user merges). After it merges, Phase 1 is complete.
+**Last updated:** 2026-10-07 (session 9)
+**Branch:** `main` has everything through PR #21 (Phase 1 complete, team gates A). `test/report-schema` = PR #22 (team gates B1 + B2, measured; user merges).
 **Status:** Week 1 scanners ✅ (deps, secrets, SQLi, XSS, crypto; async ✅ PR open) · CI gate ✅ (test + lint) · Week 2 Dashboard ✅ (PRs #7, #9) · **Deployed ✅ https://dash-jade-nine.vercel.app/** (Vercel, production branch `main`) · Task #7 docs ✅ (PR #13) · scanner accuracy ✅ (PR #14) · ESLint ✅ (PR #16) · crypto scanner ✅ (PR #17; live demo now Juice Shop 144 / DVNA 72 / Express 65, verified on the live `/demo/*.json`) · repo public, `main` protected, secret scanning + push protection on (0 alerts)
-**Next step:** after the async PR merges, ask the user what's next. Candidates: the team-gates port (mutation-testing gate in CI; see the user's memory note and `~/Documents/projs/dos/TEAM.md`; ask before changing repo settings), template injection (XSS TODO), Phase 2.
+**Next step:** after PR #22 merges, ask the user: B3 (pattern-scanner survivor triage) or something else.
 
 ---
 
@@ -14,7 +14,8 @@
 **Team-gates port, user-approved plan** (A gates → B tests → C talk track → D required check):
 - ✅ PR #20 merged (unique temp dirs). ✅ PR #21 merged (A: Stryker, `mutate` / `mutate:changed`, CI `mutation-changed` + `mutation-full`, ratchet 56, reviewer/architect agents, `docs/ENGINEERING_PROCESS.md`, `qs` override).
 - ✅ First `mutation-full` on `main` (GitHub, 4 workers): **56.91%** (2174 killed / 37 timeout / 1674 survived), **44 m 57 s of the 60-min job timeout**. Local at the same commit: 56.89% (2173 / 37 / 1675), so **1 mutant differs between CI and local**: not identified yet (the CI HTML report wasn't parseable; JSON upload is now added, so diff the next CI run's `out/mutation.json` against a local run).
-- **B1 + B2 on branch `test/report-schema` (pushed, draft PR #22, NOT measured yet):**
+- ✅ **Measured (session 9, 2026-10-07): before 56.89% → after 60.55%**, same settings (8 workers, `timeoutMS` 20000, both in `/tmp` worktrees outside iCloud, Mac awake). Before `53a1708`: 2174 killed / 36 timeout / 1675 survived of 3885 (19 m 20 s). After `2ae40a6`: 2312 / 38 / 1531 / 15 ignored of 3881 (13 m 16 s); 60.32% if the 15 ignored count as survived (user chose 60.55% as the headline, 60.32% noted). All 38 timeouts genuine (35 read, 3 `xss.js` planted: still running at 60 s). 0 Killed→Survived flips. `npm-audit-client.js:153` (`!aPre` → false) survives in both runs: a real gap for B3, no longer a false kill. Ratchet 56 → 60 (user approved). Score log updated. Raw reports in `out/measure-2026-10-07/` (local, gitignored) with `analyze.js` (diff two Stryker JSON reports).
+- **B1 + B2 on branch `test/report-schema` (draft PR #22):**
   - `report.test.js` (12 rules from PRD §3 / Req 4, fixture worked out by hand: 10 findings, 3 critical / 2 high / 2 medium / 3 low).
   - Stand-in npm `src/scanner/__tests__/helpers/bin/npm` (+ `fake-npm.js`) replays **recorded real npm 11.19.1** output (stdout, stderr, exit code, and `install --package-lock-only`). Fixtures in `src/scanner/__tests__/fixtures/npm-audit/` (`node-serialize-0.0.4`, `ms-2.1.3` clean, `registry-down`); manifests named `*.fixture.json` so Dependabot doesn't alert.
   - Dependency test now on the recording; live registry test only with `LIVE_NPM=1` (offline = fail). Proven: with `npm_config_registry=http://127.0.0.1:9`, `npm test` passes 11/11 and the live test fails.
@@ -23,9 +24,8 @@
   - `stryker.config.json`: `timeoutMS: 20000` (see Session 8 for why). CI uploads `out/mutation*.json` too.
   - Scoped checks done: `report.js` 0% → 98.2% and `pattern-scanner.js` 0% → 73.7% (before the B2/timeout commits); `mutate:changed` 100% on changed lines.
 - **NEXT (in order):**
-  1. **Measure** (≈ 20 min each, `caffeinate -dims`, lid open, run one at a time). After = this branch: `npx stryker run` → `out/mutation.json`. Before = `53a1708` with the same timeout: `git worktree add <scratch>/before 53a1708 && cd <scratch>/before && npm ci && npx stryker run --timeoutMS 20000` (don't pass `--jsonReporter.fileName`: Stryker rejects it; copy `out/mutation.json` instead). Then **check every Timeout by hand** (a string/label mutant can't loop forever) and spot-check any Killed→Survived flips by planting the mutant and running `npm test`.
-  2. Put both numbers in `docs/ENGINEERING_PROCESS.md` score log, raise `thresholds.break` to the new floor (never above the measured score), update this section + STATUS, mark the draft PR ready, check `gh pr checks`. Run the `reviewer` agent again on the final branch before calling it ready.
-  3. Then B3: triage each pattern scanner's survivors (regex mutants survive most) against the answer keys / DESIGN scoring model, tests named as rules, one scanner per PR, worst first (crypto 53%, async 55%, SQLi 56%).
+  1. ✅ Measure. 2. ✅ Score log + ratchet 60. ✅ Reviewer run on the final branch (2026-10-07): no scanner bug, numbers match the reports; verified findings are in Open TODOs. PR #22 goes ready after the user decides on the disables and the fake-npm fix (user merges).
+  3. **Ask the user** whether to start B3 or something else. B3: triage each pattern scanner's survivors (regex mutants survive most) against the answer keys / DESIGN scoring model, tests named as rules, one scanner per PR, worst first (crypto 53.1%, async 54.8%, SQLi 55.0%, measured 2026-10-07).
   4. C: talk track in `docs/ENGINEERING_PROCESS.md` from the measured numbers only. D: ask the user before making `mutation-changed` a required check. Also watch the `mutation-full` job time (45 of 60 min before B2).
 
 **Then ask the user which of these is next** (no default; they choose):
@@ -99,6 +99,16 @@ The core loop works end to end: `npm run scan <repo>` → `scanner-output.json` 
 - Don't let local paths leak into anything published (demo reports, errors, docs). npm's debug-log path lives in the home directory.
 
 ---
+
+## What We Did in Session 9 (2026-10-07)
+- ✅ PR #22 checks green at start (`mutation-changed` 18 s is real: 9 mutants, all in `npm-audit-client.js`; the other changed lines are `Stryker disable` comments with no mutants).
+- ✅ Before/after measured and checked (see "Where we are"). Score log + ratchet 60 committed.
+- Lessons for mutation runs:
+  - The repo's folder is cloud-synced: `npm ci` there sent load to ~30 (`fileproviderd`, Spotlight `mds`). Run Stryker in a `/tmp` worktree (user OK'd `/tmp`) and wait for the 1-min load < 6 before starting. Copy reports out of `/tmp` afterwards (macOS prunes it).
+  - 8 workers drive load to ~280 on 14 cores; with `timeoutMS` 20000 timeouts stayed at 36–38 (not 89), so the 20 s limit holds.
+  - Two mutants can share a start column and replacement (`a || b` → `false` and `a` → `false`): key mutants on start **and end** position when diffing runs.
+  - This shell sets `FORCE_COLOR`: `node -p` output carries ANSI codes, so use `String(...)` or strip them before passing values to scripts.
+  - Plant a Timeout with `perl -e 'alarm 60; exec @ARGV' npm test` (macOS has no `timeout`); `git checkout` the file and delete `.test-tmp-*` folders the killed run leaves behind.
 
 ## What We Did in Session 8 (2026-10-06)
 - ✅ START HERE steps 1–3 (see "Where we are"). No files changed by those steps.
@@ -318,12 +328,15 @@ Week 3 Deploy    ████████████████░░░░░
 - [ ] **No package.json → the progress log says "✓ Dependency scanning: no vulnerabilities"** although the scan was skipped (`report.js` logs from the findings count, not the errors). The report's `errors` does say "No package.json found". Found writing the report tests (session 8).
 - [ ] **A missing or unreadable target directory gives 0 findings and 0 errors** from all five pattern scanners (`walkDir` skips unreadable dirs; `scanPatterns(null)` also returns nothing). The CLI checks the path exists first; `scanTarget` callers don't. Same family as the silent-skip TODO above.
 - [ ] **Pattern scanner errors get a doubled prefix:** each `scanFor*` rethrows as "Secret scanning failed: …" and `scanPatterns` prefixes again ("Secret scanning failed: Secret scanning failed: …"). Only reachable through a scanner bug, so untested.
-- [ ] **The catch blocks in `scanPatterns` / `scanTarget` (pattern side) can't be tested without injecting a failing scanner.** Emptying one would turn a scanner crash into a silent 0; 7 surviving mutants. **User's call** whether a scanner-injection seam is worth it.
+- [ ] **The catch blocks in `scanPatterns` / `scanTarget` (pattern side) can't be tested without injecting a failing scanner.** Emptying one would turn a scanner crash into a silent 0: 6 catch-block `{}` mutants survive (pattern-scanner.js 15/25/35/45/55, report.js 39; measured 2026-10-07), because the `// Stryker disable` comments sit inside the catch blocks and don't cover the block itself. report.js's catch is reachable only if `scanPatterns` itself throws (it catches every scanner's error), so its disable reason is inaccurate. **User's call** whether a scanner-injection seam is worth it, and whether the disables stay (the process doc allows them only for survivors that change nothing; they lift the score 60.32% → 60.55%).
 - [ ] **No recorded npm audit with an `info` advisory,** so `summary.info` is untested (npm can emit `info`; nothing pins the count).
 - [ ] **ESLint 10 is out** (10.12.0 on 2026-10-06). We stay on 9 for now; 10 tracks JSX references in core `no-unused-vars`, so `eslint-plugin-react` (used only for `jsx-uses-vars`) could be dropped after upgrading.
 - [ ] **Crypto: z85 / base64 "encryption" not detected** (Juice Shop Forged Coupon). Left out by user decision; revisit if a generic signal appears (e.g. an encoded value compared for authorization).
 - [ ] **Crypto: hardcoded IVs aren't flagged** (`createCipheriv(alg, key, 'literal')`). Only literal keys are. Needs a severity call from the user.
 - [ ] **Crypto: "enclosing function" is the nearest named function within 15 lines above**, not a parsed scope. Fine on the three targets (three.js `generateUUID` is out of reach, as intended), but a sibling function's name can leak into the next one.
+- [ ] **Fake npm can truncate stdout at 64 KB on macOS** (`src/scanner/__tests__/helpers/bin/npm`: `stdout.write` then `process.exit`). Reproduced: 1 MB written, 65,536 bytes received. Today's fixtures are ~1.5 KB so nothing breaks; a real-sized recording would fail on macOS only (Linux pipes are sync) and could cause random kills under Stryker. Fix: set `process.exitCode` instead of `process.exit()`. (Reviewer, 2026-10-07.)
+- [ ] **One new kill tests the fake, not user-visible behaviour:** `npm-audit-client.js:65` `'--package-lock-only'` → `""` is killed only because the fake rejects any other `install` call; real npm would do a full install and give the same report. Either make "no lockfile: npm resolves a lockfile only, never installs" a named rule with a test, or accept it. User's call.
+- [ ] **MD5 of an unknown value → medium** (report.test.js fixture `lib/ids.js`) isn't in DESIGN.md's scoring table (DESIGN:96 gives only password/token → high and checksum → low). Write the rule into DESIGN or change the fixture. User's call (scoring).
 - [ ] **Async: unawaited calls to local async functions aren't detected.** Juice Shop `routes/basketItems.ts:75` `void quantityCheck(...)` has no `.catch()` (line 60 does). Needs a "call to a known-async function as a statement" rule plus a severity call.
 - [ ] **Async: Cypress `cy.*().then()` chains are reported** (4 low in Juice Shop `test/cypress/`). Cypress chainables aren't promises. Could skip `cy.` heads.
 - [ ] **Async: wrapper detection accepts any call around the handler at registration** (`rateLimit(handler())` would count as wrapped), and follows names, not imports.
