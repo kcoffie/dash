@@ -28,21 +28,42 @@ function where(entry) {
   return entry.lines ? `${file}:${entry.lines[0]}-${entry.lines[1]}` : file;
 }
 
-// Shape problems in a key, so a typo can't turn an entry into a check that always passes
+// A file pattern is { startsWith?, endsWith? } with string values. A plain string (e.g. a glob)
+// would pass a loose check and then match nothing, so it's rejected.
+function isPattern(p) {
+  if (p === null || typeof p !== 'object' || Array.isArray(p)) return false;
+  const keys = Object.keys(p);
+  return keys.length > 0 && keys.every((k) => (k === 'startsWith' || k === 'endsWith') && typeof p[k] === 'string' && p[k] !== '');
+}
+
+const RULES = ['noFindingsOfType', 'maxSeverity'];
+
+// Shape problems in a key, so a typo can't turn an entry or rule into a check that always passes
 export function validateKey(key) {
   const problems = [];
   if (!/^[0-9a-f]{40}$/.test(key.commit ?? '')) problems.push('commit must be a full 40-character SHA');
-  for (const p of key.nonProduction ?? []) {
-    if (!p.startsWith && !p.endsWith) problems.push('nonProduction pattern needs startsWith or endsWith');
+  if (!Array.isArray(key.entries)) problems.push('entries must be an array');
+  if (key.nonProduction !== undefined && !(Array.isArray(key.nonProduction) && key.nonProduction.every(isPattern))) {
+    problems.push('nonProduction must be a list of { startsWith, endsWith } patterns');
   }
-  (key.entries ?? []).forEach((e, i) => {
+  const rules = key.rules ?? {};
+  for (const name of Object.keys(rules)) if (!RULES.includes(name)) problems.push(`unknown rule "${name}"`);
+  if (rules.noFindingsOfType !== undefined
+    && !(Array.isArray(rules.noFindingsOfType) && rules.noFindingsOfType.every((t) => TYPES.includes(t)))) {
+    problems.push('rules.noFindingsOfType must list known types');
+  }
+  if (rules.maxSeverity !== undefined && !SEVERITIES.includes(rules.maxSeverity)) problems.push('rules.maxSeverity must be a severity');
+  (Array.isArray(key.entries) ? key.entries : []).forEach((e, i) => {
     const at = `entry ${i}`;
     if (!STATUSES.includes(e.status)) problems.push(`${at}: unknown status "${e.status}"`);
     if (!TYPES.includes(e.type)) problems.push(`${at}: unknown type "${e.type}"`);
     if ((e.file === undefined) === (e.pattern === undefined)) problems.push(`${at}: needs exactly one of file or pattern`);
-    if (e.pattern && !e.pattern.startsWith && !e.pattern.endsWith) problems.push(`${at}: pattern needs startsWith or endsWith`);
+    if (e.pattern !== undefined && !isPattern(e.pattern)) problems.push(`${at}: pattern must be { startsWith, endsWith } with string values`);
     if (e.lines && !(Number.isInteger(e.lines[0]) && Number.isInteger(e.lines[1]) && e.lines[0] >= 1 && e.lines[0] <= e.lines[1])) {
       problems.push(`${at}: lines must be [start, end] with 1 <= start <= end`);
+    }
+    if (e.challenges !== undefined && !(Array.isArray(e.challenges) && e.challenges.every((c) => typeof c === 'string'))) {
+      problems.push(`${at}: challenges must be a list of names`);
     }
     if (!e.why) problems.push(`${at}: why is required`);
     if (e.status === 'found' || e.status === 'reviewed') {
@@ -98,9 +119,12 @@ export function compareToKey(key, { findings, errors = [] }) {
     }
   }
 
-  // Every loud finding in production code must be a reviewed decision, not silent drift
+  // Every loud finding in production code must be a reviewed decision, not silent drift. Secrets
+  // count in non-production code too: only provider formats may stay high there (DESIGN), so each
+  // one needs an entry, and a generic value that stopped being capped shows up here.
   for (const f of scanned) {
-    if ((f.severity === 'high' || f.severity === 'critical') && !keyed.has(f) && !isNonProduction(key, f.file)) {
+    const exempt = isNonProduction(key, f.file) && f.type !== 'hardcoded-secret';
+    if ((f.severity === 'high' || f.severity === 'critical') && !keyed.has(f) && !exempt) {
       fail('unkeyed high', `${f.file}:${f.line} ${f.type} (${f.severity}) has no answer-key entry`);
     }
   }
