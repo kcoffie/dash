@@ -24,7 +24,11 @@ for (const { name, key } of keys) {
 
   const scan = manifest.scans.find((s) => s.id === name);
   results.push(report(`${name}: demo commit is the key's pinned commit`,
-    Boolean(scan) && key.commit.startsWith(scan.commit), JSON.stringify({ demo: scan?.commit, key: key.commit })));
+    Boolean(scan) && scan.commit.length >= 7 && key.commit.startsWith(scan.commit), JSON.stringify({ demo: scan?.commit, key: key.commit })));
+
+  // Per target, not just across keys: otherwise an empty scan of this target passes on the strength of another key
+  results.push(report(`${name}: key has at least one found entry (an empty scan of this target can't pass)`,
+    (key.entries ?? []).some((e) => e.status === 'found')));
 
   const demo = readJson(`public/demo/${scan?.file ?? `${name}.json`}`);
   const { failures, recall } = compareToKey(key, { findings: demo.findings, errors: demo.errors ?? [] });
