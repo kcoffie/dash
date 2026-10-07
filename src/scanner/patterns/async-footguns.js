@@ -106,6 +106,38 @@ function enclosingSignatures(code, index) {
   return signatures;
 }
 
+// Whether `index` sits inside the arguments of a call whose callee matches `callee`
+// (e.g. new LocalStrategy({ … }, function (…) { here }))
+function insideCallTo(code, index, callee) {
+  let depth = 0;
+  for (let i = index - 1; i >= 0; i--) {
+    const ch = code[i];
+    if (ch === ')' || ch === ']' || ch === '}') depth++;
+    else if (ch === '(' || ch === '[' || ch === '{') {
+      if (depth > 0) { depth--; continue; }
+      if (ch === '(' && callee.test(code.slice(Math.max(0, i - 40), i))) return true;
+    }
+  }
+  return false;
+}
+
+// passport-local's verify callback gets the username and password straight from req.body, so its
+// credential parameters are request input (user decision, 2026-10-07). Other strategies' parameters
+// (a verified JWT payload, an OAuth profile) are not.
+function usesLocalStrategyCredentials(code, index, signatures, head) {
+  if (!insideCallTo(code, index, /\bLocalStrategy\s*$/)) return false;
+  for (const signature of signatures) {
+    // The parameter list a function's body follows: function name (a, b) { … } or (a, b) => { … }
+    const params = signature.match(/\(([^()]*)\)\s*(?:=>\s*)?$/);
+    if (!params) continue;
+    const names = params[1].split(',').map((p) => p.trim()).filter(Boolean);
+    if (names.length < 3 || !/^(done|cb|callback|verified|next)$/.test(names[names.length - 1])) continue;
+    const credentials = names.slice(names[0] === 'req' ? 1 : 0, -1);
+    return credentials.some((name) => new RegExp(`(?<![\\w$.])${escapeRegex(name)}(?![\\w$])`).test(head));
+  }
+  return false;
+}
+
 // Name of the nearest function declared at or above `startLine`
 function enclosingFunctionName(lines, startLine) {
   for (let i = startLine; i >= Math.max(0, startLine - FUNCTION_LOOKBACK); i--) {
@@ -201,7 +233,7 @@ function promiseChainIssues({ code, lines, lineOf, browser }) {
     const startLine = lineOf(start);
     const signatures = enclosingSignatures(code, start);
     const inRoute = signatures.some((signature) => ROUTE_HANDLER.test(signature));
-    const inAuth = signatures.some((signature) => AUTH_CALLBACK.test(signature));
+    const inAuth = signatures.some((signature) => AUTH_CALLBACK.test(signature)) || insideCallTo(code, start, /Strategy\s*$/);
     const factors = ['✓ Promise chain has no .catch() and isn\'t returned or awaited, so a rejection is unhandled'];
     let severity = 'low';
     let confidence = 0.4;
@@ -214,10 +246,13 @@ function promiseChainIssues({ code, lines, lineOf, browser }) {
       factors.push(inRoute
         ? '✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn\'t catch it), otherwise the request hangs'
         : '✓ Inside an auth callback (passport): a rejection exits the process on Node ≥ 15, otherwise login hangs');
-      if (USER_INPUT.test(head)) {
+      const credentials = !USER_INPUT.test(head) && usesLocalStrategyCredentials(code, start, signatures, head);
+      if (USER_INPUT.test(head) || credentials) {
         severity = 'high';
         confidence = 0.75;
-        factors.push('✓ Request input (req.*) feeds the promise: a crafted request can make it reject');
+        factors.push(credentials
+          ? '✓ Login credentials feed the promise (passport-local reads them from req.body): a crafted request can make it reject'
+          : '✓ Request input (req.*) feeds the promise: a crafted request can make it reject');
       }
     } else {
       factors.push('? Server code outside request handling: a rejection still exits Node ≥ 15, but requests don\'t trigger it directly');
