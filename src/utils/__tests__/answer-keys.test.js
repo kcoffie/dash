@@ -104,6 +104,11 @@ function testChallengeOnFoundAndMissFollowsFound() {
     result.failures.length === 0 && result.recall['crypto-misuse']?.['Weird Crypto'] === true, JSON.stringify(result.recall));
 }
 
+function testMissEntryWithoutChallengesAddsNoRecall() {
+  const result = compareToKey(key([{ status: 'known miss', type: 'xss', file: 'u.ts', lines: [73, 73], why: 'test' }]), { findings: [] });
+  return report('A known-miss entry with no challenges field adds nothing to recall', JSON.stringify(result.recall) === '{}', JSON.stringify(result.recall));
+}
+
 function testSitesCountFoundAndKnownMiss() {
   // Rule 6: sites = reported found entries / (found + known-miss entries); not-flagged and reviewed entries aren't sites
   const result = compareToKey(key([
@@ -111,9 +116,10 @@ function testSitesCountFoundAndKnownMiss() {
     found('xss', 'b.js', [1, 1], 'high'),
     { status: 'known miss', type: 'xss', file: 'c.js', lines: [1, 1], why: 'test' },
     { status: 'not flagged', type: 'xss', file: 'd.js', lines: [1, 1], why: 'test' },
+    { status: 'not flagged', type: 'xss', file: 'f.js', lines: [1, 1], why: 'test' },
     { status: 'reviewed', type: 'xss', file: 'e.js', lines: [1, 1], severity: 'low', reason: 'r', why: 'test' },
   ]), { findings: [finding('xss', 'a.js', 1, 'high'), finding('xss', 'e.js', 1, 'low')] });
-  return report('Sites per type: 1 reported of 2 found + 1 known miss → 1/3 (not-flagged and reviewed excluded)',
+  return report('Sites per type: 1 reported of 2 found + 1 known miss → 1/3 (two not-flagged and a reviewed entry excluded)',
     JSON.stringify(result.sites) === JSON.stringify({ xss: { reported: 1, total: 3 } }), JSON.stringify(result.sites));
 }
 
@@ -435,6 +441,7 @@ const results = [
   testRecallIsPerType(),
   testChallengeOnlyOnMissEntriesIsNotRecalled(),
   testChallengeOnFoundAndMissFollowsFound(),
+  testMissEntryWithoutChallengesAddsNoRecall(),
   testSitesCountFoundAndKnownMiss(),
   testOtherTypeInFileIsNotAMove(),
   testWrongSeverityFails(),
