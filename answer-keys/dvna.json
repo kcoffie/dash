@@ -75,6 +75,6 @@
     { "status": "not flagged", "type": "async-footgun", "file": "core/appHandler.js", "lines": [119, 119],
       "why": "product.save() chain ends in .catch()" },
     { "status": "not flagged", "type": "async-footgun", "file": "models/index.js", "lines": [18, 33],
-      "why": "authenticate() chain ends in .catch(); sync().then(ok, onError) handles the rejection" }
+      "why": "authenticate() chain ends in .catch(); sync().then(ok, onError) has a rejection handler → handled (DESIGN async row, user decision 2026-10-08)" }
   ]
 }
