@@ -7,7 +7,7 @@ const SEVERITIES = ['low', 'medium', 'high', 'critical'];
 const TYPES = ['hardcoded-secret', 'sql-injection', 'xss', 'crypto-misuse', 'async-footgun'];
 
 // An entry names a file exactly (`file`) or by prefix/suffix (`pattern`), and optionally a line range
-function matchesFile(entry, file) {
+export function matchesFile(entry, file) {
   if (entry.file !== undefined) return entry.file === file;
   const { startsWith = '', endsWith = '' } = entry.pattern;
   return file.startsWith(startsWith) && file.endsWith(endsWith);
@@ -23,7 +23,7 @@ function isNonProduction(key, file) {
   return (key.nonProduction ?? []).some((p) => matchesFile({ pattern: p }, file));
 }
 
-function where(entry) {
+export function where(entry) {
   const file = entry.file ?? `${entry.pattern.startsWith ?? ''}*${entry.pattern.endsWith ?? ''}`;
   return entry.lines ? `${file}:${entry.lines[0]}-${entry.lines[1]}` : file;
 }

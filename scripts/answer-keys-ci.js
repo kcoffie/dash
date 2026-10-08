@@ -12,13 +12,15 @@
 import fs from 'fs';
 import path from 'path';
 import { execFileSync } from 'child_process';
+import { fileURLToPath } from 'url';
 import { scanPatterns } from '../src/scanner/pattern-scanner.js';
 import { compareToKey, validateKey, typesWithFoundEntries } from '../src/utils/answer-keys.js';
 import {
-  infrastructureProblems, demoCommitProblem, keyedFiles, redactTargetPath, diffAgainstDemo, recallLines, lostChallenges, verdict,
+  infrastructureProblems, demoCommitProblem, keyedFiles, keySetProblems, keyReferenceProblems, redactTargetPath, diffAgainstDemo,
+  recallLines, lostChallenges, verdict,
 } from '../src/utils/answer-keys-ci.js';
 
-const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
 const targetsDir = path.resolve(process.argv[2] ?? 'targets');
 
@@ -36,12 +38,22 @@ function git(dir, args) {
   }
 }
 
-function isReadableFile(file) {
+// Line count of a file, or null when it can't be read
+function lineCount(file) {
   try {
-    fs.accessSync(file, fs.constants.R_OK);
-    return fs.statSync(file).isFile();
+    const text = fs.readFileSync(file, 'utf8');
+    return text.split('\n').length - (text.endsWith('\n') ? 1 : 0);
   } catch {
-    return false;
+    return null;
+  }
+}
+
+// Folders (or symlinks to folders) in the targets folder, or null when it can't be listed
+function targetNames() {
+  try {
+    return fs.readdirSync(targetsDir).filter((name) => fs.statSync(path.join(targetsDir, name)).isDirectory());
+  } catch {
+    return null;
   }
 }
 
@@ -67,9 +79,16 @@ async function checkTarget(name, key, manifest) {
   if (demoProblem) fail('demo commit', demoProblem);
   // Per target: otherwise an empty scan of this target passes on the strength of another key
   if (!key.entries.some((e) => e.status === 'found')) fail('key', 'no found entry of its own (an empty scan would pass)');
-  for (const file of keyedFiles(key)) {
-    if (!isReadableFile(path.join(target, file))) fail('keyed file', `${file} is not a readable file in the target`);
+  const tracked = git(target, ['ls-files', '-z']);
+  if (tracked === null) fail('key reference', 'git ls-files failed: keyed files not checked');
+  const files = (tracked ?? '').split('\0').filter(Boolean);
+  const lineCounts = {};
+  for (const file of keyedFiles(key).filter((f) => files.includes(f))) {
+    const n = lineCount(path.join(target, file));
+    if (n === null) fail('keyed file', `${file} is not readable in the target`);
+    else lineCounts[file] = n;
   }
+  for (const problem of keyReferenceProblems(key, { files, lineCounts })) fail('key reference', problem);
 
   const started = Date.now();
   const scan = await scanPatterns(target);
@@ -81,10 +100,15 @@ async function checkTarget(name, key, manifest) {
   for (const line of recallLines(recall, sites)) console.log(`  ${line}`);
   for (const lost of lostChallenges(key, recall)) fail('challenge not recalled', lost);
 
-  // Information only: never fails the job
+  // Information only: never fails the job (an unreadable demo file says so; its message could carry a path)
   const demoFile = manifest.scans.find((s) => s.id === name)?.file ?? `${name}.json`;
-  const demo = readJson(`public/demo/${demoFile}`);
-  const diff = diffAgainstDemo(scan.findings, demo.findings);
+  let diff;
+  try {
+    diff = diffAgainstDemo(scan.findings, readJson(`public/demo/${demoFile}`).findings);
+  } catch {
+    console.log(`  vs public/demo/${demoFile} (information only): could not be read`);
+    return;
+  }
   console.log(`  vs public/demo/${demoFile} (information only): ${diff.fresh} fresh vs ${diff.demo} demo pattern finding(s), ${diff.lines.length} difference(s)`);
   for (const line of diff.lines) console.log(`    ${line}`);
 }
@@ -95,6 +119,7 @@ async function main() {
   const keys = names.map((name) => ({ name, key: readJson(`answer-keys/${name}.json`) }));
 
   console.log(`Answer keys: ${names.join(', ')} · targets in ${path.relative(root, targetsDir) || '.'}`);
+  for (const problem of keySetProblems({ keys: names, scans: manifest.scans.map((s) => s.id), targets: targetNames() })) fail('key set', problem);
   const covered = typesWithFoundEntries(keys.map((k) => k.key));
   if (covered.length !== 5) fail('key', `only ${covered.length} of 5 scanner types have a found entry in some key: ${covered.join(', ')}`);
 
@@ -108,12 +133,18 @@ async function main() {
     await checkTarget(name, key, manifest);
   }
 
+  finish();
+}
+
+function finish() {
   const { code, summary } = verdict({ infrastructure, failures });
   console.log(`\n${summary}`);
   process.exit(code);
 }
 
+// A crash is a failure, never a pass, and doesn't hide an infrastructure failure already counted (exit 2 wins).
+// Targets after the crash are not checked; the summary still prints.
 main().catch((error) => {
-  console.error(`\n✗ ${redactTargetPath(error.message, targetsDir)}`);
-  process.exit(1);
+  fail('crash', redactTargetPath(redactTargetPath(error.message, targetsDir, '<targets>'), root, '<repo>'));
+  finish();
 });

@@ -3,6 +3,8 @@
 // public, so everything printed is built from key fields, file:line, type, severity, counts: no snippets,
 // descriptions or context text.
 
+import { matchesFile, where } from './answer-keys.js';
+
 // The target must be the key's pinned commit and untouched, or its scan proves nothing about the key.
 // git: { head: `git rev-parse HEAD` output, porcelain: `git status --porcelain` output }
 export function infrastructureProblems(key, { head, porcelain }) {
@@ -30,10 +32,41 @@ export function keyedFiles(key) {
   return [...new Set(key.entries.filter((e) => e.file !== undefined).map((e) => e.file))].sort();
 }
 
-// Scanner error messages can carry the runner's absolute path
-export function redactTargetPath(message, targetPath) {
+// Every key is checked: a deleted or renamed key file would otherwise drop its target (and its spec rules) silently.
+// targets is null when the targets folder can't be listed (each key then fails as a missing checkout).
+export function keySetProblems({ keys, scans, targets }) {
+  const problems = [];
+  for (const k of keys) if (!scans.includes(k)) problems.push(`key "${k}" has no scan in public/demo/index.json`);
+  for (const s of scans) if (!keys.includes(s)) problems.push(`public/demo scan "${s}" has no answer key`);
+  for (const t of targets ?? []) if (!keys.includes(t)) problems.push(`target "${t}" has no answer key`);
+  return problems;
+}
+
+// Key references that could never fire: a keyed file not tracked at the commit (exact case: macOS would find
+// Login.ts for login.ts), an entry or nonProduction pattern matching no file, a range starting past the end of
+// its file. files: `git ls-files` of the target; lineCounts: { [keyed file]: lines } for the files that were read.
+export function keyReferenceProblems(key, { files, lineCounts }) {
+  const problems = [];
+  for (const file of keyedFiles(key)) if (!files.includes(file)) problems.push(`${file} is not a tracked file in the target`);
+  for (const entry of key.entries) {
+    if (entry.pattern !== undefined && !files.some((f) => matchesFile(entry, f))) {
+      problems.push(`${where(entry)} ${entry.type}: pattern matches no file in the target`);
+    }
+    const lineCount = lineCounts[entry.file];
+    if (entry.lines && lineCount !== undefined && entry.lines[0] > lineCount) {
+      problems.push(`${where(entry)} ${entry.type}: starts after the last line (${lineCount})`);
+    }
+  }
+  for (const p of key.nonProduction ?? []) {
+    if (!files.some((f) => matchesFile({ pattern: p }, f))) problems.push(`nonProduction ${where({ pattern: p })}: matches no file in the target`);
+  }
+  return problems;
+}
+
+// Error messages can carry the runner's absolute paths (the target's, or the repo's with label '<repo>')
+export function redactTargetPath(message, targetPath, label = '<target>') {
   if (!targetPath) return message;
-  return message.split(targetPath).join('<target>');
+  return message.split(targetPath).join(label);
 }
 
 const pattern = (findings) => findings.filter((f) => f.type !== 'dependency-cve');
