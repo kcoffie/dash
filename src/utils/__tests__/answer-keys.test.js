@@ -109,6 +109,33 @@ function testMissEntryWithoutChallengesAddsNoRecall() {
   return report('A known-miss entry with no challenges field adds nothing to recall', JSON.stringify(result.recall) === '{}', JSON.stringify(result.recall));
 }
 
+function testSiteReportedAtWrongSeverityIsNotReported() {
+  // Criterion 6: a site counts as reported only at its severity
+  const result = compareToKey(key([found('xss', 'a.js', [1, 1], 'high')]), { findings: [finding('xss', 'a.js', 1, 'medium')] });
+  return report('A found site reported at another severity is not a reported site (0/1)',
+    JSON.stringify(result.sites) === JSON.stringify({ xss: { reported: 0, total: 1 } }), JSON.stringify(result.sites));
+}
+
+function testChallengeFoundInOneTypeMissedInAnotherIsSplit() {
+  const knownMiss = { status: 'known miss', type: 'crypto-misuse', file: 'c.js', lines: [1, 1], challenges: ['C'], why: 'test' };
+  const result = compareToKey(key([found('xss', 'a.js', [1, 1], 'high', ['C']), knownMiss]), { findings: [finding('xss', 'a.js', 1, 'high')] });
+  return report('A challenge found in one type and only missed in another → recalled for the first, not the second',
+    result.recall.xss?.C === true && result.recall['crypto-misuse']?.C === false, JSON.stringify(result.recall));
+}
+
+function testReportedKnownMissIsNotAReportedSite() {
+  const knownMiss = { status: 'known miss', type: 'xss', file: 'u.ts', lines: [73, 73], challenges: ['CSP Bypass'], why: 'test' };
+  const result = compareToKey(key([knownMiss]), { findings: [finding('xss', 'u.ts', 73, 'medium')] });
+  return report('A known miss that is now reported → known miss found; still 0/1 sites and not recalled until the key is updated',
+    only(result, 'known miss found', 'u.ts:73') && JSON.stringify(result.sites) === JSON.stringify({ xss: { reported: 0, total: 1 } })
+      && result.recall.xss?.['CSP Bypass'] === false, JSON.stringify(result));
+}
+
+function testEmptyKeyHasNoRecallOrSites() {
+  const result = compareToKey(key([]), { findings: [] });
+  return report('An empty key gives no recall and no sites', JSON.stringify([result.recall, result.sites]) === '[{},{}]', JSON.stringify(result));
+}
+
 function testSitesCountFoundAndKnownMiss() {
   // Rule 6: sites = reported found entries / (found + known-miss entries); not-flagged and reviewed entries aren't sites
   const result = compareToKey(key([
@@ -442,6 +469,10 @@ const results = [
   testChallengeOnlyOnMissEntriesIsNotRecalled(),
   testChallengeOnFoundAndMissFollowsFound(),
   testMissEntryWithoutChallengesAddsNoRecall(),
+  testSiteReportedAtWrongSeverityIsNotReported(),
+  testChallengeFoundInOneTypeMissedInAnotherIsSplit(),
+  testReportedKnownMissIsNotAReportedSite(),
+  testEmptyKeyHasNoRecallOrSites(),
   testSitesCountFoundAndKnownMiss(),
   testOtherTypeInFileIsNotAMove(),
   testWrongSeverityFails(),

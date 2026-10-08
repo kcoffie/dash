@@ -40,7 +40,8 @@ for (const { name, key } of keys) {
     const { reported = 0, total = 0 } = sites[type] ?? {};
     console.log(`  ${type}: ${challenges.filter(([, ok]) => ok).length}/${challenges.length} challenges · ${reported}/${total} sites`);
   }
-  // Only documented misses may be unrecalled: a challenge with a found entry that isn't recalled is a regression
+  // Only documented misses may be unrecalled. A lost found challenge already fails "demo report matches" above (its entry is
+  // missing, moved or at the wrong severity); this is a guard on compareToKey's recall bookkeeping and names the challenge.
   const withFound = (type, c) => key.entries.some((e) => e.status === 'found' && e.type === type && (e.challenges ?? []).includes(c));
   const lost = Object.entries(recall).flatMap(([type, cs]) => Object.entries(cs).filter(([c, ok]) => !ok && withFound(type, c)).map(([c]) => `${type}: ${c}`));
   results.push(report(`${name}: every challenge with a found entry is recalled`, lost.length === 0, lost.join(', ')));

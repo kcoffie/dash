@@ -1,6 +1,6 @@
 # Project Status Dashboard
 
-**Last Updated:** 2026-10-07  
+**Last Updated:** 2026-10-08  
 **Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team gates: mutation testing + reviewer/architect agents merged (PRs #21, #22; score 56.89% → 60.55%, CI 60.58%, ratchet 60) · passport-local credentials → high merged (PR #25) · answer-key regression test: keys for all 3 targets merged (PRs #27, #28), recall fix open; repo now at `~/projs/dash`
 
 ---
