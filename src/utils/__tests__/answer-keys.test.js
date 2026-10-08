@@ -200,6 +200,14 @@ function testMediumSecretInNonProductionFails() {
     only(result, 'non-production above low', 'test/a.js:4 hardcoded-secret is medium'), JSON.stringify(result));
 }
 
+function testKeyedHighSecretInNonProductionPasses() {
+  // Provider formats are high or critical; a keyed one in non-production code is fine at either severity
+  const result = compareToKey(key([found('hardcoded-secret', 'test/k.js', [2, 2], 'high')], { nonProduction: [{ startsWith: 'test/' }] }), {
+    findings: [finding('hardcoded-secret', 'test/k.js', 2, 'high')],
+  });
+  return report('A keyed high secret in non-production code → no failure (not the low cap)', result.failures.length === 0, JSON.stringify(result));
+}
+
 function testNonProductionCappedAtLowExceptSecrets() {
   const result = compareToKey(key([found('hardcoded-secret', 'test/c.js', [1, 1], 'critical')], { nonProduction: [{ startsWith: 'test/' }] }), {
     findings: [
@@ -398,6 +406,7 @@ const results = [
   testHighOutsideSecretsInNonProductionIsCapRule(),
   testHighSecretInNonProductionNeedsEntry(),
   testMediumSecretInNonProductionFails(),
+  testKeyedHighSecretInNonProductionPasses(),
   testNonProductionCappedAtLowExceptSecrets(),
   testNoFindingsOfTypeRule(),
   testMaxSeverityRule(),
