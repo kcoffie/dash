@@ -72,3 +72,45 @@ jobs:
           path: |
             out/mutation.html
             out/mutation.json
+
+  # Answer keys against the live targets at their pinned commits (docs/design-notes/answer-key-test.md).
+  # Fetched from upstream (user decision): a deleted pinned commit fails its fetch step, and the fix then is a fork.
+  # Always runs (no paths filter, nothing skipped), so it can become a required check. The refs must equal each key's
+  # `commit`: the script fails as infrastructure (exit 2) if a checkout isn't that commit, untouched.
+  answer-keys:
+    if: github.event_name == 'pull_request' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    # Reads untrusted upstream code (scanned as text, never run): the token only needs to read this repo
+    permissions:
+      contents: read
+    # First run (PR #31): 2 m 48 s, Juice Shop's scan 161 s of it
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      # No npm ci: the pattern scanners use Node built-ins only (a new dependency would fail the import, not pass)
+      - name: Fetch Juice Shop at the key's commit
+        uses: actions/checkout@v4
+        with:
+          repository: juice-shop/juice-shop
+          ref: 1618a611b173b4bf114028e6e02549950606e29d
+          path: targets/juice-shop
+          persist-credentials: false
+      - name: Fetch DVNA at the key's commit
+        uses: actions/checkout@v4
+        with:
+          repository: appsecco/dvna
+          ref: 9ba473add536f66ac9007966acb2a775dd31277a
+          path: targets/dvna
+          persist-credentials: false
+      - name: Fetch Express at the key's commit
+        uses: actions/checkout@v4
+        with:
+          repository: expressjs/express
+          ref: 7ef98448f8b38099ab1ded55e458538ad47a51e7
+          path: targets/express
+          persist-credentials: false
+      - name: Compare with the answer keys
+        run: npm run answer-keys:ci -- targets

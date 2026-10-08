@@ -33,6 +33,26 @@ Unknown fields in a key or an entry are rejected, so a misspelling (`rule`, `non
 - The first Linux CI run is compared finding by finding against `public/demo` (measured so far on macOS only).
 - Out of scope: dependency CVEs (no target commits a lockfile; advisories drift); precision / false-positive rate (separate PRD item); total counts (rule 5). Counts against `public/demo` are printed as information only.
 
+## PR 3 acceptance criteria (user-confirmed 2026-10-08)
+Targets come from upstream (no forks; a deleted pinned commit fails closed). The job-level `if:` is `github.event_name == 'pull_request' || github.event_name == 'push'`: it always runs (user decision), never skips.
+1. Job `answer-keys` in `.github/workflows/test.yml`, on PRs to and pushes to `main`, no workflow `paths:`, `timeout-minutes: 20` (tightened to 10 after the first Linux run took 2 m 48 s).
+2. dash checkout first, then one `actions/checkout@v4` per target: upstream `repository`, `ref` = the key's full commit, `path: targets/<id>`, `persist-credentials: false`. A failed fetch fails its own step (visibly separate from the compare step).
+3. One job, not a matrix: the cross-key check needs every key.
+4. Per target, infrastructure checks first (exit 2): `git rev-parse HEAD` equals `key.commit`, `git status --porcelain` empty. A target that fails them is not compared.
+5. `public/demo/index.json`'s short commit must be a prefix of `key.commit` (key/demo failure, exit 1).
+6. Every file named by a `file` entry (any status) is tracked at the commit (exact case) and readable before scanning; every entry `pattern` and `nonProduction` pattern matches a tracked file; no `lines` range starts past the end of its file; a pattern entry has no `lines`. Keys, demo scan ids and target folders are the same set. (Extended after the reviewer, 2026-10-08.)
+7. `scanPatterns`; any `errors` fail, printed with the target's absolute path replaced by `<target>`.
+8. `validateKey` problems fail; `compareToKey` failures print as `kind: message`; each key has a found entry of its own; all 5 types have a found entry across keys.
+9. Recall printed per type (`x/y challenges · a/b sites`); a challenge with a found entry that isn't recalled fails.
+10. Information only, never fails: fresh scan vs `public/demo/<id>.json` on type/file/line/severity/confidence/context; counts, and each difference as `file:line type severity` (or "context differs").
+11. Scan time per target printed.
+12. Exit 0 all pass; 2 if any infrastructure failure; otherwise 1. A summary line names the category. A crash is a failure: it keeps this rule, still prints the summary, and prints `<repo>` / `<targets>` for absolute paths. An unreadable demo file is information only.
+13. Output: file:line, type, severity, target-relative paths, counts and timings only. No snippets, descriptions, context text, raw reports or artifacts.
+
+Added after the reviewer (2026-10-08, closing fail-open paths; no scoring change): keys, `public/demo` scan ids and target folders must be the same set (a deleted key file would drop its target's checks; the offline demo test checks keys vs scans too); item 6 checks keyed files against `git ls-files` (exact case: macOS would accept `Login.ts` for `login.ts`), and every entry `pattern` and `nonProduction` pattern must match a tracked file and no `lines` range may start past the end of its file (a typo there would make a check that can never fire); an unreadable demo file is information only; a crash counts as a failure, keeps the exit-2 rule and prints `<repo>` / `<targets>` instead of absolute paths. The job's token is `contents: read`; Stryker ignores a local `targets/`.
+
+Pure parts live in `src/utils/answer-keys-ci.js` (unit-tested, mutation-tested); `scripts/answer-keys-ci.js` does the I/O and is checked by running it with planted failures (wrong commit, dirty tree, deleted keyed file, edited key). Out of scope: dependency CVEs, precision, totals, caching (unless the fetch measures slow), making the check required, crypto-scanner speed.
+
 ## Where expected values come from
 Transcribed by hand, never from scanner output: Juice Shop `data/static/challenges.yml` and `vuln-code-snippet` markers, DVNA `docs/solution/*.md`, the answer-key tables in HANDOFF, and the user's recorded severity decisions. Groups the tables give only as totals (DVNA's 15 async chains, Juice Shop's 10 browser chains, 5 captcha lines) are worked out by reading the target code. The reviewer agent re-works a sample of entries independently.
 
@@ -53,6 +73,11 @@ Still the user's call later: making `answer-keys` a required check (repo setting
 - Partial clones at the pinned commits: Juice Shop 13 s / 65 MB, DVNA 4 s / 8 MB, Express 4 s / 6 MB.
 - Pattern scan: Juice Shop 96 s (crypto scanner **94 s** of it; logged as a separate TODO), DVNA 0.04 s, Express 0.4 s. Expect slower on a GitHub runner.
 - A fresh scan today matches `public/demo` exactly for every pattern type on all three targets, with 0 errors (checked independently by the architect too).
+
+## Measured on Linux (first CI run, PR #31, 2026-10-08, ubuntu-latest)
+- Fetch at the pinned commits (`actions/checkout`, depth 1): about 1 s per target.
+- Pattern scan: Juice Shop 161.0 s, Express 0.8 s, DVNA 0.1 s. Whole job 2 m 48 s.
+- Compared finding by finding with `public/demo` (type, file, line, severity, confidence, context): 0 differences on all three targets (DVNA 29/29, Express 60/60, Juice Shop 93/93 pattern findings); recall identical to macOS; 0 scanner errors.
 
 ## What breaks
 - A target repo deletes the pinned commit: fetch fails, the job fails and says so. Mitigation then: a fork under the user's account.
