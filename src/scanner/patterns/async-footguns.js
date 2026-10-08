@@ -9,11 +9,15 @@ const SEVERITY_LADDER = ['low', 'medium', 'high', 'critical'];
 // How far back to look for the name of the function that returns a handler (factory-style routes)
 const FUNCTION_LOOKBACK = 15;
 
-// Callbacks that run while authenticating a request (passport strategies and session hooks)
-const AUTH_CALLBACK = /passport\.(use|serializeUser|deserializeUser)\b|Strategy\s*\(|function\s*\([^)]*\bdone\s*\)/;
-// Files that use passport (a …Strategy( call counts as a passport callback only there: user decision 2026-10-07)
-const PASSPORT_IMPORT = /(?:require\s*\(\s*|from\s+|import\s+)['"]passport(?:-[\w-]+)?['"]/;
-const PASSPORT_LOCAL_IMPORT = /(?:require\s*\(\s*|from\s+|import\s+)['"]passport-local['"]/;
+// Callbacks that run while authenticating a request (passport session hooks and verify callbacks)
+const AUTH_CALLBACK = /passport\.(use|serializeUser|deserializeUser)\b|function\s*\([^)]*\bdone\s*\)/;
+// A …Strategy( call: a passport callback only in files that import passport (user decision 2026-10-07)
+const STRATEGY_CALL = /Strategy\s*\(/;
+// Files that use passport / passport-local
+const PASSPORT_IMPORT = /(?:require\s*\(\s*|from\s+|import\s+)['"]passport(?:-[\w-]+)?['"]/g;
+const PASSPORT_LOCAL_IMPORT = /(?:require\s*\(\s*|from\s+|import\s+)['"]passport-local['"]/g;
+// The passport-local module bound to a name: const passportLocal = require('passport-local'), import * as pl from 'passport-local'
+const PASSPORT_LOCAL_MODULE = /\b(?:(?:const|let|var)\s+([\w$]+)\s*=\s*require\s*\(\s*['"]passport-local['"]\s*\)(?!\s*\.)|import\s+(?:\*\s*as\s+)?([\w$]+)\s+from\s+['"]passport-local['"])/g;
 
 // Express route registration: app.get(…), router.post(…), apiRouter.use(…)
 const ROUTE_REGISTRATION = /\b(?:app|router|[\w$]*[Rr]outer)\s*\.\s*(?:get|post|put|patch|delete|all|use|options|head)\s*\(/g;
@@ -25,6 +29,9 @@ const KEYWORDS = new Set(['if', 'for', 'while', 'switch', 'catch', 'function', '
 const maxSeverity = (a, b) => (SEVERITY_LADDER.indexOf(a) >= SEVERITY_LADDER.indexOf(b) ? a : b);
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// Matches of `pattern` (global) in the source that are real code: not inside a comment or string (blank in `code`)
+const codeMatches = (content, code, pattern) => [...content.matchAll(pattern)].filter((match) => code[match.index] !== ' ');
 
 // Blank out string and comment contents (keeping length and newlines) so brackets and keywords
 // inside them don't count. Regex literals aren't recognized; a quote inside one can mask the rest of its line.
@@ -124,20 +131,51 @@ function insideCallTo(code, index, callee) {
   return false;
 }
 
+// Callee of a passport-local Strategy call in a file that imports passport-local: LocalStrategy, its Strategy
+// under its own name (new Strategy(), or Strategy on the module's own binding (passportLocal.Strategy(), not jwt.Strategy(
+function localStrategyCallee(content, code) {
+  const modules = codeMatches(content, code, PASSPORT_LOCAL_MODULE).map((match) => escapeRegex(match[1] ?? match[2]));
+  const member = modules.length > 0 ? `|(?<![\\w$.])(?:${modules.join('|')})\\s*\\.\\s*Strategy` : '';
+  return new RegExp(`(?:\\bLocalStrategy|(?<![\\w$.])Strategy${member})\\s*$`);
+}
+
+// Parameter names of the function whose body follows `signature`: function name (a, b) { … } or (a, b) => { … }.
+// TypeScript annotations are dropped, including ones with brackets: (username: string, done: (err: any) => void): Promise<void>
+function parameterNames(signature) {
+  const tail = signature.match(/\)\s*(?::\s*[\w$.<>[\]| ]+)?\s*(?:=>\s*)?$/);
+  if (!tail) return null;
+  let depth = 0;
+  let open = -1;
+  for (let i = tail.index; i >= 0 && open < 0; i--) {
+    if (signature[i] === ')') depth++;
+    else if (signature[i] === '(' && --depth === 0) open = i;
+  }
+  if (open < 0) return null;
+  // Split on commas outside a type's brackets (the > of => doesn't close anything)
+  const params = [''];
+  depth = 0;
+  for (let i = open + 1; i < tail.index; i++) {
+    const ch = signature[i];
+    if ('([{<'.includes(ch)) depth++;
+    else if (')]}'.includes(ch) || (ch === '>' && signature[i - 1] !== '=')) depth--;
+    if (ch === ',' && depth === 0) params.push('');
+    else params[params.length - 1] += ch;
+  }
+  return params.map((p) => p.replace(/:[\s\S]*$/, '').trim()).filter(Boolean);
+}
+
 // passport-local's verify callback gets the username and password straight from req.body, so its
 // credential parameters are request input (user decision, 2026-10-07). Other strategies' parameters
 // (a verified JWT payload, an OAuth profile) are not.
-function usesLocalStrategyCredentials(code, index, signatures, head, passportLocal) {
-  // Only in files that import passport-local: LocalStrategy, or its Strategy under its own name (new Strategy(, passportLocal.Strategy()
-  if (!passportLocal || !insideCallTo(code, index, /(?:\bLocalStrategy|(?<![\w$])Strategy)\s*$/)) return false;
+function usesLocalStrategyCredentials(code, index, signatures, head, localCallee) {
+  // Only in files that import passport-local, inside a call to its Strategy
+  if (!localCallee || !insideCallTo(code, index, localCallee)) return false;
   for (const signature of signatures) {
-    // The parameter list a function's body follows: function name (a, b) { … } or (a, b) => { … }
-    const params = signature.match(/\(([^()]*)\)\s*(?::\s*[\w$.<>[\]| ]+)?\s*(?:=>\s*)?$/);
-    if (!params) continue;
-    // TypeScript annotations are dropped: (username: string, done: Function)
-    const names = params[1].split(',').map((p) => p.replace(/:[\s\S]*$/, '').trim()).filter(Boolean);
+    const names = parameterNames(signature);
+    if (!names) continue;
     if (names.length < 3 || !/^(done|cb|callback|verified|next)$/.test(names[names.length - 1])) continue;
-    const credentials = names.slice(names[0] === 'req' ? 1 : 0, -1);
+    // verify(username, password, done), or verify(req, username, password, done) with passReqToCallback
+    const credentials = names.slice(names[0] === 'req' || names.length > 3 ? 1 : 0, -1);
     return credentials.some((name) => new RegExp(`(?<![\\w$.])${escapeRegex(name)}(?![\\w$])`).test(head));
   }
   return false;
@@ -214,7 +252,7 @@ function chainIsHandled(code, index) {
   }
 }
 
-function promiseChainIssues({ code, lines, lineOf, browser, passport, passportLocal }) {
+function promiseChainIssues({ code, lines, lineOf, browser, passport, localCallee }) {
   const issues = [];
   const starts = new Set();
   const then = /\.\s*then\s*\(/g;
@@ -238,7 +276,8 @@ function promiseChainIssues({ code, lines, lineOf, browser, passport, passportLo
     const startLine = lineOf(start);
     const signatures = enclosingSignatures(code, start);
     const inRoute = signatures.some((signature) => ROUTE_HANDLER.test(signature));
-    const inAuth = signatures.some((signature) => AUTH_CALLBACK.test(signature)) || (passport && insideCallTo(code, start, /Strategy\s*$/));
+    const inAuth = signatures.some((signature) => AUTH_CALLBACK.test(signature))
+      || (passport && (signatures.some((signature) => STRATEGY_CALL.test(signature)) || insideCallTo(code, start, /Strategy\s*$/)));
     const factors = ['✓ Promise chain has no .catch() and isn\'t returned or awaited, so a rejection is unhandled'];
     let severity = 'low';
     let confidence = 0.4;
@@ -251,7 +290,7 @@ function promiseChainIssues({ code, lines, lineOf, browser, passport, passportLo
       factors.push(inRoute
         ? '✓ Inside a route handler: on Node ≥ 15 an unhandled rejection exits the process (Express 4 doesn\'t catch it), otherwise the request hangs'
         : '✓ Inside an auth callback (passport): a rejection exits the process on Node ≥ 15, otherwise login hangs');
-      const credentials = !USER_INPUT.test(head) && usesLocalStrategyCredentials(code, start, signatures, head, passportLocal);
+      const credentials = !USER_INPUT.test(head) && usesLocalStrategyCredentials(code, start, signatures, head, localCallee);
       if (USER_INPUT.test(head) || credentials) {
         severity = 'high';
         confidence = 0.75;
@@ -526,7 +565,8 @@ export async function scanForAsyncFootguns(targetPath) {
       const relFile = path.relative(targetPath, file);
       sources.push({
         relFile, content, code, lines: content.split('\n'), lineOf: lineIndex(code), browser: isBrowserFile(relFile, content),
-        passport: PASSPORT_IMPORT.test(content), passportLocal: PASSPORT_LOCAL_IMPORT.test(content),
+        passport: codeMatches(content, code, PASSPORT_IMPORT).length > 0,
+        localCallee: codeMatches(content, code, PASSPORT_LOCAL_IMPORT).length > 0 ? localStrategyCallee(content, code) : null,
       });
     }
 
