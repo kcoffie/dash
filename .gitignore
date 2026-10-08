@@ -15,3 +15,6 @@ scanner-output.json
 # Mutation testing (npm run mutate): reports and Stryker sandboxes
 out/
 .stryker-tmp/
+
+# Answer-key targets (npm run answer-keys:ci; the CI job checks them out here)
+targets/
