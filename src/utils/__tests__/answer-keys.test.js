@@ -47,6 +47,24 @@ function testSiblingSiteIsNotAMove() {
     only(result, 'missing', 'p.ejs:51-51'), JSON.stringify(result));
 }
 
+function testNotFlaggedFindingStillCountsAsAMove() {
+  // Only found/reviewed entries claim a finding; one matched by a not-flagged entry is still "the same type elsewhere in the file"
+  const notFlagged = { status: 'not flagged', type: 'xss', file: 'a.ejs', lines: [25, 25], why: 'test' };
+  const result = compareToKey(key([found('xss', 'a.ejs', [20, 20], 'medium'), notFlagged]), {
+    findings: [finding('xss', 'a.ejs', 25, 'medium')],
+  });
+  return report('Lost entry whose file has the same type at a not-flagged line → moved (and not-flagged appears), not missing',
+    JSON.stringify(kinds(result)) === JSON.stringify(['moved', 'not flagged appears']), JSON.stringify(result));
+}
+
+function testFoundEntryWithoutChallengesAddsNoRecall() {
+  const entry = found('sql-injection', 'app.js', [3, 3], 'high');
+  delete entry.challenges;
+  const result = compareToKey(key([entry]), { findings: [finding('sql-injection', 'app.js', 3, 'high')] });
+  return report('A found entry with no challenges field passes and adds nothing to recall',
+    result.failures.length === 0 && JSON.stringify(result.recall) === '{}', JSON.stringify(result));
+}
+
 function testOtherTypeInFileIsNotAMove() {
   const result = compareToKey(key([found('xss', 'a.js', [5, 5], 'medium')]), {
     findings: [finding('async-footgun', 'a.js', 9, 'medium'), finding('xss', 'b.js', 5, 'medium')],
@@ -199,6 +217,12 @@ function testEntriesRequired() {
   return report('A key without an entries list → rejected (not a crash later)', rejects({ commit: COMMIT }, 'entries must be an array'));
 }
 
+function testNonArrayEntriesIsOneProblem() {
+  const problems = validateKey({ commit: COMMIT, entries: 'x' });
+  return report('entries that isn\'t an array → exactly one problem (no per-entry noise)',
+    JSON.stringify(problems) === JSON.stringify(['entries must be an array']), JSON.stringify(problems));
+}
+
 function testStringPatternsRejected() {
   // A string has .startsWith/.endsWith methods, so a loose check would accept a glob that then matches nothing
   const glob = key([{ status: 'not flagged', type: 'xss', pattern: '**/*_correct.ts', why: 'x' }]);
@@ -277,6 +301,8 @@ const results = [
   testMissingFoundEntryFails(),
   testMovedIsSeparateFromMissing(),
   testSiblingSiteIsNotAMove(),
+  testNotFlaggedFindingStillCountsAsAMove(),
+  testFoundEntryWithoutChallengesAddsNoRecall(),
   testOtherTypeInFileIsNotAMove(),
   testWrongSeverityFails(),
   testChallengeNeedsEverySiteAtSeverity(),
@@ -297,6 +323,7 @@ const results = [
   testValidKeyHasNoProblems(),
   testCommitMustBeFullSha(),
   testEntriesRequired(),
+  testNonArrayEntriesIsOneProblem(),
   testStringPatternsRejected(),
   testPatternEdgesRejected(),
   testOptionalFieldsMayBeOmitted(),
