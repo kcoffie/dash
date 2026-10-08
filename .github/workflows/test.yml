@@ -83,7 +83,8 @@ jobs:
     # Reads untrusted upstream code (scanned as text, never run): the token only needs to read this repo
     permissions:
       contents: read
-    timeout-minutes: 20
+    # First run (PR #31): 2 m 48 s, Juice Shop's scan 161 s of it
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
