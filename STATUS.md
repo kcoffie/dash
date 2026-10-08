@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** user merges the answer-key recall fix → PR 3 (CI job, targets from upstream). Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + `npm run build`, and `mutate:changed` ≥ 80%.
+**Next Step:** user merges PR #29 (answer-key recall fix) → PR 3 (CI job, targets from upstream). Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + `npm run build`, and `mutate:changed` ≥ 80%.

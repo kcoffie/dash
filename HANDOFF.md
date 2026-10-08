@@ -1,7 +1,7 @@
 # Project Handoff — Security Audit Platform
 
 **Last updated:** 2026-10-08 (session 10: PRs #25–#28 merged, repo moved to `~/projs/dash`, answer-key recall fix PR open)
-**Branch:** `main` @ `b87db5f` has everything through PR #28 (answer keys for all 3 targets). Open: **answer-key recall fix** (`fix/answer-key-recall`, for the user to merge).
+**Branch:** `main` @ `b87db5f` has everything through PR #28 (answer keys for all 3 targets). Open: **PR #29** = answer-key recall fix (`fix/answer-key-recall`, for the user to merge).
 **Location:** the repo moved from `~/Documents/projs/dash` (iCloud-synced) to **`~/projs/dash`** on 2026-10-08 (user request). Claude's project memory was copied to the new path's key. Stryker can run in the repo dir now (the `/tmp` worktree advice was for the cloud-synced folder); review agents still use a detached `/tmp` worktree.
 **Status:** Phase 1 complete · deployed https://dash-jade-nine.vercel.app/ · CI: `test` (required) + `mutation-changed` (PRs) + `mutation-full` (main, ratchet 60, last run **60.58%**, 23 m 15 s) · answer-key regression test being built (3 PRs)
 **Next step:** see "▶ START HERE → Where we are → NEXT".
@@ -22,7 +22,7 @@
 1. ✅ PR #25 reviewed, fixed, merged (session 10).
 2. ✅ Answer-key PR 1 merged (PR #27).
 3. ✅ PR #28 merged. User decisions 2026-10-08: CI fetches the targets from **upstream** (no forks; a deleted pinned commit fails closed, forking is the fix then); `data-export.component.ts:58` stays **high** for now (TODO open); recall fix as its own PR before PR 3.
-3b. **Recall fix (`fix/answer-key-recall`) open, user merges.** User-confirmed acceptance criteria (per-type recall, documented misses counted, found entries decide mixed challenges, site counts, demo test fails on a lost challenge). Tests failed first (8/53); `mutate:changed` 100% (32/32; first run 93.75% exposed 2 weak tests, fixed). Juice Shop prints exactly the hand-computed numbers.
+3b. **Recall fix = PR #29 (`fix/answer-key-recall`), open, user merges.** User-confirmed acceptance criteria (per-type recall, documented misses counted, found entries decide mixed challenges, site counts, demo test fails on a lost challenge). Tests failed first (8/53); `mutate:changed` 100% (32/32; first run 93.75% exposed 2 weak tests, fixed). Juice Shop prints exactly the hand-computed numbers.
 4. **PR 3: CI job `answer-keys`** against the live targets (design note §Design): `actions/checkout` per target at the key's full commit, verify HEAD + clean tree, fail closed (infrastructure failures reported separately), job-level `if:` (no workflow `paths:`), `timeout-minutes`, print only file:line/type/severity. First Linux run compared finding by finding with `public/demo`. Suggest forking the 3 targets to the user's account first (ask; it's an account action).
 5. Then ask the user: make `answer-keys` + `mutation-changed` required checks (repo setting; recommendation given: after PR 3 has ~3 green runs), B3 (pattern-scanner survivor triage: crypto 53.1%, async 54.8%, SQLi 55.0%), the fake-npm 64 KB fix, the crypto-scanner slowness (94 s on Juice Shop), or something else. Don't pick for them.
 
