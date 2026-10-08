@@ -52,8 +52,8 @@ export function keyReferenceProblems(key, { files, lineCounts }) {
     if (entry.pattern !== undefined && !files.some((f) => matchesFile(entry, f))) {
       problems.push(`${where(entry)} ${entry.type}: pattern matches no file in the target`);
     }
-    const lineCount = lineCounts[entry.file];
-    if (entry.lines && lineCount !== undefined && entry.lines[0] > lineCount) {
+    const lineCount = lineCounts[entry.file]; // undefined (not read) compares false: no problem reported
+    if (entry.lines && entry.lines[0] > lineCount) {
       problems.push(`${where(entry)} ${entry.type}: starts after the last line (${lineCount})`);
     }
   }
