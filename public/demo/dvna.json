@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-06T19:03:35.373Z",
+  "timestamp": "2026-10-07T17:44:48.558Z",
   "targetPath": "dvna",
   "findings": [
     {
@@ -2567,8 +2567,8 @@
       "id": "async-core_passport_js-31",
       "type": "async-footgun",
       "title": "Async Footgun (Promise Without .catch())",
-      "severity": "medium",
-      "confidence": 0.6,
+      "severity": "high",
+      "confidence": 0.75,
       "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
       "file": "core/passport.js",
       "line": 31,
@@ -2576,7 +2576,7 @@
       "context": [
         "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
         "✓ Inside an auth callback (passport): a rejection exits the process on Node ≥ 15, otherwise login hangs",
-        "? Errors thrown inside the .then() callbacks become rejections too"
+        "✓ Login credentials feed the promise (passport-local reads them from req.body): a crafted request can make it reject"
       ],
       "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
       "references": [
@@ -2593,8 +2593,8 @@
       "id": "async-core_passport_js-55",
       "type": "async-footgun",
       "title": "Async Footgun (Promise Without .catch())",
-      "severity": "medium",
-      "confidence": 0.6,
+      "severity": "high",
+      "confidence": 0.75,
       "description": "A promise chain ends without a rejection handler. If the promise rejects, or a .then() callback throws, nothing handles it: Node ≥ 15 exits the process, older Node logs a warning and the request never gets a response.",
       "file": "core/passport.js",
       "line": 55,
@@ -2602,7 +2602,7 @@
       "context": [
         "✓ Promise chain has no .catch() and isn't returned or awaited, so a rejection is unhandled",
         "✓ Inside an auth callback (passport): a rejection exits the process on Node ≥ 15, otherwise login hangs",
-        "? Errors thrown inside the .then() callbacks become rejections too"
+        "✓ Login credentials feed the promise (passport-local reads them from req.body): a crafted request can make it reject"
       ],
       "remediation": "End the chain with a handler: db.User.find(...).then(user => res.render(...)).catch(next). In async code: try { const user = await db.User.find(...) } catch (err) { next(err) }.",
       "references": [
@@ -2669,8 +2669,8 @@
   "summary": {
     "total": 87,
     "critical": 16,
-    "high": 30,
-    "medium": 35,
+    "high": 32,
+    "medium": 33,
     "low": 6,
     "info": 0
   },
