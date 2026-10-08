@@ -6,6 +6,7 @@
   "scripts": {
     "scan": "node src/scanner/index.js",
     "demo:export": "node scripts/export-demo.js",
+    "answer-keys:ci": "node scripts/answer-keys-ci.js",
     "screenshots": "node scripts/screenshots.js",
     "test": "node --test 'src/**/__tests__/*.test.js'",
     "mutate": "stryker run",
