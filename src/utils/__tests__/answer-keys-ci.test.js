@@ -153,6 +153,14 @@ function testRangePastEndOfFileFails() {
     same(problems, ['a.ts:101-110 xss: starts after the last line (100)']), JSON.stringify(problems));
 }
 
+function testPatternWithLinesFails() {
+  // A range on a pattern entry has no single file to check against, so it can't be shown to fire
+  const k = key([{ status: 'known miss', type: 'xss', pattern: { endsWith: '.ts' }, lines: [5, 6] }]);
+  const problems = keyReferenceProblems(k, { files: ['a.ts'], lineCounts: { 'a.ts': 3 } });
+  return report('Pattern entry with a line range → problem (range not checkable)',
+    same(problems, ['*.ts:5-6 xss: lines on a pattern entry can\'t be checked; use one entry per file']), JSON.stringify(problems));
+}
+
 // --- Output hygiene ---
 
 function testRedactTargetPath() {
@@ -296,6 +304,7 @@ const results = [
   testPatternMatchingNoFileFails(),
   testNonProductionPatternMatchingNoFileFails(),
   testRangePastEndOfFileFails(),
+  testPatternWithLinesFails(),
   testRedactTargetPath(),
   testRedactWithLabel(),
   testRedactEmptyTargetPathLeavesMessage(),
