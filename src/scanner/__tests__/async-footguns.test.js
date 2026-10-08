@@ -461,9 +461,17 @@ async function testOtherStrategyNamespaceInPassportLocalFileIsNotCredentials() {
       '  User.findOne(payload.sub).then((u) => done(null, u))',
       '}))',
     ],
+    // passport-local bound to a module name: only that name's Strategy is passport-local's
+    'config/both.js': [
+      "const passportLocal = require('passport-local');",
+      "const jwt = require('passport-jwt');",
+      'passport.use(new jwt.Strategy(opts, function (payload, extra, done) {',
+      '  User.findOne(payload.sub).then((u) => done(null, u))',
+      '}))',
+    ],
   });
   return report('In a passport-local file, another strategy (jwt.Strategy, JwtStrategy) → medium with the auth factor, not credentials',
-    findings.length === 2 && findings.every((f) => f.severity === 'medium' && f.context.includes(AUTH_FACTOR) && !f.context.includes(CREDENTIALS_FACTOR)),
+    findings.length === 3 && findings.every((f) => f.severity === 'medium' && f.context.includes(AUTH_FACTOR) && !f.context.includes(CREDENTIALS_FACTOR)),
     JSON.stringify(findings));
 }
 
@@ -558,7 +566,9 @@ async function testPassportLocalModuleBindingsAndWrappedImports() {
   const findings = await scanFiles({
     'l1.js': local(['const passportLocal =', "  require ( 'passport-local' );"], 'passportLocal.Strategy'),
     'l2.ts': local(['import * as pl from', "  'passport-local';"], 'pl.Strategy'),
-    'l3.ts': local(['import  pl  from', "  'passport-local';"], 'pl . Strategy'),
+    'l3.ts': local(['import  pl  from', "  'passport-local';"], 'pl.Strategy'),
+    'l5.js': local(["const pl=require('passport-local');"], 'pl.Strategy'),
+    'l6.js': local(['import', "  'passport-local';"], 'Strategy'),
     'l4.ts': local(['import {', '  Strategy,', '} from', "  'passport-local';"], 'Strategy'),
     'j1.js': jwt(['const JwtStrategy = require', "  ('passport-jwt').Strategy;"]),
     'j2.ts': jwt(['import { Strategy as JwtStrategy } from', "  'passport-jwt';"]),
@@ -566,7 +576,7 @@ async function testPassportLocalModuleBindingsAndWrappedImports() {
   });
   const sev = (file) => findings.find((f) => f.file === file)?.severity;
   return report('passport-local bound by require / import * as / default import, imports wrapped across lines → high; wrapped passport imports → medium',
-    ['l1.js', 'l2.ts', 'l3.ts', 'l4.ts'].every((f) => sev(f) === 'high') && ['j1.js', 'j2.ts', 'j3.ts'].every((f) => sev(f) === 'medium'),
+    ['l1.js', 'l2.ts', 'l3.ts', 'l4.ts', 'l5.js', 'l6.js'].every((f) => sev(f) === 'high') && ['j1.js', 'j2.ts', 'j3.ts'].every((f) => sev(f) === 'medium'),
     JSON.stringify(findings.map((f) => [f.file, f.severity])));
 }
 
@@ -593,6 +603,34 @@ async function testVerifyCallbackSpacing() {
   return report('Verify callbacks written =>{ or ):void{ → high; function(user, done ) counts as an auth callback → medium',
     findings.length === 3 && at('auth.ts', 3) === 'high' && at('auth.ts', 6) === 'high' && at('session.js', 2) === 'medium',
     JSON.stringify(findings.map((f) => [f.file, f.line, f.severity])));
+}
+
+async function testVerifyCallbackDefaultParameter() {
+  // A default value is not part of the parameter's name, and its brackets don't hide the parameters after it
+  const findings = await scanFiles({
+    'auth.js': [
+      "const LocalStrategy = require('passport-local').Strategy;",
+      'passport.use(new LocalStrategy(function (username, password = normalize(raw), done) {',
+      '  db.get(password).then((row) => done(null, row))',
+      '}))',
+    ],
+  });
+  return report('passport-local verify callback with a default value (password = normalize(raw)) → high, credentials factor',
+    findings.length === 1 && findings[0].severity === 'high' && findings[0].context.includes(CREDENTIALS_FACTOR), JSON.stringify(findings));
+}
+
+async function testCalleeContainingStrategyIsNotAStrategyCall() {
+  // A …Strategy( call means the callee ends in Strategy: StrategyRegistry.add( is not one, even in a passport file
+  const findings = await scanFiles({
+    'registry.js': [
+      "const passport = require('passport');",
+      "StrategyRegistry.add('x', function () {",
+      '  load().then(ok)',
+      '})',
+    ],
+  });
+  return report('In a passport file, a callee that only contains Strategy (StrategyRegistry.add) is not a passport callback → low',
+    findings.length === 1 && findings[0].severity === 'low' && !findings[0].context.includes(AUTH_FACTOR), JSON.stringify(findings));
 }
 
 async function testUnrecognisedVerifySignatureStaysMedium() {
@@ -927,6 +965,8 @@ async function runTests() {
   results.push(await testCredentialNameAsPropertyDoesNotCount());
   results.push(await testPassportLocalModuleBindingsAndWrappedImports());
   results.push(await testVerifyCallbackSpacing());
+  results.push(await testVerifyCallbackDefaultParameter());
+  results.push(await testCalleeContainingStrategyIsNotAStrategyCall());
   results.push(await testUnrecognisedVerifySignatureStaysMedium());
   results.push(await testOtherServerChainIsLow());
   results.push(await testBrowserChainIsLow());
