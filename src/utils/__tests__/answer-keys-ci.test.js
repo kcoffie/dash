@@ -1,5 +1,6 @@
 import {
-  infrastructureProblems, demoCommitProblem, keyedFiles, redactTargetPath, diffAgainstDemo, recallLines, lostChallenges, verdict,
+  infrastructureProblems, demoCommitProblem, keyedFiles, keySetProblems, keyReferenceProblems, redactTargetPath, diffAgainstDemo,
+  recallLines, lostChallenges, verdict,
 } from '../answer-keys-ci.js';
 
 function report(name, passed, detail = '') {
@@ -40,7 +41,8 @@ function testDirtyTreeIsInfrastructure() {
 
 function testWrongCommitAndDirtyBothReported() {
   const problems = infrastructureProblems(key(), { head: OTHER, porcelain: ' M a.js\n' });
-  return report('Wrong commit and dirty tree → both reported', problems.length === 2, JSON.stringify(problems));
+  return report('Wrong commit and dirty tree → both reported',
+    problems.length === 2 && problems[0].includes(OTHER) && problems[1].includes('1 changed path(s)'), JSON.stringify(problems));
 }
 
 // --- The demo the site shows was exported from the key's commit ---
@@ -58,7 +60,8 @@ function testDemoOtherCommitFails() {
 function testDemoTooShortFails() {
   // '' and '0' are prefixes of every commit / many commits: they prove nothing
   const short = ['', '012345'].map((commit) => demoCommitProblem(key(), { id: 'x', commit }));
-  return report('Demo commit shorter than 7 characters → problem (a short prefix proves nothing)', short.every(Boolean), JSON.stringify(short));
+  return report('Demo commit shorter than 7 characters → "shorter than 7" problem (a short prefix proves nothing)',
+    short.every((p) => p?.includes('shorter than 7')), JSON.stringify(short));
 }
 
 function testDemoWithoutCommitFails() {
@@ -84,11 +87,81 @@ function testKeyedFiles() {
   return report('Keyed files: every file entry of any status, sorted, once each, no patterns', same(files, ['a.js', 'b.js', 'c.js']), JSON.stringify(files));
 }
 
+// --- Every key is checked: keys, demo scans and fetched targets are the same set ---
+
+function testSameSetsHaveNoProblems() {
+  const problems = keySetProblems({ keys: ['a', 'b'], scans: ['b', 'a'], targets: ['a', 'b'] });
+  return report('Keys = demo scans = targets (any order) → no problem', same(problems, []), JSON.stringify(problems));
+}
+
+function testDeletedKeyFails() {
+  const problems = keySetProblems({ keys: ['a'], scans: ['a', 'b'], targets: ['a', 'b'] });
+  return report('A key file deleted → problems naming the demo scan and the target without a key', same(problems, [
+    'public/demo scan "b" has no answer key',
+    'target "b" has no answer key',
+  ]), JSON.stringify(problems));
+}
+
+function testKeyWithoutDemoScanFails() {
+  const problems = keySetProblems({ keys: ['a', 'c'], scans: ['a'], targets: ['a', 'c'] });
+  return report('A key with no demo scan → problem', same(problems, ['key "c" has no scan in public/demo/index.json']), JSON.stringify(problems));
+}
+
+function testUnlistedTargetsSkipTargetCheck() {
+  // No targets folder at all is an infrastructure failure per key (missing checkout), not reported twice here
+  const problems = keySetProblems({ keys: ['a'], scans: ['a'], targets: null });
+  return report('Targets folder unreadable (null) → only keys vs scans compared', same(problems, []), JSON.stringify(problems));
+}
+
+// --- Every key reference can fire: files tracked (exact case), patterns match, ranges inside the file ---
+
+function testReferencesThatResolveHaveNoProblems() {
+  const k = key([
+    { status: 'found', type: 'xss', file: 'routes/a.ts', lines: [3, 4] },
+    { status: 'not flagged', type: 'xss', pattern: { endsWith: '_correct.ts' } },
+  ], { nonProduction: [{ startsWith: 'test/' }] });
+  const problems = keyReferenceProblems(k, { files: ['routes/a.ts', 'x/b_correct.ts', 'test/c.js'], lineCounts: { 'routes/a.ts': 3 } });
+  return report('Tracked files, matching patterns, range starting on the last line → no problem', same(problems, []), JSON.stringify(problems));
+}
+
+function testUntrackedOrWrongCaseFileFails() {
+  const k = key([{ status: 'not flagged', type: 'xss', file: 'routes/Login.ts' }]);
+  const problems = keyReferenceProblems(k, { files: ['routes/login.ts'], lineCounts: {} });
+  return report('Keyed file not tracked at the commit (wrong case counts: macOS would find it) → problem',
+    same(problems, ['routes/Login.ts is not a tracked file in the target']), JSON.stringify(problems));
+}
+
+function testPatternMatchingNoFileFails() {
+  const k = key([{ status: 'not flagged', type: 'sql-injection', pattern: { endsWith: '_corect.ts' } }]);
+  const problems = keyReferenceProblems(k, { files: ['x/b_correct.ts'], lineCounts: {} });
+  return report('Entry pattern that matches no tracked file (typo) → problem naming it',
+    same(problems, ['*_corect.ts sql-injection: pattern matches no file in the target']), JSON.stringify(problems));
+}
+
+function testNonProductionPatternMatchingNoFileFails() {
+  const k = key([], { nonProduction: [{ startsWith: 'tests/' }, { startsWith: 'examples/' }] });
+  const problems = keyReferenceProblems(k, { files: ['test/a.js', 'examples/b.js'], lineCounts: {} });
+  return report('nonProduction pattern that matches no tracked file → problem naming it',
+    same(problems, ['nonProduction tests/*: matches no file in the target']), JSON.stringify(problems));
+}
+
+function testRangePastEndOfFileFails() {
+  const k = key([{ status: 'known miss', type: 'xss', file: 'a.ts', lines: [101, 110] }]);
+  const problems = keyReferenceProblems(k, { files: ['a.ts'], lineCounts: { 'a.ts': 100 } });
+  return report('Range starting after the last line (can never fire) → problem with the line count',
+    same(problems, ['a.ts:101-110 xss: starts after the last line (100)']), JSON.stringify(problems));
+}
+
 // --- Output hygiene ---
 
 function testRedactTargetPath() {
   const message = redactTargetPath('XSS scanning failed: EACCES: /w/targets/js/a.js and /w/targets/js/b.js', '/w/targets/js');
   return report('Every occurrence of the target path → <target>', message === 'XSS scanning failed: EACCES: <target>/a.js and <target>/b.js', message);
+}
+
+function testRedactWithLabel() {
+  const message = redactTargetPath("ENOENT: open '/w/dash/public/demo/x.json'", '/w/dash', '<repo>');
+  return report('Repo root → <repo> when that label is given', message === "ENOENT: open '<repo>/public/demo/x.json'", message);
 }
 
 function testRedactEmptyTargetPathLeavesMessage() {
@@ -213,7 +286,17 @@ const results = [
   testDemoWithoutCommitFails(),
   testDemoMissingFails(),
   testKeyedFiles(),
+  testSameSetsHaveNoProblems(),
+  testDeletedKeyFails(),
+  testKeyWithoutDemoScanFails(),
+  testUnlistedTargetsSkipTargetCheck(),
+  testReferencesThatResolveHaveNoProblems(),
+  testUntrackedOrWrongCaseFileFails(),
+  testPatternMatchingNoFileFails(),
+  testNonProductionPatternMatchingNoFileFails(),
+  testRangePastEndOfFileFails(),
   testRedactTargetPath(),
+  testRedactWithLabel(),
   testRedactEmptyTargetPathLeavesMessage(),
   testIdenticalScansHaveNoDifferences(),
   testSeverityChangeIsOneChangedLine(),
