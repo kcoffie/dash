@@ -9,7 +9,7 @@ export function infrastructureProblems(key, { head, porcelain }) {
   const problems = [];
   const actual = head.trim();
   if (actual !== key.commit) problems.push(`checked out ${actual || '(no commit)'}, key is pinned to ${key.commit}`);
-  const changed = porcelain.split('\n').filter((line) => line.trim() !== '').length;
+  const changed = porcelain.split('\n').filter((line) => line !== '').length;
   if (changed > 0) problems.push(`working tree not clean: ${changed} changed path(s)`);
   return problems;
 }
@@ -103,7 +103,7 @@ export function recallLines(recall, sites) {
 // Challenges not recalled although the key has a found entry for them (of that type). Documented misses
 // (known miss / not flagged only) are expected to be unrecalled.
 export function lostChallenges(key, recall) {
-  const withFound = (type, c) => key.entries.some((e) => e.status === 'found' && e.type === type && (e.challenges ?? []).includes(c));
+  const withFound = (type, c) => key.entries.some((e) => e.status === 'found' && e.type === type && e.challenges?.includes(c));
   return Object.entries(recall).flatMap(([type, cs]) => Object.entries(cs)
     .filter(([c, ok]) => !ok && withFound(type, c))
     .map(([c]) => `${type}: ${c}`));
