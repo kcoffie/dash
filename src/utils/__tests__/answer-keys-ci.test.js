@@ -28,7 +28,8 @@ function testWrongCommitIsInfrastructure() {
 
 function testUnreadableHeadIsInfrastructure() {
   const problems = infrastructureProblems(key(), { head: '', porcelain: '' });
-  return report('No HEAD (not a git checkout) → problem, never a pass', problems.length === 1, JSON.stringify(problems));
+  return report('No HEAD (not a git checkout) → problem saying so, never a pass',
+    problems.length === 1 && problems[0].includes('(no commit)'), JSON.stringify(problems));
 }
 
 function testDirtyTreeIsInfrastructure() {
@@ -58,6 +59,11 @@ function testDemoTooShortFails() {
   // '' and '0' are prefixes of every commit / many commits: they prove nothing
   const short = ['', '012345'].map((commit) => demoCommitProblem(key(), { id: 'x', commit }));
   return report('Demo commit shorter than 7 characters → problem (a short prefix proves nothing)', short.every(Boolean), JSON.stringify(short));
+}
+
+function testDemoWithoutCommitFails() {
+  const problem = demoCommitProblem(key(), { id: 'x' });
+  return report('Demo scan with no commit → "shorter than 7" problem', Boolean(problem?.includes('shorter than 7')), problem);
 }
 
 function testDemoMissingFails() {
@@ -118,6 +124,24 @@ function testOnlyInOneSide() {
     same(diff.lines, ['only in public/demo a.js:3 xss low', 'only in fresh scan b.js:9 sql-injection critical']), JSON.stringify(diff));
 }
 
+function testDifferencesSortedByLocation() {
+  const fresh = [finding('xss', 'b.js', 1, 'low'), finding('xss', 'a.js', 10, 'low'), finding('sql-injection', 'a.js', 10, 'high')];
+  const diff = diffAgainstDemo(fresh, [finding('xss', 'a.js', 9, 'low')]);
+  return report('Difference lines sorted by file, then line, then type (whichever side they come from)', same(diff.lines, [
+    'only in public/demo a.js:9 xss low',
+    'only in fresh scan a.js:10 sql-injection high',
+    'only in fresh scan a.js:10 xss low',
+    'only in fresh scan b.js:1 xss low',
+  ]), JSON.stringify(diff));
+}
+
+function testDuplicateDroppedFromFreshScan() {
+  const x = finding('xss', 'a.js', 3, 'medium');
+  const diff = diffAgainstDemo([x], [x, { ...x }]);
+  return report('Demo has a finding twice, fresh scan once → exactly one "only in public/demo" line',
+    diff.demo === 2 && same(diff.lines, ['only in public/demo a.js:3 xss medium']), JSON.stringify(diff));
+}
+
 function testDuplicatesAtOneLocation() {
   // Two XSS findings on one line (two sinks); only one changed
   const demo = [finding('xss', 'a.js', 3, 'medium'), finding('xss', 'a.js', 3, 'high', { confidence: 0.6 })];
@@ -149,12 +173,13 @@ function testRecallLines() {
 
 function testLostChallenges() {
   const k = key([
+    { status: 'found', type: 'xss' }, // a site with no challenge (e.g. DVNA's async chains)
     { status: 'found', type: 'xss', challenges: ['Reflected'] },
     { status: 'known miss', type: 'xss', challenges: ['CSP Bypass'] },
     { status: 'found', type: 'sql-injection', challenges: ['CSP Bypass'] },
   ]);
   const lost = lostChallenges(k, { xss: { Reflected: false, 'CSP Bypass': false }, 'sql-injection': { 'CSP Bypass': true } });
-  return report('Lost challenges: unrecalled with a found entry of that type; a documented miss is not lost',
+  return report('Lost challenges: unrecalled with a found entry of that type; a documented miss is not lost; entries without challenges are fine',
     same(lost, ['xss: Reflected']), JSON.stringify(lost));
 }
 
@@ -185,6 +210,7 @@ const results = [
   testDemoPrefixPasses(),
   testDemoOtherCommitFails(),
   testDemoTooShortFails(),
+  testDemoWithoutCommitFails(),
   testDemoMissingFails(),
   testKeyedFiles(),
   testRedactTargetPath(),
@@ -193,6 +219,8 @@ const results = [
   testSeverityChangeIsOneChangedLine(),
   testConfidenceAndContextChangesNamed(),
   testOnlyInOneSide(),
+  testDifferencesSortedByLocation(),
+  testDuplicateDroppedFromFreshScan(),
   testDuplicatesAtOneLocation(),
   testDiffPrintsNoSnippetOrDescription(),
   testRecallLines(),
