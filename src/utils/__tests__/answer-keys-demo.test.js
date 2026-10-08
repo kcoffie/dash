@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { compareToKey, validateKey, typesWithFoundEntries } from '../answer-keys.js';
+import { recallLines, lostChallenges } from '../answer-keys-ci.js';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
 const readJson = (p) => JSON.parse(fs.readFileSync(path.join(root, p), 'utf8'));
@@ -35,15 +36,10 @@ for (const { name, key } of keys) {
   results.push(report(`${name}: demo report matches the answer key`, failures.length === 0,
     failures.map((f) => `${f.kind}: ${f.message}`).join('; ')));
   // Recall per type, the way the PRD counts it: documented misses (known miss / not flagged) are in the denominator
-  for (const type of Object.keys({ ...recall, ...sites }).sort()) {
-    const challenges = Object.entries(recall[type] ?? {});
-    const { reported = 0, total = 0 } = sites[type] ?? {};
-    console.log(`  ${type}: ${challenges.filter(([, ok]) => ok).length}/${challenges.length} challenges · ${reported}/${total} sites`);
-  }
+  for (const line of recallLines(recall, sites)) console.log(`  ${line}`);
   // Only documented misses may be unrecalled. A lost found challenge already fails "demo report matches" above (its entry is
   // missing, moved or at the wrong severity); this is a guard on compareToKey's recall bookkeeping and names the challenge.
-  const withFound = (type, c) => key.entries.some((e) => e.status === 'found' && e.type === type && (e.challenges ?? []).includes(c));
-  const lost = Object.entries(recall).flatMap(([type, cs]) => Object.entries(cs).filter(([c, ok]) => !ok && withFound(type, c)).map(([c]) => `${type}: ${c}`));
+  const lost = lostChallenges(key, recall);
   results.push(report(`${name}: every challenge with a found entry is recalled`, lost.length === 0, lost.join(', ')));
 }
 
