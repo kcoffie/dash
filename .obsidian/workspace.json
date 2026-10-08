@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "TechPM.md",
+                "file": "CONTRIBUTING.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "TechPM"
+              "title": "CONTRIBUTING"
             }
           }
         ]
@@ -94,7 +94,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "TechPM.md",
+                "file": "CONTRIBUTING.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,7 +104,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for TechPM"
+              "title": "Backlinks for CONTRIBUTING"
             }
           },
           {
@@ -113,12 +113,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "TechPM.md",
+                "file": "CONTRIBUTING.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from TechPM"
+              "title": "Outgoing links from CONTRIBUTING"
             }
           },
           {
@@ -156,13 +156,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "TechPM.md",
+                "file": "CONTRIBUTING.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of TechPM"
+              "title": "Outline of CONTRIBUTING"
             }
           }
         ]
@@ -185,9 +185,50 @@
   },
   "active": "b1f2c8c63eebb837",
   "lastOpenFiles": [
-    "DESIGN.md",
-    "FUTURE_IDEAS.md",
-    "security-audit-platform-overview.md",
-    "TechPM.md"
+    "Notes.md",
+    "src/utils/answer-keys.js",
+    "src/utils/__tests__/answer-keys.test.js",
+    "src/utils/__tests__/answer-keys-demo.test.js",
+    "docs/design-notes/answer-key-test.md",
+    "docs/design-notes",
+    "answer-keys/express.json",
+    "answer-keys/dvna.json",
+    "answer-keys",
+    "src/scanner/__tests__/report.test.js",
+    "src/scanner/__tests__/helpers/bin/npm",
+    "src/scanner/__tests__/helpers/fake-npm.js",
+    "node_modules/which/CHANGELOG 2.md",
+    "node_modules/verkit/README 3.md",
+    "node_modules/which-collection/README 2.md",
+    "node_modules/which/README 2.md",
+    "node_modules/npm-run-path/readme 3.md",
+    "node_modules/require-from-string/readme 2.md",
+    "node_modules/which-collection/CHANGELOG 2.md",
+    "node_modules/natural-compare/README 2.md",
+    "node_modules/node-exports-info/CHANGELOG 3.md",
+    "node_modules/node-exports-info/README 3.md",
+    "node_modules/is-bigint/CHANGELOG 3.md",
+    "node_modules/json-buffer/README 3.md",
+    "node_modules/is-string/README 3.md",
+    "node_modules/is-string/CHANGELOG 3.md",
+    "node_modules/isexe/README 3.md",
+    "node_modules/is-bigint/README 3.md",
+    "node_modules/flru/readme 3.md",
+    "node_modules/imurmurhash/README 2.md",
+    "node_modules/get-intrinsic/README 2.md",
+    "node_modules/inherits/README 2.md",
+    "node_modules/import-meta-resolve/readme 3.md",
+    "node_modules/get-intrinsic/CHANGELOG 2.md",
+    "node_modules/is-regex/README 3.md",
+    "node_modules/js-md4/doc/fonts/OpenSans-Regular-webfont.svg",
+    "node_modules/js-md4/doc/fonts/OpenSans-LightItalic-webfont.svg",
+    "node_modules/js-md4/doc/fonts/OpenSans-Light-webfont.svg",
+    "node_modules/js-md4/doc/fonts/OpenSans-Italic-webfont.svg",
+    "node_modules/js-md4/doc/fonts/OpenSans-BoldItalic-webfont.svg",
+    "node_modules/js-md4/doc/fonts/OpenSans-Bold-webfont.svg",
+    "docs/screenshots/phone-dark.png",
+    "docs/screenshots/finding-details.png",
+    "docs/screenshots/dashboard-light.png",
+    "docs/screenshots/dashboard-dark.png"
   ]
 }

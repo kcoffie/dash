@@ -1,0 +1,23 @@
+{
+  "target": "express",
+  "repo": "https://github.com/expressjs/express",
+  "commit": "7ef98448f8b38099ab1ded55e458538ad47a51e7",
+  "sources": "DESIGN.md ('Express is a false-positive check: 0 SQLi, 0 crypto, 0 async'); code read by hand at the pinned commit (2026-10-07). maxSeverity low is derived, not written: every Express finding is in test/ or examples/, where DESIGN caps findings at LOW and generic secret values go to LOW. A provider-format key (which keeps its severity anywhere) appearing there would fail it on purpose, for review.",
+  "nonProduction": [{ "startsWith": "test/" }, { "startsWith": "examples/" }],
+  "rules": {
+    "noFindingsOfType": ["sql-injection", "crypto-misuse", "async-footgun"],
+    "maxSeverity": "low"
+  },
+  "entries": [
+    { "status": "found", "type": "hardcoded-secret", "file": "examples/session/index.js", "lines": [19, 19], "severity": "low",
+      "why": "Literal session secret in an example app. DESIGN: generic secret key value, test/example file → LOW. Anchors secret scanning of examples/" },
+    { "status": "found", "type": "xss", "file": "examples/content-negotiation/index.js", "lines": [12, 14], "severity": "low",
+      "why": "res.send() of HTML built from user data in a route handler (DESIGN XSS sink, MEDIUM start, no req.*); example file → LOW. Anchors XSS scanning of examples/" },
+    { "status": "not flagged", "type": "crypto-misuse", "file": "examples/auth/index.js",
+      "why": "pbkdf2-password is a proper password hash (HANDOFF crypto answer key)" },
+    { "status": "not flagged", "type": "sql-injection", "file": "test/express.raw.js",
+      "why": "express.raw() is body parsing, not SQL (HANDOFF SQLi notes)" },
+    { "status": "not flagged", "type": "sql-injection", "file": "test/req.fresh.js", "lines": [64, 82],
+      "why": "supertest .query('/') is an HTTP query string, not SQL (HANDOFF SQLi notes)" }
+  ]
+}

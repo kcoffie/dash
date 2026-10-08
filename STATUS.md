@@ -1,7 +1,7 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-07  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team gates: mutation testing + reviewer/architect agents merged (PRs #21, #22; score 56.89% → 60.55%, CI 60.58%, ratchet 60) · answer-key regression test in progress (design approved; PR 1 on `test/answer-keys`, waits for scanner fix PR #25, ready since 2026-10-08)
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team gates: mutation testing + reviewer/architect agents merged (PRs #21, #22; score 56.89% → 60.55%, CI 60.58%, ratchet 60) · passport-local credentials → high merged (PR #25) · answer-key regression test in progress (PR 1 = PR #27 open; repo now at `~/projs/dash`)
 
 ---
 
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** user merges PR #25 (passport-local credentials → high; second review done, ready) → rebase `test/answer-keys` and open answer-key PR 1 → PR 2 (Juice Shop key) → PR 3 (CI job). Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + `npm run build`, and `mutate:changed` ≥ 80%.
+**Next Step:** user merges PR #27 (answer-key PR 1: DVNA + Express keys) → PR 2 (Juice Shop key) → PR 3 (CI job). Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + `npm run build`, and `mutate:changed` ≥ 80%.
