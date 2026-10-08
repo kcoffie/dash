@@ -118,10 +118,11 @@ function testUnlistedTargetsSkipTargetCheck() {
 function testReferencesThatResolveHaveNoProblems() {
   const k = key([
     { status: 'found', type: 'xss', file: 'routes/a.ts', lines: [3, 4] },
+    { status: 'not flagged', type: 'sql-injection', file: 'routes/a.ts' }, // whole file, no lines
     { status: 'not flagged', type: 'xss', pattern: { endsWith: '_correct.ts' } },
   ], { nonProduction: [{ startsWith: 'test/' }] });
   const problems = keyReferenceProblems(k, { files: ['routes/a.ts', 'x/b_correct.ts', 'test/c.js'], lineCounts: { 'routes/a.ts': 3 } });
-  return report('Tracked files, matching patterns, range starting on the last line → no problem', same(problems, []), JSON.stringify(problems));
+  return report('Tracked files, matching patterns, range starting on the last line, whole-file entry → no problem', same(problems, []), JSON.stringify(problems));
 }
 
 function testUntrackedOrWrongCaseFileFails() {
