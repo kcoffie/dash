@@ -23,13 +23,13 @@ function testFoundEntryInRangeAtSeverityPasses() {
     findings: [finding('sql-injection', 'app.js', 11, 'critical')],
   });
   return report('Found entry reported in range at its severity → pass, challenge recalled',
-    result.failures.length === 0 && result.recall.SQLi === true, JSON.stringify(result));
+    result.failures.length === 0 && result.recall['sql-injection']?.SQLi === true, JSON.stringify(result));
 }
 
 function testMissingFoundEntryFails() {
   const result = compareToKey(key([found('xss', 'a.ejs', [20, 20], 'medium', ['Reflected'])]), { findings: [] });
   return report('Found entry not reported → missing, names file:range, type and severity; challenge not recalled',
-    only(result, 'missing', 'a.ejs:20-20 xss (medium)') && result.recall.Reflected === false, JSON.stringify(result));
+    only(result, 'missing', 'a.ejs:20-20 xss (medium)') && result.recall.xss?.Reflected === false, JSON.stringify(result));
 }
 
 function testMovedIsSeparateFromMissing() {
@@ -75,6 +75,48 @@ function testFoundEntryWithoutChallengesAddsNoRecall() {
     result.failures.length === 0 && JSON.stringify(result.recall) === '{}', JSON.stringify(result));
 }
 
+function testRecallIsPerType() {
+  // Rule 1: the same challenge name under two types is counted separately
+  const result = compareToKey(key([found('xss', 'a.js', [1, 1], 'high', ['C']), found('sql-injection', 'b.js', [2, 2], 'high', ['C'])]), {
+    findings: [finding('xss', 'a.js', 1, 'high')],
+  });
+  return report('Recall is per type: a challenge recalled for one type and not the other shows both',
+    result.recall.xss?.C === true && result.recall['sql-injection']?.C === false, JSON.stringify(result.recall));
+}
+
+function testChallengeOnlyOnMissEntriesIsNotRecalled() {
+  // Rule 3: documented misses count in the denominator (Juice Shop CSP Bypass, Forged Coupon)
+  const knownMiss = { status: 'known miss', type: 'xss', file: 'userProfile.ts', lines: [73, 73], challenges: ['CSP Bypass'], why: 'test' };
+  const notFlagged = { status: 'not flagged', type: 'crypto-misuse', file: 'insecurity.ts', lines: [99, 106], challenges: ['Forged Coupon'], why: 'test' };
+  const result = compareToKey(key([knownMiss, notFlagged]), { findings: [] });
+  return report('A challenge tagged only on known-miss / not-flagged entries → not recalled',
+    result.failures.length === 0 && result.recall.xss?.['CSP Bypass'] === false && result.recall['crypto-misuse']?.['Forged Coupon'] === false,
+    JSON.stringify(result.recall));
+}
+
+function testChallengeOnFoundAndMissFollowsFound() {
+  // Rule 4: Weird Crypto has found sites and a not-flagged one (z85); the PRD counts it recalled (crypto 5/6)
+  const notFlagged = { status: 'not flagged', type: 'crypto-misuse', file: 'insecurity.ts', lines: [99, 106], challenges: ['Weird Crypto'], why: 'test' };
+  const result = compareToKey(key([found('crypto-misuse', 'insecurity.ts', [41, 41], 'high', ['Weird Crypto']), notFlagged]), {
+    findings: [finding('crypto-misuse', 'insecurity.ts', 41, 'high')],
+  });
+  return report('A challenge on both found and miss entries follows its found entries → recalled',
+    result.failures.length === 0 && result.recall['crypto-misuse']?.['Weird Crypto'] === true, JSON.stringify(result.recall));
+}
+
+function testSitesCountFoundAndKnownMiss() {
+  // Rule 6: sites = reported found entries / (found + known-miss entries); not-flagged and reviewed entries aren't sites
+  const result = compareToKey(key([
+    found('xss', 'a.js', [1, 1], 'high'),
+    found('xss', 'b.js', [1, 1], 'high'),
+    { status: 'known miss', type: 'xss', file: 'c.js', lines: [1, 1], why: 'test' },
+    { status: 'not flagged', type: 'xss', file: 'd.js', lines: [1, 1], why: 'test' },
+    { status: 'reviewed', type: 'xss', file: 'e.js', lines: [1, 1], severity: 'low', reason: 'r', why: 'test' },
+  ]), { findings: [finding('xss', 'a.js', 1, 'high'), finding('xss', 'e.js', 1, 'low')] });
+  return report('Sites per type: 1 reported of 2 found + 1 known miss → 1/3 (not-flagged and reviewed excluded)',
+    JSON.stringify(result.sites) === JSON.stringify({ xss: { reported: 1, total: 3 } }), JSON.stringify(result.sites));
+}
+
 function testOtherTypeInFileIsNotAMove() {
   const result = compareToKey(key([found('xss', 'a.js', [5, 5], 'medium')]), {
     findings: [finding('async-footgun', 'a.js', 9, 'medium'), finding('xss', 'b.js', 5, 'medium')],
@@ -96,7 +138,7 @@ function testChallengeNeedsEverySiteAtSeverity() {
     findings: [finding('xss', 'p.ejs', 49, 'medium'), finding('xss', 'p.ejs', 50, 'low')],
   });
   return report('A challenge with one site at the wrong severity is not recalled',
-    result.recall.Stored === false && JSON.stringify(kinds(result)) === '["wrong severity"]', JSON.stringify(result));
+    result.recall.xss?.Stored === false && JSON.stringify(kinds(result)) === '["wrong severity"]', JSON.stringify(result));
 }
 
 function testTypeMustMatch() {
@@ -132,7 +174,7 @@ function testReviewedEntries() {
     findings: [finding('xss', 'f.ejs', 7, 'medium')],
   });
   return report('Reviewed entries: their finding is claimed (the lost found entry is missing, not moved) and they never count as challenge recall',
-    JSON.stringify(kinds(result)) === '["missing"]' && !('Not a challenge' in result.recall), JSON.stringify(result));
+    JSON.stringify(kinds(result)) === '["missing"]' && JSON.stringify(result.recall) === '{}', JSON.stringify(result));
 }
 
 function testReviewedEntryWrongSeverityFails() {
@@ -390,6 +432,10 @@ const results = [
   testSiblingSiteIsNotAMove(),
   testNotFlaggedFindingStillCountsAsAMove(),
   testFoundEntryWithoutChallengesAddsNoRecall(),
+  testRecallIsPerType(),
+  testChallengeOnlyOnMissEntriesIsNotRecalled(),
+  testChallengeOnFoundAndMissFollowsFound(),
+  testSitesCountFoundAndKnownMiss(),
   testOtherTypeInFileIsNotAMove(),
   testWrongSeverityFails(),
   testChallengeNeedsEverySiteAtSeverity(),
