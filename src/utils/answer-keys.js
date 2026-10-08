@@ -80,7 +80,9 @@ export function validateKey(key) {
   return problems;
 }
 
-// Returns { failures: [{ kind, message }], recall: { [challenge]: boolean } }
+// Returns { failures: [{ kind, message }], recall: { [type]: { [challenge]: boolean } }, sites: { [type]: { reported, total } } }.
+// A challenge is recalled when every found entry of that type tagged with it is reported at its severity; one tagged only on
+// known-miss / not-flagged entries is not recalled. Sites are found + known-miss entries (the way the PRD counts recall).
 export function compareToKey(key, { findings, errors = [] }) {
   const failures = [];
   const fail = (kind, message) => failures.push({ kind, message });
@@ -92,6 +94,9 @@ export function compareToKey(key, { findings, errors = [] }) {
   const claimed = (f) => expected.some((e) => matches(e, f));
 
   const recall = {};
+  const missed = {}; // { [type]: Set of challenges tagged on known-miss / not-flagged entries }
+  const sites = {};
+  const site = (type) => (sites[type] ??= { reported: 0, total: 0 });
   const keyed = new Set();
   for (const entry of key.entries) {
     const hits = scanned.filter((f) => matches(entry, f));
@@ -112,9 +117,16 @@ export function compareToKey(key, { findings, errors = [] }) {
         }
       }
       if (entry.status === 'found') {
-        for (const c of entry.challenges ?? []) recall[c] = (recall[c] ?? true) && ok;
+        site(entry.type).total++;
+        if (ok) site(entry.type).reported++;
+        for (const c of entry.challenges ?? []) {
+          const byType = (recall[entry.type] ??= {});
+          byType[c] = (byType[c] ?? true) && ok;
+        }
       }
     } else {
+      if (entry.status === 'known miss') site(entry.type).total++;
+      for (const c of entry.challenges ?? []) (missed[entry.type] ??= new Set()).add(c);
       for (const f of hits) {
         fail(entry.status === 'known miss' ? 'known miss found' : 'not flagged appears',
           entry.status === 'known miss'
@@ -155,7 +167,15 @@ export function compareToKey(key, { findings, errors = [] }) {
     if (over.length > 0) fail('spec rule', `${over.length} finding(s) above ${rules.maxSeverity}, e.g. ${over[0].file}:${over[0].line}`);
   }
 
-  return { failures, recall };
+  // A challenge with found entries follows them; one tagged only on misses is not recalled
+  for (const [type, challenges] of Object.entries(missed)) {
+    for (const c of challenges) {
+      const byType = (recall[type] ??= {});
+      if (!(c in byType)) byType[c] = false;
+    }
+  }
+
+  return { failures, recall, sites };
 }
 
 // Scanner types with at least one found entry across all keys: a type with none can't show
