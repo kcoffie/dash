@@ -549,6 +549,52 @@ async function testCredentialNameAsPropertyDoesNotCount() {
     findings.length === 1 && findings[0].severity === 'medium' && !findings[0].context.includes(CREDENTIALS_FACTOR), JSON.stringify(findings));
 }
 
+async function testPassportLocalModuleBindingsAndWrappedImports() {
+  // The passport-local module bound by require or import (namespace or default), with imports wrapped across lines
+  const local = (importLines, callee) => [...importLines, `passport.use(new ${callee}(function (username, password, done) {`,
+    '  db.get(username).then((row) => done(null, row))', '}))'];
+  const jwt = (importLines) => [...importLines, 'passport.use(new JwtStrategy({ secretOrKey: k }, (p, cb) => {',
+    '  User.findById(p.sub).then((u) => cb(null, u))', '}))'];
+  const findings = await scanFiles({
+    'l1.js': local(['const passportLocal =', "  require ( 'passport-local' );"], 'passportLocal.Strategy'),
+    'l2.ts': local(['import * as pl from', "  'passport-local';"], 'pl.Strategy'),
+    'l3.ts': local(['import  pl  from', "  'passport-local';"], 'pl . Strategy'),
+    'l4.ts': local(['import {', '  Strategy,', '} from', "  'passport-local';"], 'Strategy'),
+    'j1.js': jwt(['const JwtStrategy = require', "  ('passport-jwt').Strategy;"]),
+    'j2.ts': jwt(['import { Strategy as JwtStrategy } from', "  'passport-jwt';"]),
+    'j3.ts': jwt(['import', "  'passport';"]),
+  });
+  const sev = (file) => findings.find((f) => f.file === file)?.severity;
+  return report('passport-local bound by require / import * as / default import, imports wrapped across lines → high; wrapped passport imports → medium',
+    ['l1.js', 'l2.ts', 'l3.ts', 'l4.ts'].every((f) => sev(f) === 'high') && ['j1.js', 'j2.ts', 'j3.ts'].every((f) => sev(f) === 'medium'),
+    JSON.stringify(findings.map((f) => [f.file, f.severity])));
+}
+
+async function testVerifyCallbackSpacing() {
+  // Spacing doesn't change the parameter list: =>{ with no space, a return type with no space, a space before )
+  const findings = await scanFiles({
+    'auth.ts': [
+      "import { Strategy as LocalStrategy } from 'passport-local';",
+      'passport.use(new LocalStrategy((username, password, done)=>{',
+      '  db.get(username).then((row) => done(null, row))',
+      '}))',
+      'passport.use(new LocalStrategy(function (username, password, done):void{',
+      '  db.get(password).then((row) => done(null, row))',
+      '}))',
+    ],
+    'session.js': [
+      'module.exports = function(user, done ) {',
+      '  db.find(user.id).then((row) => done(null, row))',
+      '}',
+    ],
+  });
+  const at = (file, line) => findings.find((f) => f.file === file && f.line === line)?.severity;
+  // session.js: the existing loose rule, function (…, done) is an auth callback (HANDOFF TODO), with any spacing
+  return report('Verify callbacks written =>{ or ):void{ → high; function(user, done ) counts as an auth callback → medium',
+    findings.length === 3 && at('auth.ts', 3) === 'high' && at('auth.ts', 6) === 'high' && at('session.js', 2) === 'medium',
+    JSON.stringify(findings.map((f) => [f.file, f.line, f.severity])));
+}
+
 async function testUnrecognisedVerifySignatureStaysMedium() {
   const findings = await scanFiles({
     'auth.js': [
@@ -879,6 +925,8 @@ async function runTests() {
   results.push(await testVerifyCallbackNames());
   results.push(await testTwoParamCallbackIsNotTheVerifyCallback());
   results.push(await testCredentialNameAsPropertyDoesNotCount());
+  results.push(await testPassportLocalModuleBindingsAndWrappedImports());
+  results.push(await testVerifyCallbackSpacing());
   results.push(await testUnrecognisedVerifySignatureStaysMedium());
   results.push(await testOtherServerChainIsLow());
   results.push(await testBrowserChainIsLow());
