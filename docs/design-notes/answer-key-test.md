@@ -35,7 +35,7 @@ Unknown fields in a key or an entry are rejected, so a misspelling (`rule`, `non
 
 ## PR 3 acceptance criteria (user-confirmed 2026-10-08)
 Targets come from upstream (no forks; a deleted pinned commit fails closed). The job-level `if:` is `github.event_name == 'pull_request' || github.event_name == 'push'`: it always runs (user decision), never skips.
-1. Job `answer-keys` in `.github/workflows/test.yml`, on PRs to and pushes to `main`, no workflow `paths:`, `timeout-minutes: 20` (tightened once a Linux run is measured).
+1. Job `answer-keys` in `.github/workflows/test.yml`, on PRs to and pushes to `main`, no workflow `paths:`, `timeout-minutes: 20` (tightened to 10 after the first Linux run took 2 m 48 s).
 2. dash checkout first, then one `actions/checkout@v4` per target: upstream `repository`, `ref` = the key's full commit, `path: targets/<id>`, `persist-credentials: false`. A failed fetch fails its own step (visibly separate from the compare step).
 3. One job, not a matrix: the cross-key check needs every key.
 4. Per target, infrastructure checks first (exit 2): `git rev-parse HEAD` equals `key.commit`, `git status --porcelain` empty. A target that fails them is not compared.
@@ -73,6 +73,11 @@ Still the user's call later: making `answer-keys` a required check (repo setting
 - Partial clones at the pinned commits: Juice Shop 13 s / 65 MB, DVNA 4 s / 8 MB, Express 4 s / 6 MB.
 - Pattern scan: Juice Shop 96 s (crypto scanner **94 s** of it; logged as a separate TODO), DVNA 0.04 s, Express 0.4 s. Expect slower on a GitHub runner.
 - A fresh scan today matches `public/demo` exactly for every pattern type on all three targets, with 0 errors (checked independently by the architect too).
+
+## Measured on Linux (first CI run, PR #31, 2026-10-08, ubuntu-latest)
+- Fetch at the pinned commits (`actions/checkout`, depth 1): about 1 s per target.
+- Pattern scan: Juice Shop 161.0 s, Express 0.8 s, DVNA 0.1 s. Whole job 2 m 48 s.
+- Compared finding by finding with `public/demo` (type, file, line, severity, confidence, context): 0 differences on all three targets (DVNA 29/29, Express 60/60, Juice Shop 93/93 pattern findings); recall identical to macOS; 0 scanner errors.
 
 ## What breaks
 - A target repo deletes the pinned commit: fetch fails, the job fails and says so. Mitigation then: a fork under the user's account.
