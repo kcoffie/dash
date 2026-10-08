@@ -36,6 +36,8 @@ for (const { name, key } of keys) {
     failures.map((f) => `${f.kind}: ${f.message}`).join('; ')));
   const challenges = Object.entries(recall);
   if (challenges.length) console.log(`  recall: ${challenges.filter(([, ok]) => ok).length}/${challenges.length} challenges`);
+  results.push(report(`${name}: every keyed challenge is recalled`, challenges.every(([, ok]) => ok),
+    challenges.filter(([, ok]) => !ok).map(([c]) => c).join(', ')));
 }
 
 const covered = typesWithFoundEntries(keys.map((k) => k.key));

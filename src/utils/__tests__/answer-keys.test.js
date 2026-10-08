@@ -13,6 +13,8 @@ const kinds = (result) => result.failures.map((f) => f.kind);
 const only = (result, kind, text) => JSON.stringify(kinds(result)) === JSON.stringify([kind]) && result.failures[0].message.includes(text);
 // validateKey on a key with one entry; true when it reports a problem containing `text`
 const rejects = (k, text) => validateKey(k).some((p) => p.includes(text));
+// Test cases whose key validateKey doesn't reject with `text`, as failure detail
+const notRejected = (cases, text) => cases.filter(([, k]) => !rejects(k, text)).map(([label]) => label);
 
 // --- Comparison ---
 
@@ -36,6 +38,14 @@ function testMovedIsSeparateFromMissing() {
   });
   return report('Same type reported elsewhere in the file → moved (not missing), names the entry and the line',
     only(result, 'moved', 'a.ejs:20-20 xss') && result.failures[0].message.includes('line(s) 25'), JSON.stringify(result));
+}
+
+function testMovedListsEveryLine() {
+  const result = compareToKey(key([found('xss', 'a.ejs', [20, 20], 'medium')]), {
+    findings: [finding('xss', 'a.ejs', 25, 'medium'), finding('xss', 'a.ejs', 31, 'medium')],
+  });
+  return report('Moved with several same-type lines in the file → lists them comma-separated',
+    only(result, 'moved', 'line(s) 25, 31'), JSON.stringify(result));
 }
 
 function testSiblingSiteIsNotAMove() {
@@ -103,8 +113,8 @@ function testNotFlaggedAppearsFails() {
   const result = compareToKey(key([{ status: 'not flagged', type: 'xss', pattern: { endsWith: '_correct.ts' }, why: 'test' }]), {
     findings: [finding('xss', 'codefixes/x_correct.ts', 3, 'low'), finding('xss', 'codefixes/x_1.ts', 3, 'low')],
   });
-  return report('Finding in a not-flagged file pattern → not flagged appears, names the finding and the entry (other files ignored)',
-    only(result, 'not flagged appears', 'codefixes/x_correct.ts:3 xss') && result.failures[0].message.includes('*_correct.ts'),
+  return report('Finding in a not-flagged file pattern → not flagged appears, says the key says not flagged, names the finding and the entry (other files ignored)',
+    only(result, 'not flagged appears', 'codefixes/x_correct.ts:3 xss reported, but the key says not flagged') && result.failures[0].message.includes('*_correct.ts'),
     JSON.stringify(result));
 }
 
@@ -123,6 +133,13 @@ function testReviewedEntries() {
   });
   return report('Reviewed entries: their finding is claimed (the lost found entry is missing, not moved) and they never count as challenge recall',
     JSON.stringify(kinds(result)) === '["missing"]' && !('Not a challenge' in result.recall), JSON.stringify(result));
+}
+
+function testReviewedEntryWrongSeverityFails() {
+  const reviewed = { status: 'reviewed', type: 'xss', file: 'footer.ejs', lines: [7, 7], severity: 'medium', reason: 'r', why: 'test' };
+  const result = compareToKey(key([reviewed]), { findings: [finding('xss', 'footer.ejs', 7, 'high')] });
+  return report('Reviewed entry reported at another severity → wrong severity, names actual and expected',
+    only(result, 'wrong severity', 'footer.ejs:7 xss: high, expected medium'), JSON.stringify(result));
 }
 
 function testScannerErrorsFail() {
@@ -173,6 +190,16 @@ function testHighSecretInNonProductionNeedsEntry() {
     only(result, 'unkeyed high', 'test/c.js:1 hardcoded-secret'), JSON.stringify(result));
 }
 
+function testMediumSecretInNonProductionFails() {
+  // User decision 2026-10-08: in non-production code a secret is low, or high/critical with an entry (provider formats).
+  // Provider formats are never medium, so a medium one is a generic value that escaped the test/example → LOW cap.
+  const result = compareToKey(key([], { nonProduction: [{ startsWith: 'test/' }] }), {
+    findings: [finding('hardcoded-secret', 'test/a.js', 4, 'medium'), finding('hardcoded-secret', 'test/b.js', 2, 'low')],
+  });
+  return report('A medium secret in non-production code → non-production above low; a low one is fine',
+    only(result, 'non-production above low', 'test/a.js:4 hardcoded-secret is medium'), JSON.stringify(result));
+}
+
 function testNonProductionCappedAtLowExceptSecrets() {
   const result = compareToKey(key([found('hardcoded-secret', 'test/c.js', [1, 1], 'critical')], { nonProduction: [{ startsWith: 'test/' }] }), {
     findings: [
@@ -181,7 +208,7 @@ function testNonProductionCappedAtLowExceptSecrets() {
       finding('hardcoded-secret', 'test/c.js', 1, 'critical'),
     ],
   });
-  return report('Non-production finding above low → fail, except secrets (provider formats keep their severity anywhere)',
+  return report('Non-production finding above low → fail, except keyed high/critical secrets (provider formats keep their severity anywhere)',
     only(result, 'non-production above low', 'test/a.js:1 xss is medium'), JSON.stringify(result));
 }
 
@@ -208,6 +235,23 @@ function testValidKeyHasNoProblems() {
   return report('A well-formed key (all statuses, patterns, rules) has no problems', validateKey(good).length === 0, JSON.stringify(validateKey(good)));
 }
 
+function testUnknownKeyFieldsRejected() {
+  // A misspelled field would otherwise switch its check off silently (rule → no spec rules, nonproduction → no low cap)
+  const missed = notRejected([
+    ['rule', key([], { rule: { maxSeverity: 'low' } })],
+    ['nonproduction', key([], { nonproduction: [{ startsWith: 'test/' }] })],
+  ], 'unknown field');
+  return report('Key: an unknown top-level field (rule, nonproduction) → rejected', missed.length === 0, JSON.stringify(missed));
+}
+
+function testUnknownEntryFieldsRejected() {
+  const missed = notRejected([
+    ['challenge', key([{ ...found('xss', 'a', [1, 1], 'low'), challenge: ['Stored'] }])],
+    ['line', key([{ status: 'not flagged', type: 'xss', file: 'a', line: 3, why: 'x' }])],
+  ], 'entry 0: unknown field');
+  return report('Entry: an unknown field (challenge, line) → rejected', missed.length === 0, JSON.stringify(missed));
+}
+
 function testCommitMustBeFullSha() {
   const bad = ['1618a61', `x${COMMIT}`, `${COMMIT}0`, undefined].filter((c) => !rejects({ commit: c, entries: [] }, 'full 40-character SHA'));
   return report('Commit must be exactly a 40-character SHA (short, prefixed, suffixed, missing → rejected)', bad.length === 0, JSON.stringify(bad));
@@ -225,13 +269,18 @@ function testNonArrayEntriesIsOneProblem() {
 
 function testStringPatternsRejected() {
   // A string has .startsWith/.endsWith methods, so a loose check would accept a glob that then matches nothing
-  const glob = key([{ status: 'not flagged', type: 'xss', pattern: '**/*_correct.ts', why: 'x' }]);
-  const emptyObject = key([{ status: 'not flagged', type: 'xss', pattern: {}, why: 'x' }]);
-  const nonString = key([{ status: 'not flagged', type: 'xss', pattern: { endsWith: 5 }, why: 'x' }]);
-  const nonProd = key([], { nonProduction: ['test/'] });
-  return report('Patterns must be { startsWith, endsWith } with string values: a glob string, {}, or a number → rejected',
-    rejects(glob, 'entry 0: pattern must be') && rejects(emptyObject, 'entry 0: pattern must be') && rejects(nonString, 'entry 0: pattern must be')
-      && rejects(nonProd, 'nonProduction must be'));
+  const missed = notRejected([
+    ['glob string', key([{ status: 'not flagged', type: 'xss', pattern: '**/*_correct.ts', why: 'x' }])],
+    ['{}', key([{ status: 'not flagged', type: 'xss', pattern: {}, why: 'x' }])],
+    ['number value', key([{ status: 'not flagged', type: 'xss', pattern: { endsWith: 5 }, why: 'x' }])],
+  ], 'entry 0: pattern must be');
+  return report('Entry patterns must be { startsWith, endsWith } with string values: a glob string, {}, or a number → rejected',
+    missed.length === 0, JSON.stringify(missed));
+}
+
+function testStringNonProductionRejected() {
+  return report('nonProduction must be a list of patterns: a list of strings → rejected',
+    rejects(key([], { nonProduction: ['test/'] }), 'nonProduction must be'), JSON.stringify(validateKey(key([], { nonProduction: ['test/'] }))));
 }
 
 function testPatternEdgesRejected() {
@@ -245,13 +294,23 @@ function testOptionalFieldsMayBeOmitted() {
     JSON.stringify(validateKey(key([found('xss', 'a', [1, 1], 'low')]))));
 }
 
-function testRulesValidated() {
-  return report('Rules: unknown rule name, unknown type, or unknown severity → rejected',
-    rejects(key([], { rules: { noFindingsOfTypes: ['xss'] } }), 'unknown rule "noFindingsOfTypes"')
-      && rejects(key([], { rules: { noFindingsOfType: ['sqli'] } }), 'noFindingsOfType must list known types')
-      && rejects(key([], { rules: { noFindingsOfType: 'xss' } }), 'noFindingsOfType must list known types')
-      && rejects(key([], { rules: { noFindingsOfType: ['xss', 'sqli'] } }), 'noFindingsOfType must list known types')
-      && rejects(key([], { rules: { maxSeverity: 'none' } }), 'maxSeverity must be a severity'));
+function testUnknownRuleRejected() {
+  const k = key([], { rules: { noFindingsOfTypes: ['xss'] } });
+  return report('Rules: an unknown rule name → rejected', rejects(k, 'unknown rule "noFindingsOfTypes"'), JSON.stringify(validateKey(k)));
+}
+
+function testNoFindingsOfTypeValidated() {
+  const missed = notRejected([
+    ['unknown type', key([], { rules: { noFindingsOfType: ['sqli'] } })],
+    ['not a list', key([], { rules: { noFindingsOfType: 'xss' } })],
+    ['one unknown in a list', key([], { rules: { noFindingsOfType: ['xss', 'sqli'] } })],
+  ], 'noFindingsOfType must list known types');
+  return report('Rules: noFindingsOfType must be a list of known types', missed.length === 0, JSON.stringify(missed));
+}
+
+function testMaxSeverityValidated() {
+  const k = key([], { rules: { maxSeverity: 'none' } });
+  return report('Rules: maxSeverity must be a severity', rejects(k, 'maxSeverity must be a severity'), JSON.stringify(validateKey(k)));
 }
 
 function testEntryStatusAndType() {
@@ -271,20 +330,39 @@ function testEntryLines() {
   return report('Entry: lines must be integers with 1 <= start <= end', lines.length === 0, JSON.stringify(lines));
 }
 
-function testEntryChallengesAndWhy() {
-  return report('Entry: challenges must be a list of names; why is required',
-    rejects(key([{ ...found('xss', 'a', [1, 1], 'low'), challenges: 'Stored' }]), 'challenges must be a list')
-      && rejects(key([{ ...found('xss', 'a', [1, 1], 'low'), challenges: ['Stored', 5] }]), 'challenges must be a list')
-      && rejects(key([{ status: 'not flagged', type: 'xss', file: 'a' }]), 'why is required'));
+function testEntryChallengesAreNames() {
+  const missed = notRejected([
+    ['string', key([{ ...found('xss', 'a', [1, 1], 'low'), challenges: 'Stored' }])],
+    ['number in list', key([{ ...found('xss', 'a', [1, 1], 'low'), challenges: ['Stored', 5] }])],
+  ], 'challenges must be a list');
+  return report('Entry: challenges must be a list of names', missed.length === 0, JSON.stringify(missed));
 }
 
-function testFoundAndReviewedNeedSeverityFileLines() {
-  return report('Found/reviewed: need a severity, an exact file and lines; reviewed needs a reason',
-    rejects(key([{ status: 'found', type: 'xss', file: 'a', lines: [1, 1], why: 'x' }]), 'found needs a severity')
-      && rejects(key([{ status: 'found', type: 'xss', file: 'a', severity: 'low', why: 'x' }]), 'found needs a file and lines')
-      && rejects(key([{ status: 'found', type: 'xss', pattern: { endsWith: '.ejs' }, lines: [1, 1], severity: 'low', why: 'x' }]), 'found needs a file and lines')
-      && rejects(key([{ status: 'reviewed', type: 'xss', file: 'a', severity: 'low', reason: 'r', why: 'x' }]), 'reviewed needs a file and lines')
-      && rejects(key([{ status: 'reviewed', type: 'xss', file: 'a', lines: [1, 1], severity: 'low', why: 'x' }]), 'reviewed needs a reason'));
+function testEntryWhyRequired() {
+  const k = key([{ status: 'not flagged', type: 'xss', file: 'a' }]);
+  return report('Entry: why is required', rejects(k, 'why is required'), JSON.stringify(validateKey(k)));
+}
+
+function testFoundAndReviewedNeedSeverity() {
+  const missed = notRejected([
+    ['found', key([{ status: 'found', type: 'xss', file: 'a', lines: [1, 1], why: 'x' }])],
+    ['reviewed', key([{ status: 'reviewed', type: 'xss', file: 'a', lines: [1, 1], reason: 'r', why: 'x' }])],
+  ], 'needs a severity');
+  return report('Found/reviewed: need a severity', missed.length === 0, JSON.stringify(missed));
+}
+
+function testFoundAndReviewedNeedFileAndLines() {
+  const missed = notRejected([
+    ['found, no lines', key([{ status: 'found', type: 'xss', file: 'a', severity: 'low', why: 'x' }])],
+    ['found, pattern', key([{ status: 'found', type: 'xss', pattern: { endsWith: '.ejs' }, lines: [1, 1], severity: 'low', why: 'x' }])],
+    ['reviewed, no lines', key([{ status: 'reviewed', type: 'xss', file: 'a', severity: 'low', reason: 'r', why: 'x' }])],
+  ], 'needs a file and lines');
+  return report('Found/reviewed: need an exact file and lines', missed.length === 0, JSON.stringify(missed));
+}
+
+function testReviewedNeedsReason() {
+  const k = key([{ status: 'reviewed', type: 'xss', file: 'a', lines: [1, 1], severity: 'low', why: 'x' }]);
+  return report('Reviewed: needs a reason', rejects(k, 'reviewed needs a reason'), JSON.stringify(validateKey(k)));
 }
 
 function testTypesWithFoundEntries() {
@@ -300,6 +378,7 @@ const results = [
   testFoundEntryInRangeAtSeverityPasses(),
   testMissingFoundEntryFails(),
   testMovedIsSeparateFromMissing(),
+  testMovedListsEveryLine(),
   testSiblingSiteIsNotAMove(),
   testNotFlaggedFindingStillCountsAsAMove(),
   testFoundEntryWithoutChallengesAddsNoRecall(),
@@ -310,6 +389,7 @@ const results = [
   testNotFlaggedAppearsFails(),
   testKnownMissFoundFails(),
   testReviewedEntries(),
+  testReviewedEntryWrongSeverityFails(),
   testScannerErrorsFail(),
   testDependencyFindingsIgnored(),
   testUnkeyedCriticalInProductionFails(),
@@ -317,22 +397,31 @@ const results = [
   testKeyedOrMediumIsNotUnkeyedHigh(),
   testHighOutsideSecretsInNonProductionIsCapRule(),
   testHighSecretInNonProductionNeedsEntry(),
+  testMediumSecretInNonProductionFails(),
   testNonProductionCappedAtLowExceptSecrets(),
   testNoFindingsOfTypeRule(),
   testMaxSeverityRule(),
   testValidKeyHasNoProblems(),
+  testUnknownKeyFieldsRejected(),
+  testUnknownEntryFieldsRejected(),
   testCommitMustBeFullSha(),
   testEntriesRequired(),
   testNonArrayEntriesIsOneProblem(),
   testStringPatternsRejected(),
+  testStringNonProductionRejected(),
   testPatternEdgesRejected(),
   testOptionalFieldsMayBeOmitted(),
-  testRulesValidated(),
+  testUnknownRuleRejected(),
+  testNoFindingsOfTypeValidated(),
+  testMaxSeverityValidated(),
   testEntryStatusAndType(),
   testEntryFileOrPattern(),
   testEntryLines(),
-  testEntryChallengesAndWhy(),
-  testFoundAndReviewedNeedSeverityFileLines(),
+  testEntryChallengesAreNames(),
+  testEntryWhyRequired(),
+  testFoundAndReviewedNeedSeverity(),
+  testFoundAndReviewedNeedFileAndLines(),
+  testReviewedNeedsReason(),
   testTypesWithFoundEntries(),
 ];
 
