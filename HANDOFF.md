@@ -367,6 +367,7 @@ Week 3 Deploy    ████████████████░░░░░
 ---
 
 ---
+- [ ] **Answer-key CI checks that keyed files are tracked, not that a scanner reads them** (second reviewer, PR 3, 2026-10-08). A `known miss` / `not flagged` entry (or pattern) on a file the scanners skip (`dist/`, `*.md`, `*.min.js`, test files for every scanner except secrets, non-source extensions) could never fire, and a known miss there inflates the recall denominator. `found` entries there fail as missing, so this only affects documented misses. Measured 2026-10-08: all 18 known-miss / not-flagged entries (Juice Shop 11, DVNA 4, Express 3) point at files the scanners read (shared skip + extension rules; per-scanner extension subsets not modelled). A real fix exposes each scanner's file selection (scanner change), so it was left out of PR 3.
 
 ## How the Pattern Scanners Work (copy this shape for crypto / async)
 
