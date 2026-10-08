@@ -37,10 +37,14 @@ function isPattern(p) {
 }
 
 const RULES = ['noFindingsOfType', 'maxSeverity'];
+// Every field a key or entry may have: a misspelled one (rule, nonproduction, challenge) would switch its check off silently
+const KEY_FIELDS = ['target', 'repo', 'commit', 'sources', 'nonProduction', 'rules', 'entries'];
+const ENTRY_FIELDS = ['status', 'type', 'file', 'pattern', 'lines', 'severity', 'challenges', 'why', 'reason'];
 
 // Shape problems in a key, so a typo can't turn an entry or rule into a check that always passes
 export function validateKey(key) {
   const problems = [];
+  for (const name of Object.keys(key)) if (!KEY_FIELDS.includes(name)) problems.push(`unknown field "${name}"`);
   if (!/^[0-9a-f]{40}$/.test(key.commit ?? '')) problems.push('commit must be a full 40-character SHA');
   if (!Array.isArray(key.entries)) problems.push('entries must be an array');
   if (key.nonProduction !== undefined && !(Array.isArray(key.nonProduction) && key.nonProduction.every(isPattern))) {
@@ -55,6 +59,7 @@ export function validateKey(key) {
   if (rules.maxSeverity !== undefined && !SEVERITIES.includes(rules.maxSeverity)) problems.push('rules.maxSeverity must be a severity');
   (Array.isArray(key.entries) ? key.entries : []).forEach((e, i) => {
     const at = `entry ${i}`;
+    for (const name of Object.keys(e)) if (!ENTRY_FIELDS.includes(name)) problems.push(`${at}: unknown field "${name}"`);
     if (!STATUSES.includes(e.status)) problems.push(`${at}: unknown status "${e.status}"`);
     if (!TYPES.includes(e.type)) problems.push(`${at}: unknown type "${e.type}"`);
     if ((e.file === undefined) === (e.pattern === undefined)) problems.push(`${at}: needs exactly one of file or pattern`);
@@ -129,11 +134,12 @@ export function compareToKey(key, { findings, errors = [] }) {
     }
   }
 
-  // DESIGN: non-production code is capped at low. Provider-format secrets are the exception
-  // (they keep their severity anywhere), and a key can't tell them from generic values, so
-  // secrets are left out of this rule.
+  // DESIGN: non-production code is capped at low. Provider-format secrets are the exception (they keep
+  // their severity anywhere, and are always high or critical), so a high/critical secret there is left to
+  // the unkeyed-high rule above; a medium one is a generic value that escaped the cap (user decision 2026-10-08).
   for (const f of scanned) {
-    if (f.type !== 'hardcoded-secret' && f.severity !== 'low' && isNonProduction(key, f.file)) {
+    const providerSeverity = f.type === 'hardcoded-secret' && (f.severity === 'high' || f.severity === 'critical');
+    if (!providerSeverity && f.severity !== 'low' && isNonProduction(key, f.file)) {
       fail('non-production above low', `${f.file}:${f.line} ${f.type} is ${f.severity} in non-production code`);
     }
   }
