@@ -7,11 +7,11 @@ dash is built by one person directing an AI coding agent. A persona prompt ("you
 | TPM | Start of every session | `HANDOFF.md` ("▶ START HERE"), `STATUS.md`, `PRD.md` | Scope creep, lost decisions, starting on a stale baseline |
 | Architect | Before a new scanner, a new data source, or a report-format change | A design note (below), then the `architect` agent (`.claude/agents/architect.md`) challenges it with fresh context | Choices that are expensive to undo; scanners with no answer key |
 | Reviewer | Before every PR is opened | The `reviewer` agent (fresh context, didn't write the code): correctness against the PRD, DESIGN scoring model and answer keys, then a **separate test audit** | Bugs, and tests that test nothing |
-| QA | Every push and PR | CI `test`: `npm test`, `npm run lint`, `npm run build`. On PRs, `mutation-changed`: changed lines must catch 80% of planted bugs, and the ratchet can't drop (below) | Regressions, weak tests |
+| QA | Every push and PR | CI `test`: `npm test`, `npm run lint`, `npm run build`. On PRs, `mutation-changed`: changed lines must catch 80% of planted bugs, and the ratchet can't drop (below). `answer-keys`: fresh scans of Juice Shop, DVNA and Express at the pinned commits must match `answer-keys/*.json` (design: `docs/design-notes/answer-key-test.md`) | Regressions, weak tests, lost recall or moved severities |
 | Security | Before anything is published | Demo export redacts secrets and refuses key formats; secret scanning + push protection on the repo; no local paths in reports or docs | Leaked keys or paths on a public repo and live site |
 | The user | Every severity/scoring rule, and every merge | Decides each scoring trade-off from real counts; reads the test **names** (`npm test` prints them as rules) | A scanner that's correct in code but wrong about risk |
 
-**What blocks a merge.** `main` has a ruleset: a PR is required (squash only), and the `test` check must pass. The mutation job runs on every PR; it is not a required check yet (adding it is a repo-settings change the user makes).
+**What blocks a merge.** `main` has a ruleset: a PR is required (squash only), and the `test` check must pass. The mutation job runs on every PR and `answer-keys` on every PR and push to `main`; neither is a required check yet (adding them is a repo-settings change the user makes).
 
 ## Design note (architect gate)
 Half a page, in the PR description or `docs/`: **problem → options (2–3) → choice and why → how recall and noise will be measured on the three targets → what breaks → what could leak**. The `architect` agent reviews it before code is written.

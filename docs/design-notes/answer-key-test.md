@@ -49,6 +49,8 @@ Targets come from upstream (no forks; a deleted pinned commit fails closed). The
 12. Exit 0 all pass; 2 if any infrastructure failure; otherwise 1. A summary line names the category.
 13. Output: file:line, type, severity, target-relative paths, counts and timings only. No snippets, descriptions, context text, raw reports or artifacts.
 
+Added after the reviewer (2026-10-08, closing fail-open paths; no scoring change): keys, `public/demo` scan ids and target folders must be the same set (a deleted key file would drop its target's checks; the offline demo test checks keys vs scans too); item 6 checks keyed files against `git ls-files` (exact case: macOS would accept `Login.ts` for `login.ts`), and every entry `pattern` and `nonProduction` pattern must match a tracked file and no `lines` range may start past the end of its file (a typo there would make a check that can never fire); an unreadable demo file is information only; a crash counts as a failure, keeps the exit-2 rule and prints `<repo>` / `<targets>` instead of absolute paths. The job's token is `contents: read`; Stryker ignores a local `targets/`.
+
 Pure parts live in `src/utils/answer-keys-ci.js` (unit-tested, mutation-tested); `scripts/answer-keys-ci.js` does the I/O and is checked by running it with planted failures (wrong commit, dirty tree, deleted keyed file, edited key). Out of scope: dependency CVEs, precision, totals, caching (unless the fetch measures slow), making the check required, crypto-scanner speed.
 
 ## Where expected values come from
