@@ -138,7 +138,7 @@ function localStrategyCallee(content, code) {
 }
 
 // Parameter names of the function whose body follows `signature`: function name (a, b) { … } or (a, b) => { … }.
-// TypeScript annotations are dropped, including ones with brackets: (username: string, done: (err: any) => void): Promise<void>
+// TypeScript annotations and default values are dropped, including ones with brackets: (username: string, done: (err: any) => void): Promise<void>
 function parameterNames(signature) {
   const tail = signature.match(/\)\s*(?::\s*[\w$.<>[\]| ]+)?\s*(?:=>\s*)?$/);
   const open = tail ? openingParen(signature, tail.index) : -1;
@@ -153,7 +153,8 @@ function parameterNames(signature) {
     if (ch === ',' && depth === 0) params.push('');
     else params[params.length - 1] += ch;
   }
-  return params.map((p) => p.replace(/:[\s\S]*/, '').trim()).filter(Boolean);
+  // Types and default values aren't part of the name: password: string, password = normalize(raw)
+  return params.map((p) => p.replace(/[:=][\s\S]*/, '').trim()).filter(Boolean);
 }
 
 // Index of the ( that the ) at `close` closes, or -1
