@@ -44,13 +44,16 @@ export function keySetProblems({ keys, scans, targets }) {
 
 // Key references that could never fire: a keyed file not tracked at the commit (exact case: macOS would find
 // Login.ts for login.ts), an entry or nonProduction pattern matching no file, a range starting past the end of
-// its file. files: `git ls-files` of the target; lineCounts: { [keyed file]: lines } for the files that were read.
+// its file, or a range on a pattern entry. files: `git ls-files` of the target; lineCounts: { [keyed file]: lines } for the files that were read.
 export function keyReferenceProblems(key, { files, lineCounts }) {
   const problems = [];
   for (const file of keyedFiles(key)) if (!files.includes(file)) problems.push(`${file} is not a tracked file in the target`);
   for (const entry of key.entries) {
     if (entry.pattern !== undefined && !files.some((f) => matchesFile(entry, f))) {
       problems.push(`${where(entry)} ${entry.type}: pattern matches no file in the target`);
+    }
+    if (entry.pattern !== undefined && entry.lines) {
+      problems.push(`${where(entry)} ${entry.type}: lines on a pattern entry can't be checked; use one entry per file`);
     }
     const lineCount = lineCounts[entry.file]; // undefined (not read) compares false: no problem reported
     if (entry.lines && entry.lines[0] > lineCount) {

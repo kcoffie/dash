@@ -42,6 +42,7 @@ function git(dir, args) {
 function lineCount(file) {
   try {
     const text = fs.readFileSync(file, 'utf8');
+    if (text === '') return 0;
     return text.split('\n').length - (text.endsWith('\n') ? 1 : 0);
   } catch {
     return null;
@@ -51,7 +52,13 @@ function lineCount(file) {
 // Folders (or symlinks to folders) in the targets folder, or null when it can't be listed
 function targetNames() {
   try {
-    return fs.readdirSync(targetsDir).filter((name) => fs.statSync(path.join(targetsDir, name)).isDirectory());
+    return fs.readdirSync(targetsDir).filter((name) => {
+      try {
+        return fs.statSync(path.join(targetsDir, name)).isDirectory();
+      } catch {
+        return true; // a broken symlink is still a target name, so a key-less one is reported
+      }
+    });
   } catch {
     return null;
   }
@@ -145,6 +152,7 @@ function finish() {
 // A crash is a failure, never a pass, and doesn't hide an infrastructure failure already counted (exit 2 wins).
 // Targets after the crash are not checked; the summary still prints.
 main().catch((error) => {
-  fail('crash', redactTargetPath(redactTargetPath(error.message, targetsDir, '<targets>'), root, '<repo>'));
+  const message = String(error?.message ?? error); // a rejection need not be an Error
+  fail('crash', redactTargetPath(redactTargetPath(message, targetsDir, '<targets>'), root, '<repo>'));
   finish();
 });

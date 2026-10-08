@@ -40,13 +40,13 @@ Targets come from upstream (no forks; a deleted pinned commit fails closed). The
 3. One job, not a matrix: the cross-key check needs every key.
 4. Per target, infrastructure checks first (exit 2): `git rev-parse HEAD` equals `key.commit`, `git status --porcelain` empty. A target that fails them is not compared.
 5. `public/demo/index.json`'s short commit must be a prefix of `key.commit` (key/demo failure, exit 1).
-6. Every file named by a `file` entry (any status) exists and is readable before scanning.
+6. Every file named by a `file` entry (any status) is tracked at the commit (exact case) and readable before scanning; every entry `pattern` and `nonProduction` pattern matches a tracked file; no `lines` range starts past the end of its file; a pattern entry has no `lines`. Keys, demo scan ids and target folders are the same set. (Extended after the reviewer, 2026-10-08.)
 7. `scanPatterns`; any `errors` fail, printed with the target's absolute path replaced by `<target>`.
 8. `validateKey` problems fail; `compareToKey` failures print as `kind: message`; each key has a found entry of its own; all 5 types have a found entry across keys.
 9. Recall printed per type (`x/y challenges · a/b sites`); a challenge with a found entry that isn't recalled fails.
 10. Information only, never fails: fresh scan vs `public/demo/<id>.json` on type/file/line/severity/confidence/context; counts, and each difference as `file:line type severity` (or "context differs").
 11. Scan time per target printed.
-12. Exit 0 all pass; 2 if any infrastructure failure; otherwise 1. A summary line names the category.
+12. Exit 0 all pass; 2 if any infrastructure failure; otherwise 1. A summary line names the category. A crash is a failure: it keeps this rule, still prints the summary, and prints `<repo>` / `<targets>` for absolute paths. An unreadable demo file is information only.
 13. Output: file:line, type, severity, target-relative paths, counts and timings only. No snippets, descriptions, context text, raw reports or artifacts.
 
 Added after the reviewer (2026-10-08, closing fail-open paths; no scoring change): keys, `public/demo` scan ids and target folders must be the same set (a deleted key file would drop its target's checks; the offline demo test checks keys vs scans too); item 6 checks keyed files against `git ls-files` (exact case: macOS would accept `Login.ts` for `login.ts`), and every entry `pattern` and `nonProduction` pattern must match a tracked file and no `lines` range may start past the end of its file (a typo there would make a check that can never fire); an unreadable demo file is information only; a crash counts as a failure, keeps the exit-2 rule and prints `<repo>` / `<targets>` instead of absolute paths. The job's token is `contents: read`; Stryker ignores a local `targets/`.
