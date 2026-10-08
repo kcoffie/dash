@@ -11,8 +11,6 @@ const FUNCTION_LOOKBACK = 15;
 
 // Callbacks that run while authenticating a request (passport session hooks and verify callbacks)
 const AUTH_CALLBACK = /passport\.(use|serializeUser|deserializeUser)\b|function\s*\([^)]*\bdone\s*\)/;
-// A …Strategy( call: a passport callback only in files that import passport (user decision 2026-10-07)
-const STRATEGY_CALL = /Strategy\s*\(/;
 // Files that use passport / passport-local
 const PASSPORT_IMPORT = /(?:require\s*\(\s*|from\s+|import\s+)['"]passport(?:-[\w-]+)?['"]/g;
 const PASSPORT_LOCAL_IMPORT = /(?:require\s*\(\s*|from\s+|import\s+)['"]passport-local['"]/g;
@@ -135,25 +133,19 @@ function insideCallTo(code, index, callee) {
 // under its own name (new Strategy(), or Strategy on the module's own binding (passportLocal.Strategy(), not jwt.Strategy(
 function localStrategyCallee(content, code) {
   const modules = codeMatches(content, code, PASSPORT_LOCAL_MODULE).map((match) => escapeRegex(match[1] ?? match[2]));
-  const member = modules.length > 0 ? `|(?<![\\w$.])(?:${modules.join('|')})\\s*\\.\\s*Strategy` : '';
-  return new RegExp(`(?:\\bLocalStrategy|(?<![\\w$.])Strategy${member})\\s*$`);
+  const callees = ['\\bLocalStrategy', '(?<![\\w$.])Strategy', ...modules.map((name) => `(?<![\\w$.])${name}\\s*\\.\\s*Strategy`)];
+  return new RegExp(`(?:${callees.join('|')})\\s*$`);
 }
 
 // Parameter names of the function whose body follows `signature`: function name (a, b) { … } or (a, b) => { … }.
 // TypeScript annotations are dropped, including ones with brackets: (username: string, done: (err: any) => void): Promise<void>
 function parameterNames(signature) {
   const tail = signature.match(/\)\s*(?::\s*[\w$.<>[\]| ]+)?\s*(?:=>\s*)?$/);
-  if (!tail) return null;
-  let depth = 0;
-  let open = -1;
-  for (let i = tail.index; i >= 0 && open < 0; i--) {
-    if (signature[i] === ')') depth++;
-    else if (signature[i] === '(' && --depth === 0) open = i;
-  }
+  const open = tail ? openingParen(signature, tail.index) : -1;
   if (open < 0) return null;
   // Split on commas outside a type's brackets (the > of => doesn't close anything)
   const params = [''];
-  depth = 0;
+  let depth = 0;
   for (let i = open + 1; i < tail.index; i++) {
     const ch = signature[i];
     if ('([{<'.includes(ch)) depth++;
@@ -161,7 +153,17 @@ function parameterNames(signature) {
     if (ch === ',' && depth === 0) params.push('');
     else params[params.length - 1] += ch;
   }
-  return params.map((p) => p.replace(/:[\s\S]*$/, '').trim()).filter(Boolean);
+  return params.map((p) => p.replace(/:[\s\S]*/, '').trim()).filter(Boolean);
+}
+
+// Index of the ( that the ) at `close` closes, or -1
+function openingParen(text, close) {
+  let depth = 0;
+  for (let i = close; i >= 0; i--) {
+    if (text[i] === ')') depth++;
+    else if (text[i] === '(' && --depth === 0) return i;
+  }
+  return -1;
 }
 
 // passport-local's verify callback gets the username and password straight from req.body, so its
@@ -175,7 +177,7 @@ function usesLocalStrategyCredentials(code, index, signatures, head, localCallee
     if (!names) continue;
     if (names.length < 3 || !/^(done|cb|callback|verified|next)$/.test(names[names.length - 1])) continue;
     // verify(username, password, done), or verify(req, username, password, done) with passReqToCallback
-    const credentials = names.slice(names[0] === 'req' || names.length > 3 ? 1 : 0, -1);
+    const credentials = names.slice(names.length > 3 ? 1 : 0, -1);
     return credentials.some((name) => new RegExp(`(?<![\\w$.])${escapeRegex(name)}(?![\\w$])`).test(head));
   }
   return false;
@@ -276,8 +278,8 @@ function promiseChainIssues({ code, lines, lineOf, browser, passport, localCalle
     const startLine = lineOf(start);
     const signatures = enclosingSignatures(code, start);
     const inRoute = signatures.some((signature) => ROUTE_HANDLER.test(signature));
-    const inAuth = signatures.some((signature) => AUTH_CALLBACK.test(signature))
-      || (passport && (signatures.some((signature) => STRATEGY_CALL.test(signature)) || insideCallTo(code, start, /Strategy\s*$/)));
+    // Inside a …Strategy( call's arguments: a passport callback only in files that import passport (user decision 2026-10-07)
+    const inAuth = signatures.some((signature) => AUTH_CALLBACK.test(signature)) || (passport && insideCallTo(code, start, /Strategy\s*$/));
     const factors = ['✓ Promise chain has no .catch() and isn\'t returned or awaited, so a rejection is unhandled'];
     let severity = 'low';
     let confidence = 0.4;
