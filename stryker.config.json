@@ -10,6 +10,7 @@
     "!src/**/__tests__/**",
     "!src/scanner/index.js"
   ],
+  "ignorePatterns": ["/targets"],
   "reporters": [
     "clear-text",
     "progress-append-only",
