@@ -1,7 +1,7 @@
 # Project Status Dashboard
 
 **Last Updated:** 2026-10-08 (session 11)  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team gates: mutation testing + reviewer/architect agents merged (PRs #21, #22; score 56.89% → 60.55%, CI 60.58%, ratchet 60) · passport-local credentials → high merged (PR #25) · answer-key regression test: keys for all 3 targets + per-type recall merged (PRs #27–#29), CI job `answer-keys` in PR #31 (open, green: first Linux run 0 differences vs `public/demo`, 2 m 48 s); repo now at `~/projs/dash`
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team gates: mutation testing + reviewer/architect agents merged (PRs #21, #22; score 56.89% → 60.55%, CI 60.58%, ratchet 60) · passport-local credentials → high merged (PR #25) · answer-key regression test: keys for all 3 targets + per-type recall merged (PRs #27–#29), CI job `answer-keys` merged (PR #31; first Linux run 0 differences vs `public/demo`, 2 m 48 s): answer-key plan complete; repo now at `~/projs/dash`
 
 ---
 
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** the user merges PR #31 (answer-keys CI job); then check the first `answer-keys` run on `main`, and ask the user what's next (required checks, scanner TODOs). Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + `npm run build`, and `mutate:changed` ≥ 80%.
+**Next Step:** check the `main` run for PR #31 (`mutation-full` was still running at handoff), then ask the user what's next (required checks, actions upgrade, scanner TODOs). Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + `npm run build`, and `mutate:changed` ≥ 80%.
