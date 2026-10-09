@@ -32,8 +32,9 @@ export function latestWorkflowRun(response, workflowPath) {
   if (!Array.isArray(response?.workflow_runs)) return null;
   const ours = response.workflow_runs.filter((run) => run.path === workflowPath);
   if (ours.length === 0) return null;
-  // Stryker disable next-line EqualityOperator: two runs with the same timestamp are runs of the same commit and workflow; either answers
-  return ours.reduce((newest, run) => (run.created_at > newest.created_at ? run : newest));
+  // Run ids only increase: the highest is the newest (timestamps can tie)
+  const newest = Math.max(...ours.map((run) => run.id));
+  return ours.find((run) => run.id === newest);
 }
 
 // GET /repos/{repo}/actions/runs/{id}/jobs → the job's conclusion when completed, else its status; 'not found' when

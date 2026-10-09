@@ -77,6 +77,8 @@ jobs:
       - name: Markdown-only push after a passing run?
         id: changes
         continue-on-error: true
+        # A hang counts as a step failure, so continue-on-error makes Stryker run instead of the job timing out
+        timeout-minutes: 2
         env:
           BEFORE: ${{ github.event.before }}
           AFTER: ${{ github.sha }}
