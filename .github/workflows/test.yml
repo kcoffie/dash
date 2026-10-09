@@ -53,19 +53,42 @@ jobs:
             out/mutation-changed.json
 
   # After merge: the whole-project score (slow). Turns main red if it fell below the ratchet.
+  # Stryker is skipped only for a Markdown-only push when mutation-full passed on the previous push (user decision
+  # 2026-10-09: a red score must not turn green on HEAD). Anything else runs, including any failure of the decision
+  # step itself (continue-on-error: no output means run). scripts/mutation-full-skip.js, rules in src/utils/.
   mutation-full:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # actions: read so the decision step can read the previous push's mutation-full result
+    permissions:
+      contents: read
+      actions: read
+    # Longest run 47 m 39 s (4912 scored mutants, 2026-10-08); runs of the same code have differed by 10 min
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
+        with:
+          # All history, so the diff works for pushes of several commits
+          fetch-depth: 0
       - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      - run: npx stryker run --concurrency 4
-      - if: always()
+      - name: Markdown-only push after a passing run?
+        id: changes
+        continue-on-error: true
+        # A hang counts as a step failure, so continue-on-error makes Stryker run instead of the job timing out
+        timeout-minutes: 2
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/mutation-full-skip.js "$BEFORE" "$AFTER"
+      - if: steps.changes.outputs.skip != 'true'
+        run: npm ci
+      - if: steps.changes.outputs.skip != 'true'
+        run: npx stryker run --concurrency 4
+      - if: always() && steps.changes.outputs.skip != 'true'
         uses: actions/upload-artifact@v7
         with:
           name: mutation-report
