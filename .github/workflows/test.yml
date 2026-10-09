@@ -10,8 +10,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -29,10 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -45,7 +45,7 @@ jobs:
           node -e "process.exit(Number($head) >= Number($base) ? 0 : 1)" || { echo "::error::thresholds.break was lowered ($base -> $head)"; exit 1; }
       - run: npm run mutate:changed -- origin/${{ github.base_ref }} --concurrency 4
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mutation-changed-report
           path: |
@@ -58,15 +58,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - run: npx stryker run --concurrency 4
       - if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mutation-report
           path: |
@@ -86,27 +86,27 @@ jobs:
     # First run (PR #31): 2 m 48 s, Juice Shop's scan 161 s of it
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       # No npm ci: the pattern scanners use Node built-ins only (a new dependency would fail the import, not pass)
       - name: Fetch Juice Shop at the key's commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: juice-shop/juice-shop
           ref: 1618a611b173b4bf114028e6e02549950606e29d
           path: targets/juice-shop
           persist-credentials: false
       - name: Fetch DVNA at the key's commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: appsecco/dvna
           ref: 9ba473add536f66ac9007966acb2a775dd31277a
           path: targets/dvna
           persist-credentials: false
       - name: Fetch Express at the key's commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: expressjs/express
           ref: 7ef98448f8b38099ab1ded55e458538ad47a51e7
