@@ -22,7 +22,13 @@ function report(name, passed, detail = '') {
 
 const repo = path.join(tmpDir, 'repo');
 fs.mkdirSync(repo);
-const GIT_ENV = { ...process.env, GIT_CONFIG_GLOBAL: '/dev/null', GIT_CONFIG_NOSYSTEM: '1' };
+// No inherited GIT_* variables: git sets GIT_DIR / GIT_INDEX_FILE when it runs hooks, and with them every git call
+// here (init, add, commit) would act on the outer repo instead of the temp one
+const GIT_ENV = {
+  ...Object.fromEntries(Object.entries(process.env).filter(([name]) => !name.startsWith('GIT_'))),
+  GIT_CONFIG_GLOBAL: '/dev/null',
+  GIT_CONFIG_NOSYSTEM: '1',
+};
 const git = (...args) => execFileSync('git', ['-c', 'user.name=t', '-c', 'user.email=t@example.com', '-c', 'commit.gpgsign=false', ...args],
   { cwd: repo, env: GIT_ENV, encoding: 'utf8' }).trim();
 git('init', '-q');
@@ -43,7 +49,7 @@ function commit(change) {
 const WORKFLOW = '.github/workflows/test.yml';
 const api = { status: 200, path: WORKFLOW, job: { name: 'mutation-full', status: 'completed', conclusion: 'success' }, requests: [] };
 const server = http.createServer((req, res) => {
-  api.requests.push(req.url);
+  api.requests.push({ url: req.url, auth: req.headers.authorization });
   if (api.status !== 200) { res.writeHead(api.status); res.end(); return; }
   const body = req.url.includes('/jobs')
     ? { jobs: [{ name: 'test', status: 'completed', conclusion: 'success' }, api.job] }
@@ -79,8 +85,20 @@ async function testMarkdownOnlyAfterPassSkips() {
   const r = await runScript(before, after);
   return report('Markdown-only commit, mutation-full passed on before → skip=true, a ::notice::, runs then jobs asked',
     r.code === 0 && r.output === 'skip=true\n' && r.stdout.includes('mutation-full: skipped') && r.stdout.includes('::notice title=mutation-full skipped::')
-      && r.requests.length === 2 && r.requests[0].includes(`head_sha=${before}`) && r.requests[1].includes('/runs/42/jobs'),
+      && r.requests.length === 2 && r.requests[1].url.startsWith('/repos/o/r/actions/runs/42/jobs')
+      && r.requests.every((q) => q.auth === 'Bearer test-token'),
     JSON.stringify(r));
+}
+
+async function testRunsQueryAsksForThisPushOnMain() {
+  reset();
+  const before = head();
+  const after = commit(() => fs.appendFileSync(path.join(repo, 'README.md'), 'q\n'));
+  const r = await runScript(before, after);
+  const query = new URL(r.requests[0]?.url ?? '/', 'http://x');
+  return report('runs query: /repos/<repo>/actions/runs for head_sha=<before>, push events on main only',
+    query.pathname === '/repos/o/r/actions/runs' && query.searchParams.get('head_sha') === before
+      && query.searchParams.get('event') === 'push' && query.searchParams.get('branch') === 'main', JSON.stringify(r.requests));
 }
 
 async function testRenameToMarkdownRuns() {
@@ -154,7 +172,7 @@ async function testOptionLikeBeforeNeverReachesGit() {
 
 const results = [];
 try {
-  for (const test of [testMarkdownOnlyAfterPassSkips, testRenameToMarkdownRuns, testCodeChangeNeverAsksApi, testPreviousNotPassedRuns,
+  for (const test of [testMarkdownOnlyAfterPassSkips, testRunsQueryAsksForThisPushOnMain, testRenameToMarkdownRuns, testCodeChangeNeverAsksApi, testPreviousNotPassedRuns,
     testApiProblemsRun, testBeforeNotInHistoryRuns, testOptionLikeBeforeNeverReachesGit]) {
     results.push(await test());
   }

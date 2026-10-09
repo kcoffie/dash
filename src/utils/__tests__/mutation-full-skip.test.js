@@ -131,21 +131,17 @@ function testShaWithNewlineAccepted() {
 
 // --- Reading the GitHub API responses ---
 
-const run = (id, created_at, extra = {}) => ({ id, created_at, path: '.github/workflows/test.yml', event: 'push', ...extra });
+const run = (id, extra = {}) => ({ id, path: '.github/workflows/test.yml', event: 'push', ...extra });
 
 function testLatestRunPicksNewestOfThisWorkflow() {
-  const runs = { workflow_runs: [
-    run(1, '2026-10-09T10:00:00Z'),
-    run(2, '2026-10-09T12:00:00Z'),
-    run(3, '2026-10-09T13:00:00Z', { path: '.github/workflows/other.yml' }),
-    run(4, '2026-10-09T11:00:00Z'),
-  ] };
+  // Run ids only increase, so the highest id is the newest run (no ties, unlike timestamps)
+  const runs = { workflow_runs: [run(10), run(30), run(40, { path: '.github/workflows/other.yml' }), run(20)] };
   const picked = latestWorkflowRun(runs, '.github/workflows/test.yml');
-  return report('latest run: newest created_at among this workflow\'s runs (other workflows ignored)', picked?.id === 2, show(picked));
+  return report('latest run: highest run id among this workflow\'s runs (other workflows ignored)', picked?.id === 30, show(picked));
 }
 
 function testLatestRunNoneFound() {
-  const cases = [{ workflow_runs: [] }, { workflow_runs: [run(3, '2026-10-09T13:00:00Z', { path: 'x.yml' })] }, {}, null, { workflow_runs: 'x' }];
+  const cases = [{ workflow_runs: [] }, { workflow_runs: [run(3, { path: 'x.yml' })] }, {}, null, { workflow_runs: 'x' }];
   const nulls = cases.filter((c) => latestWorkflowRun(c, '.github/workflows/test.yml') === null);
   return report('no run of this workflow, or a malformed response → null', nulls.length === cases.length, `${nulls.length}/${cases.length}`);
 }
