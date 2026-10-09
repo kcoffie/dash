@@ -10,8 +10,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -29,10 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
@@ -45,7 +45,7 @@ jobs:
           node -e "process.exit(Number($head) >= Number($base) ? 0 : 1)" || { echo "::error::thresholds.break was lowered ($base -> $head)"; exit 1; }
       - run: npm run mutate:changed -- origin/${{ github.base_ref }} --concurrency 4
       - if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: mutation-changed-report
           path: |
@@ -53,20 +53,43 @@ jobs:
             out/mutation-changed.json
 
   # After merge: the whole-project score (slow). Turns main red if it fell below the ratchet.
+  # Stryker is skipped only for a Markdown-only push when mutation-full passed on the previous push (user decision
+  # 2026-10-09: a red score must not turn green on HEAD). Anything else runs, including any failure of the decision
+  # step itself (continue-on-error: no output means run). scripts/mutation-full-skip.js, rules in src/utils/.
   mutation-full:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # actions: read so the decision step can read the previous push's mutation-full result
+    permissions:
+      contents: read
+      actions: read
+    # Longest run 47 m 39 s (4912 scored mutants, 2026-10-08); runs of the same code have differed by 10 min
+    timeout-minutes: 90
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+        with:
+          # All history, so the diff works for pushes of several commits
+          fetch-depth: 0
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      - run: npx stryker run --concurrency 4
-      - if: always()
-        uses: actions/upload-artifact@v4
+      - name: Markdown-only push after a passing run?
+        id: changes
+        continue-on-error: true
+        # A hang counts as a step failure, so continue-on-error makes Stryker run instead of the job timing out
+        timeout-minutes: 2
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: node scripts/mutation-full-skip.js "$BEFORE" "$AFTER"
+      - if: steps.changes.outputs.skip != 'true'
+        run: npm ci
+      - if: steps.changes.outputs.skip != 'true'
+        run: npx stryker run --concurrency 4
+      - if: always() && steps.changes.outputs.skip != 'true'
+        uses: actions/upload-artifact@v7
         with:
           name: mutation-report
           path: |
@@ -86,27 +109,27 @@ jobs:
     # First run (PR #31): 2 m 48 s, Juice Shop's scan 161 s of it
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
       # No npm ci: the pattern scanners use Node built-ins only (a new dependency would fail the import, not pass)
       - name: Fetch Juice Shop at the key's commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: juice-shop/juice-shop
           ref: 1618a611b173b4bf114028e6e02549950606e29d
           path: targets/juice-shop
           persist-credentials: false
       - name: Fetch DVNA at the key's commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: appsecco/dvna
           ref: 9ba473add536f66ac9007966acb2a775dd31277a
           path: targets/dvna
           persist-credentials: false
       - name: Fetch Express at the key's commit
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: expressjs/express
           ref: 7ef98448f8b38099ab1ded55e458538ad47a51e7
