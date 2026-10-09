@@ -1,7 +1,7 @@
 # Project Status Dashboard
 
-**Last Updated:** 2026-10-09 (session 12)  
-**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team gates: mutation testing + reviewer/architect agents merged (PRs #21, #22; score 56.89% → 60.55%, CI 60.58%, ratchet 60; CI 69.30% after PR #31) · passport-local credentials → high merged (PR #25) · answer-key regression test: keys for all 3 targets + per-type recall merged (PRs #27–#29), CI job `answer-keys` merged (PR #31; first Linux run 0 differences vs `public/demo`, 2 m 48 s): answer-key plan complete; repo now at `~/projs/dash`
+**Last Updated:** 2026-10-09 (end of session 12)  
+**Status:** Scanners + dashboard merged (PRs #7, #9) · demo data + picker merged (PR #10) · secret scanning on · **live at https://dash-jade-nine.vercel.app/** · Task #7 docs merged (PR #13) · scanner accuracy merged (PR #14) · ESLint + lint in CI merged (PR #16) · insecure-crypto scanner merged (PR #17) · async-footgun scanner merged (PR #19) · team gates: mutation testing + reviewer/architect agents merged (PRs #21, #22; score 56.89% → 60.55%, CI 60.58%, ratchet 60; CI 69.30% after PR #31, 69.99% after PR #34) · CI hardening (session 12): `answer-keys` + `mutation-changed` required, actions v7 (PR #33), `mutation-full` skipped on Markdown-only pushes after a passing run + timeout 90 (PR #34), Stryker runs the src tests in one process, ~2× faster locally (PR #35) · passport-local credentials → high merged (PR #25) · answer-key regression test: keys for all 3 targets + per-type recall merged (PRs #27–#29), CI job `answer-keys` merged (PR #31; first Linux run 0 differences vs `public/demo`, 2 m 48 s): answer-key plan complete; repo now at `~/projs/dash`
 
 ---
 
@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** `main` run for PR #31 checked (`mutation-full` 69.30%, 47 m of a 60 m limit); required checks made (user); actions v4 → v7 merged (PR #33, `main` run verified); `mutation-full` skip on Markdown-only pushes after a passing run + timeout 90 in PR #34 (CI green); next: verify #34's `main` run and the first live skip. Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + `npm run build`, and `mutate:changed` ≥ 80%.
+**Next Step:** check PR #35's `main` run (first CI run of the single-process runner) and this handoff PR's run (first possible live skip), record both; then the user picks: shell-script fake `npm` (next speed step), B3 survivors, ratchet, or scanner TODOs. Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + build, `mutation-changed` and `answer-keys` (all required).
