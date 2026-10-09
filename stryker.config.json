@@ -2,7 +2,7 @@
   "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
   "testRunner": "command",
   "commandRunner": {
-    "command": "npm test"
+    "command": "npm run test:src"
   },
   "mutate": [
     "src/scanner/**/*.js",
