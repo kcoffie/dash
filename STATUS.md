@@ -154,4 +154,4 @@ If any answer is "no," flag it. That's what I'm here for.
 
 ---
 
-**Next Step:** `main` run for PR #31 checked (`mutation-full` 69.30%, 47 m of a 60 m limit); the user picks what's next (required checks, actions upgrade, scanner TODOs). Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + `npm run build`, and `mutate:changed` ≥ 80%.
+**Next Step:** `main` run for PR #31 checked (`mutation-full` 69.30%, 47 m of a 60 m limit); required checks made (user); actions v4 → v7 in PR #33 (CI green); next: verify #33's `main` run, then skip `mutation-full` on docs-only pushes + timeout 90 (criteria first). Details: HANDOFF "▶ START HERE". Every PR must pass `npm test` + `npm run lint` + `npm run build`, and `mutate:changed` ≥ 80%.
