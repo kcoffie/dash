@@ -34,6 +34,11 @@ const FILES = {
   'exitcode-4-then-exit-no-arg.mjs': `process.exitCode = 4; ${mark('exitcode-4-then-exit-no-arg')} process.exit();`,
   'sets-exitcode-then-exits-0.mjs': `process.exitCode = 1; ${mark('sets-exitcode-then-exits-0')} process.exit(0);`,
   'unhandled-rejection.mjs': "Promise.reject(new Error('nobody catches this'));",
+  // A top-level await that never settles: Node exits 13 once the loop is empty, so the file fails
+  'unsettled-await.mjs': `${mark('unsettled-await')} await new Promise(() => {}); process.exit(0);`,
+  // Leaves a timer running after process.exit(0): as its own process the exit ends it, in one process it would
+  // fire during the next file. The runner must refuse instead of crediting it to the next file.
+  'leaves-timer.mjs': `${mark('leaves-timer')} setTimeout(() => process.exit(1), 50); process.exit(0);`,
 };
 fs.writeFileSync(path.join(tmpDir, 'package.json'), '{}');
 for (const [name, body] of Object.entries(FILES)) {
@@ -77,7 +82,48 @@ async function testThrowingFileFails() {
 
 async function testUnhandledRejectionFails() {
   const r = await run('unhandled-rejection.mjs', 'pass.mjs');
-  return report('an unhandled rejection → non-zero exit, as Node does', r.code !== 0, show(r));
+  return report('an unhandled rejection → exit 1, as Node does', r.code === 1, show(r));
+}
+
+async function testUnsettledTopLevelAwaitFails() {
+  const r = await run('unsettled-await.mjs', 'pass.mjs');
+  return report('a top-level await that never settles → exit 1 naming the file (Node: exit 13), not a pass on drain',
+    r.code === 1 && r.stderr.includes('unsettled-await.mjs') && same(r.ran, ['unsettled-await']), show(r));
+}
+
+async function testLeftoverTimerFailsThatFile() {
+  const r = await run('leaves-timer.mjs', 'pass.mjs');
+  return report('a file that leaves a timer running → exit 1 naming that file (never credited to the next file)',
+    r.code === 1 && r.stderr.includes('leaves-timer.mjs') && r.stderr.includes('timer') && same(r.ran, ['leaves-timer']), show(r));
+}
+
+async function testSingleFileArgument() {
+  const r = await run('pass.mjs');
+  return report('one file argument → runs only that file', r.code === 0 && same(r.ran, ['pass']), show(r));
+}
+
+async function testDefaultDiscovery() {
+  // No arguments: src/**/__tests__/*.test.js under the cwd, nested folders included, sorted; nothing else.
+  // Sorted by path: 'src/a/__tests__/…' before 'src/a/deep/…' because '_' (0x5F) < 'd' (0x64).
+  const root = path.join(tmpDir, 'discover');
+  const files = {
+    'src/b/__tests__/z.test.js': 'b-z', 'src/a/__tests__/y.test.js': 'a-y', 'src/a/deep/er/__tests__/x.test.js': 'a-deep',
+    'src/__tests__/fixtures/decoy.test.js': 'decoy-in-fixtures', 'src/a/__tests__/helper.js': 'helper', 'test/__tests__/w.test.js': 'outside-src',
+  };
+  for (const [file, name] of Object.entries(files)) {
+    fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+    fs.writeFileSync(path.join(root, file), `require('fs').appendFileSync(${JSON.stringify(RAN)}, ${JSON.stringify(`${name}\n`)}); process.exit(0);\n`);
+  }
+  fs.writeFileSync(path.join(root, 'package.json'), '{ "type": "commonjs" }');
+  fs.rmSync(RAN, { force: true });
+  const r = await new Promise((resolve) => {
+    execFile('node', [RUNNER], { cwd: root, encoding: 'utf8', timeout: 20000 }, (error, stdout, stderr) => {
+      const ran = fs.existsSync(RAN) ? fs.readFileSync(RAN, 'utf8').split('\n').filter(Boolean) : [];
+      resolve({ code: error ? error.code : 0, stdout, stderr, ran });
+    });
+  });
+  return report('no arguments → every src/**/__tests__/*.test.js under the cwd, nested ones too, in sorted path order, nothing else',
+    r.code === 0 && same(r.ran, ['a-y', 'a-deep', 'b-z']), show(r));
 }
 
 async function testStopsAtFirstFailure() {
@@ -102,7 +148,8 @@ async function testNoFilesFails() {
 const results = [];
 try {
   for (const test of [testAllPassRunsEveryFile, testFailingFileFailsAndIsNamed, testThrowingFileFails, testUnhandledRejectionFails,
-    testStopsAtFirstFailure, testExitCodeDoesNotLeakIntoNextFile, testNoFilesFails]) {
+    testStopsAtFirstFailure, testExitCodeDoesNotLeakIntoNextFile, testNoFilesFails, testUnsettledTopLevelAwaitFails,
+    testLeftoverTimerFailsThatFile, testSingleFileArgument, testDefaultDiscovery]) {
     results.push(await test());
   }
 } finally {
