@@ -53,19 +53,34 @@ jobs:
             out/mutation-changed.json
 
   # After merge: the whole-project score (slow). Turns main red if it fell below the ratchet.
+  # A Markdown-only push can't change the score, so Stryker is skipped then; anything not provably
+  # Markdown-only runs (scripts/mutation-full-skip.js, rules in src/utils/mutation-full-skip.js).
   mutation-full:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    # 47 m 39 s at 4912 mutants (2026-10-08); same-code runs vary by ~6 min
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+        with:
+          # All history, so the diff works for pushes of several commits
+          fetch-depth: 0
+      - name: Markdown-only push?
+        id: changes
+        env:
+          BEFORE: ${{ github.event.before }}
+          AFTER: ${{ github.sha }}
+        run: node scripts/mutation-full-skip.js "$BEFORE" "$AFTER"
+      - if: steps.changes.outputs.skip != 'true'
+        uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
-      - run: npx stryker run --concurrency 4
-      - if: always()
+      - if: steps.changes.outputs.skip != 'true'
+        run: npm ci
+      - if: steps.changes.outputs.skip != 'true'
+        run: npx stryker run --concurrency 4
+      - if: always() && steps.changes.outputs.skip != 'true'
         uses: actions/upload-artifact@v7
         with:
           name: mutation-report
