@@ -25,7 +25,7 @@ function readBreak(text, who) {
 // A ref git can't mistake for an option (scripts/ratchet-check.js checks this before calling git)
 export const isUsableRef = (ref) => typeof ref === 'string' && ref !== '' && !ref.startsWith('-');
 
-// ref: the base ref passed to git (e.g. origin/main). baseText: `git show <ref>:stryker.config.json` output, or null
+// ref: the base ref (refs/remotes/origin/main in CI). baseText: `git show <ref>:stryker.config.json` output, or null
 // when git failed. headText: the PR's stryker.config.json, or null when it can't be read.
 export function ratchetDecision({ ref, baseText, headText }) {
   if (!isUsableRef(ref)) return { ok: false, message: `${JSON.stringify(ref)} is not a usable base ref` };
