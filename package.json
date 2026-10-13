@@ -10,7 +10,7 @@
     "screenshots": "node scripts/screenshots.js",
     "test": "node --test 'src/**/__tests__/*.test.js' 'scripts/__tests__/*.test.js'",
     "test:src": "node scripts/run-tests.js",
-    "mutate": "stryker run",
+    "mutate": "stryker run stryker.config.json",
     "mutate:changed": "node scripts/mutate-changed.js",
     "dev": "vite",
     "build": "vite build",
