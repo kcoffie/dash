@@ -103,8 +103,10 @@ async function testNoRefFails() {
 async function testOptionLikeRefNeverReachesGit() {
   const planted = path.join(tmpDir, 'planted');
   const r = await runScript([`--output=${planted}`], config(60));
+  // git show would write "<planted>:stryker.config.json", so look for any file starting with the name
+  const written = fs.readdirSync(tmpDir).filter((name) => name.startsWith('planted'));
   return report('ref "--output=<file>" → exit 1 and git never writes the file',
-    r.code === 1 && r.stdout.includes('not a usable base ref') && !fs.existsSync(planted), JSON.stringify(r));
+    r.code === 1 && r.stdout.includes('not a usable base ref') && written.length === 0, JSON.stringify({ ...r, written }));
 }
 
 const results = [];

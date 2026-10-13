@@ -67,6 +67,13 @@ function testBaseBadBreakFails() {
     ds.every((d) => d.ok === false && d.message.startsWith('base ') && d.message.includes('not a number from 0 to 100')), show(ds));
 }
 
+// User decision 2026-10-13: Stryker reads break: null as "gate off"; on the base it fails closed, so turning the
+// ratchet off takes a deliberate workflow change
+function testBaseNullBreakFailsClosed() {
+  const d = decide(config(null), config(0));
+  return report('base break null → fails, even when the PR\'s break is 0', d.ok === false && d.message.startsWith('base thresholds.break is null'), show(d));
+}
+
 function testBaseBadBreakShowsValue() {
   const d = decide(config(null), config(60));
   return report('the message shows the bad value as JSON', d.message === 'base thresholds.break is null, not a number from 0 to 100', show(d));
@@ -124,6 +131,7 @@ const results = [
   testBaseUnreadableFails(),
   testBaseInvalidJsonFails(),
   testBaseBadBreakFails(),
+  testBaseNullBreakFailsClosed(),
   testBaseBadBreakShowsValue(),
   testBaseMissingBreakShowsMissing(),
   testHeadUnreadableFails(),
