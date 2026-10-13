@@ -104,6 +104,18 @@ function testOptionLikeRefFails() {
   return report('empty ref or one starting with "-" → fails', ds.every((d) => d.ok === false && d.message.includes('not a usable base ref')), show(ds));
 }
 
+function testNonStringRefFails() {
+  const ds = [undefined, null, 42].map((ref) => {
+    try {
+      // Not through decide(): its default parameter would turn undefined into REF
+      return ratchetDecision({ ref, baseText: config(60), headText: config(60) });
+    } catch (error) {
+      return { threw: error.message };
+    }
+  });
+  return report('ref undefined, null or a number → fails (no crash)', ds.every((d) => d.ok === false && d.message.includes('not a usable base ref')), show(ds));
+}
+
 const results = [
   testEqualPasses(),
   testRaisedPasses(),
@@ -118,6 +130,7 @@ const results = [
   testHeadInvalidJsonFails(),
   testHeadBadBreakFails(),
   testOptionLikeRefFails(),
+  testNonStringRefFails(),
 ];
 
 console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
