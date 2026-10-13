@@ -18,19 +18,25 @@ function report(name, passed, detail = '') {
   return passed;
 }
 
-// `stryker run` in a shell line or a quoted array, then the next token (empty when the line ends there)
-const CALL = /\bstryker['"]?\s*,?\s*['"]?run\b['"]?\s*,?\s*['"]?([^\s'",)\]]*)/g;
+// `stryker run` (or `@stryker-mutator/core run`, or a path ending in stryker) in a shell line or a quoted array, then
+// the next token (empty when the line ends there)
+const CALL = /(?:@stryker-mutator\/core|\bstryker)['"]?[\s,[(]*['"]?run\b['"]?\s*,?\s*['"]?([^\s'",)\]]*)/g;
+// Full-line comments in YAML, shell and JS (`#`, `//`, ` * `, `/*`): a comment mentioning a call isn't one
+const COMMENT_LINE = /^\s*(#|\/\/|\/\*|\*).*$/gm;
 
 // One { where, arg } per `stryker run` call in the text; arg is the token after `run` ('' when none)
 function strykerRunCalls(text, where) {
-  return [...text.matchAll(CALL)].map((m) => ({ where, arg: m[1] }));
+  const code = text.replace(/\\\r?\n/g, ' ').replace(COMMENT_LINE, '');
+  return [...code.matchAll(CALL)].map((m) => ({ where, arg: m[1] }));
 }
 
-// A call names its config when the first argument is a file, not an option or nothing
-const namesConfig = ({ arg }) => arg !== '' && !arg.startsWith('-') && /\.(json|js|mjs|cjs)$/.test(arg);
+// The config each call must name: the file the ratchet step reads, except mutate-changed.js, which runs its copy of it
+// (out/stryker.changed.json, built from stryker.config.json)
+const expectedConfig = (where) => (where === 'scripts/mutate-changed.js' ? 'out/stryker.changed.json' : 'stryker.config.json');
+const namesConfig = ({ where, arg }) => arg === expectedConfig(where);
 
-// Tracked files whose text is searched for calls
-const isScanned = (f) => /^\.github\/workflows\/[^/]+\.ya?ml$/.test(f) || /^scripts\/[^/]+\.js$/.test(f);
+// Tracked files whose text is searched for calls: workflows, local actions, and every script outside the tests
+const isScanned = (f) => /^\.github\/.+\.ya?ml$/.test(f) || (/^scripts\/.+\.(js|mjs|cjs|sh)$/.test(f) && !f.includes('/__tests__/'));
 
 function testMatcher() {
   const cases = [
@@ -40,18 +46,18 @@ function testMatcher() {
     ["execFileSync('npx', ['stryker', 'run', ...args])", false],
     ['npx stryker run stryker.config.json --concurrency 4', true],
     ['"mutate": "stryker run stryker.config.json",', true],
-    ["execFileSync('npx', ['stryker', 'run', 'out/stryker.changed.json', ...args])", true],
+    ["execFileSync('npx', ['stryker', 'run', 'out/stryker.changed.json', ...args])", true, 'scripts/mutate-changed.js'],
     // Other ways to start Stryker (reviewer, 2026-10-13)
     ['"mutate:full": "npx @stryker-mutator/core run --concurrency 4"', false],
     ["execFileSync('node_modules/.bin/stryker', ['run', '--concurrency', '4'])", false],
     ['npx stryker \\\n            run --concurrency 4', false],
     ['npx @stryker-mutator/core run stryker.config.json', true],
   ];
-  const wrong = cases.filter(([text, ok]) => {
-    const calls = strykerRunCalls(text, 'case');
+  const wrong = cases.filter(([text, ok, where = 'case']) => {
+    const calls = strykerRunCalls(text, where);
     return calls.length !== 1 || namesConfig(calls[0]) !== ok;
   });
-  return report('matcher finds each call and tells a named config from none', wrong.length === 0,
+  return report('matcher finds each call and tells the expected config from another or none', wrong.length === 0,
     JSON.stringify(wrong.map(([text]) => text)));
 }
 
@@ -86,7 +92,7 @@ function testExactConfigNames() {
 }
 
 function repoCalls() {
-  const tracked = execFileSync('git', ['ls-files', '-z', '--', '.github/workflows', 'package.json', 'scripts'], { cwd: ROOT, encoding: 'utf8' })
+  const tracked = execFileSync('git', ['ls-files', '-z', '--', '.github', 'package.json', 'scripts'], { cwd: ROOT, encoding: 'utf8' })
     .split('\0').filter(Boolean);
   const calls = [];
   for (const f of tracked) {
