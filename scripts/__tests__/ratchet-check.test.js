@@ -16,7 +16,7 @@ function report(name, passed, detail = '') {
   return passed;
 }
 
-// --- A temp repo: branch `main` holds the base config, the working tree is the PR ---
+// --- A temp repo: refs/remotes/origin/<branch> hold the base configs (as after CI's checkout), the working tree is the PR ---
 
 const repo = path.join(tmpDir, 'repo');
 fs.mkdirSync(repo);
@@ -43,6 +43,20 @@ fs.writeFileSync(path.join(repo, 'other.txt'), 'x\n');
 git('add', 'other.txt');
 git('commit', '-q', '-m', 'no config');
 git('checkout', '-q', '-f', 'main');
+// Same branch with break: missing
+git('checkout', '-q', '-b', 'no-break');
+fs.writeFileSync(CONFIG, JSON.stringify({ thresholds: { high: 80 } }));
+git('commit', '-q', '-am', 'no break');
+git('checkout', '-q', 'main');
+for (const branch of ['main', 'no-config', 'no-break']) git('update-ref', `refs/remotes/origin/${branch}`, branch);
+// Tags that shadow the base's short names (git looks in refs/tags before refs/remotes): break 1
+git('checkout', '-q', '--detach');
+fs.writeFileSync(CONFIG, config(1));
+git('commit', '-q', '-am', 'shadow');
+const shadow = git('rev-parse', 'HEAD');
+git('checkout', '-q', '-f', 'main'); // before the tags exist, or git warns that "main" is ambiguous
+git('tag', 'origin/main', shadow);
+git('tag', 'main', shadow);
 
 // Runs the script in the repo with `args`; the PR's config is `head` (null: no file)
 function runScript(args, head) {
@@ -69,24 +83,27 @@ async function testLoweredFails() {
 
 async function testUnknownRefFails() {
   const r = await runScript(['no-such-branch'], config(10));
-  return report('base ref not in the repo (git show fails) → exit 1 with ::error::, not base 0',
-    r.code === 1 && r.stdout.includes('::error::no-such-branch:stryker.config.json could not be read') && !r.stdout.includes('base 0'), JSON.stringify(r));
+  return report('base branch not in the repo (git show fails) → exit 1 with ::error::, not base 0',
+    r.code === 1 && r.stdout.includes('::error::refs/remotes/origin/no-such-branch:stryker.config.json could not be read') && !r.stdout.includes('base 0'), JSON.stringify(r));
 }
 
 async function testBaseWithoutConfigFails() {
   const r = await runScript(['no-config'], config(10));
   return report('base commit has no stryker.config.json → exit 1 with ::error::',
-    r.code === 1 && r.stdout.includes('::error::no-config:stryker.config.json could not be read'), JSON.stringify(r));
+    r.code === 1 && r.stdout.includes('::error::refs/remotes/origin/no-config:stryker.config.json could not be read'), JSON.stringify(r));
 }
 
 async function testBaseWithoutBreakFails() {
-  git('checkout', '-q', '-b', 'no-break');
-  fs.writeFileSync(CONFIG, JSON.stringify({ thresholds: { high: 80 } }));
-  git('commit', '-q', '-am', 'no break');
-  git('checkout', '-q', 'main');
   const r = await runScript(['no-break'], config(10));
   return report('base config without thresholds.break → exit 1 with ::error::',
     r.code === 1 && r.stdout.includes('::error::base thresholds.break is missing'), JSON.stringify(r));
+}
+
+// Reviewer, 2026-10-13: with `origin/main` on the command line, a tag named origin/main was used as the base
+async function testShadowingTagsIgnored() {
+  const r = await runScript(['main'], config(1));
+  return report('tags named main and origin/main (break 1) are ignored: base is refs/remotes/origin/main (60) → lowered',
+    r.code === 1 && r.stdout.includes('::error::thresholds.break was lowered (60 -> 1)'), JSON.stringify(r));
 }
 
 async function testPrWithoutConfigFails() {
@@ -112,7 +129,7 @@ async function testOptionLikeRefNeverReachesGit() {
 const results = [];
 try {
   for (const test of [testEqualPasses, testLoweredFails, testUnknownRefFails, testBaseWithoutConfigFails, testBaseWithoutBreakFails,
-    testPrWithoutConfigFails, testNoRefFails, testOptionLikeRefNeverReachesGit]) {
+    testShadowingTagsIgnored, testPrWithoutConfigFails, testNoRefFails, testOptionLikeRefNeverReachesGit]) {
     results.push(await test());
   }
 } finally {
