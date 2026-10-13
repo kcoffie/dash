@@ -22,12 +22,15 @@ function report(name, passed, detail = '') {
 const CALL = /\bstryker['"]?\s*,?\s*['"]?run\b['"]?\s*,?\s*['"]?([^\s'",)\]]*)/g;
 
 // One { where, arg } per `stryker run` call in the text; arg is the token after `run` ('' when none)
-export function strykerRunCalls(text, where) {
+function strykerRunCalls(text, where) {
   return [...text.matchAll(CALL)].map((m) => ({ where, arg: m[1] }));
 }
 
 // A call names its config when the first argument is a file, not an option or nothing
 const namesConfig = ({ arg }) => arg !== '' && !arg.startsWith('-') && /\.(json|js|mjs|cjs)$/.test(arg);
+
+// Tracked files whose text is searched for calls
+const isScanned = (f) => /^\.github\/workflows\/[^/]+\.ya?ml$/.test(f) || /^scripts\/[^/]+\.js$/.test(f);
 
 function testMatcher() {
   const cases = [
@@ -38,6 +41,11 @@ function testMatcher() {
     ['npx stryker run stryker.config.json --concurrency 4', true],
     ['"mutate": "stryker run stryker.config.json",', true],
     ["execFileSync('npx', ['stryker', 'run', 'out/stryker.changed.json', ...args])", true],
+    // Other ways to start Stryker (reviewer, 2026-10-13)
+    ['"mutate:full": "npx @stryker-mutator/core run --concurrency 4"', false],
+    ["execFileSync('node_modules/.bin/stryker', ['run', '--concurrency', '4'])", false],
+    ['npx stryker \\\n            run --concurrency 4', false],
+    ['npx @stryker-mutator/core run stryker.config.json', true],
   ];
   const wrong = cases.filter(([text, ok]) => {
     const calls = strykerRunCalls(text, 'case');
@@ -47,13 +55,43 @@ function testMatcher() {
     JSON.stringify(wrong.map(([text]) => text)));
 }
 
+function testCommentsAreNotCalls() {
+  // A comment mentioning a call must not count as one (else it could stand in for a real call site)
+  const texts = ['# npx stryker run stryker.config.json', '  // execFileSync(\'npx\', [\'stryker\', \'run\'])', ' * stryker run'];
+  const found = texts.filter((t) => strykerRunCalls(t, 'case').length > 0);
+  return report('comment lines are not calls', found.length === 0, JSON.stringify(found));
+}
+
+function testScannedFiles() {
+  const yes = ['.github/workflows/test.yml', '.github/actions/mutate/action.yaml', 'scripts/a.js', 'scripts/a.mjs', 'scripts/a.cjs',
+    'scripts/a.sh', 'scripts/sub/a.js'];
+  const no = ['scripts/__tests__/a.test.js', 'src/a.js', 'README.md'];
+  const wrong = [...yes.filter((f) => !isScanned(f)), ...no.filter((f) => isScanned(f))];
+  return report('workflows, actions and every script file are searched (not test files)', wrong.length === 0, JSON.stringify(wrong));
+}
+
+function testExactConfigNames() {
+  // mutation-full and npm run mutate must use the file the ratchet step reads; mutate-changed.js its generated copy
+  const wrong = [
+    { where: '.github/workflows/test.yml', arg: 'stryker.conf.json' },
+    { where: 'package.json "mutate"', arg: 'stryker.conf.json' },
+    { where: 'scripts/mutate-changed.js', arg: 'stryker.config.json' },
+  ].filter(namesConfig);
+  const right = [
+    { where: '.github/workflows/test.yml', arg: 'stryker.config.json' },
+    { where: 'scripts/mutate-changed.js', arg: 'out/stryker.changed.json' },
+  ].filter((c) => !namesConfig(c));
+  return report('only stryker.config.json (or mutate-changed.js\'s generated copy) is accepted', wrong.length + right.length === 0,
+    JSON.stringify({ wrongAccepted: wrong, rightRejected: right }));
+}
+
 function repoCalls() {
   const tracked = execFileSync('git', ['ls-files', '-z', '--', '.github/workflows', 'package.json', 'scripts'], { cwd: ROOT, encoding: 'utf8' })
     .split('\0').filter(Boolean);
   const calls = [];
   for (const f of tracked) {
     const text = fs.readFileSync(path.join(ROOT, f), 'utf8');
-    if (/^\.github\/workflows\/[^/]+\.ya?ml$/.test(f) || /^scripts\/[^/]+\.js$/.test(f)) calls.push(...strykerRunCalls(text, f));
+    if (isScanned(f)) calls.push(...strykerRunCalls(text, f));
     if (f === 'package.json') {
       for (const [name, command] of Object.entries(JSON.parse(text).scripts)) calls.push(...strykerRunCalls(command, `package.json "${name}"`));
     }
@@ -77,6 +115,7 @@ function testCallSitesFound() {
     `missing: ${missing.join(', ')}`);
 }
 
-const results = [testMatcher(), testCallSitesFound(), testEveryCallNamesConfig()];
+const results = [testMatcher(), testCommentsAreNotCalls(), testScannedFiles(), testExactConfigNames(), testCallSitesFound(),
+  testEveryCallNamesConfig()];
 console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
 process.exit(results.every(Boolean) ? 0 : 1);
