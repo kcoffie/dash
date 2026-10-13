@@ -37,12 +37,11 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Fails if the PR lowers thresholds.break, or if either config can't be read or checked
       - name: Ratchet can only go up
-        run: |
-          base=$(git show origin/${{ github.base_ref }}:stryker.config.json 2>/dev/null | node -pe 'try { JSON.parse(require("fs").readFileSync(0)).thresholds.break ?? 0 } catch { 0 }')
-          head=$(node -pe 'require("./stryker.config.json").thresholds.break')
-          echo "break: base $base, this PR $head"
-          node -e "process.exit(Number($head) >= Number($base) ? 0 : 1)" || { echo "::error::thresholds.break was lowered ($base -> $head)"; exit 1; }
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: node scripts/ratchet-check.js "origin/$BASE_REF"
       - run: npm run mutate:changed -- origin/${{ github.base_ref }} --concurrency 4
       - if: failure()
         uses: actions/upload-artifact@v7
