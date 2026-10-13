@@ -57,6 +57,10 @@ const shadow = git('rev-parse', 'HEAD');
 git('checkout', '-q', '-f', 'main'); // before the tags exist, or git warns that "main" is ambiguous
 git('tag', 'origin/main', shadow);
 git('tag', 'main', shadow);
+// No refs/remotes/origin/tag-only, only a tag literally named like it: git's name lookup would fall back to it
+git('tag', 'refs/remotes/origin/tag-only', shadow);
+// A base branch with a slash
+git('update-ref', 'refs/remotes/origin/release/1.x', 'refs/heads/main'); // not "main": the tag of that name would win
 
 // Runs the script in the repo with `args`; the PR's config is `head` (null: no file)
 function runScript(args, head) {
@@ -106,6 +110,19 @@ async function testShadowingTagsIgnored() {
     r.code === 1 && r.stdout.includes('::error::thresholds.break was lowered (60 -> 1)'), JSON.stringify(r));
 }
 
+// Second reviewer, 2026-10-13: without the remote-tracking ref, `git show refs/remotes/origin/<b>:…` read refs/tags/refs/remotes/origin/<b>
+async function testTagNamedLikeRemoteRefIgnored() {
+  const r = await runScript(['tag-only'], config(1));
+  return report('only a tag named refs/remotes/origin/tag-only exists → exit 1, base could not be read',
+    r.code === 1 && r.stdout.includes('::error::refs/remotes/origin/tag-only:stryker.config.json could not be read'), JSON.stringify(r));
+}
+
+async function testBranchWithSlash() {
+  const r = await runScript(['release/1.x'], config(60));
+  return report('base branch release/1.x is read from refs/remotes/origin/release/1.x',
+    r.code === 0 && r.stdout === 'break: base 60, this PR 60\n', JSON.stringify(r));
+}
+
 async function testPrWithoutConfigFails() {
   const r = await runScript(['main'], null);
   return report('PR has no stryker.config.json → exit 1 with ::error::',
@@ -129,7 +146,7 @@ async function testOptionLikeRefNeverReachesGit() {
 const results = [];
 try {
   for (const test of [testEqualPasses, testLoweredFails, testUnknownRefFails, testBaseWithoutConfigFails, testBaseWithoutBreakFails,
-    testShadowingTagsIgnored, testPrWithoutConfigFails, testNoRefFails, testOptionLikeRefNeverReachesGit]) {
+    testShadowingTagsIgnored, testTagNamedLikeRemoteRefIgnored, testBranchWithSlash, testPrWithoutConfigFails, testNoRefFails, testOptionLikeRefNeverReachesGit]) {
     results.push(await test());
   }
 } finally {
