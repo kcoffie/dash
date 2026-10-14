@@ -9,7 +9,7 @@
 // A mutant that truly changes nothing observable can be skipped in the code with
 //   // Stryker disable next-line <Mutator>: <reason>
 // and the reviewer checks the reason.
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -52,14 +52,16 @@ try {
 // Stryker reads each mutate entry as a glob of its absolute path (FileMatcher in @stryker-mutator/core: minimatch,
 // dot: false), so glob syntax in the file name or the checkout folder ("x{a,b}.js", "da[sh]/") can match nothing,
 // and a run with 0 mutants scores NaN, which passes the bar. Each file is checked with Stryker's own minimatch first.
-let minimatch;
+let minimatch, Minimatch;
 try {
   const fromStryker = createRequire(createRequire(import.meta.url).resolve('@stryker-mutator/core'));
-  ({ minimatch } = fromStryker('minimatch'));
+  ({ minimatch, Minimatch } = fromStryker('minimatch'));
 } catch {
   fail("can't load Stryker's minimatch to check file paths (run npm ci)");
 }
 const checkable = (file) => {
+  // Stryker's options check: a mutate entry with a range must not be a glob ("a?.js" matches itself but is one)
+  if (new Minimatch(file).hasMagic()) fail(`${JSON.stringify(file)} changed, but Stryker reads its name as a glob: rename it`);
   const absolute = path.resolve(file).replace(/\\/g, '/');
   if (!minimatch(absolute, absolute, { dot: false })) {
     fail(`${JSON.stringify(file)} changed, but Stryker can't match its path ${JSON.stringify(absolute)} (glob syntax in the file or folder name): rename or move it`);
@@ -109,9 +111,26 @@ writeFileSync('out/stryker.changed.json', JSON.stringify({
   htmlReporter: { fileName: 'out/mutation-changed.html' },
   jsonReporter: { fileName: 'out/mutation-changed.json' },
 }, null, 2));
-try {
-  execFileSync('npx', ['stryker', 'run', 'out/stryker.changed.json', ...process.argv.slice(3)], { stdio: 'inherit' });
-} catch {
-  console.error(`\nmutate:changed: under ${BAR}% of planted bugs in the changed lines were caught. See out/mutation-changed.html`);
-  process.exit(1);
+// Stryker's output is shown as it runs and kept: it also drops whole folders before matching (.next, node_modules in
+// any case, ignorePatterns), and then logs no "Found N of M file(s) to be mutated" line, scores NaN and exits 0.
+// So the count of files it found must equal the files changed, or the changed lines went unchecked.
+const files = new Set(ranges.map((range) => range.replace(/:\d+-\d+$/, '')));
+let output = '';
+const code = await new Promise((resolve) => {
+  const stryker = spawn('npx', ['stryker', 'run', 'out/stryker.changed.json', ...process.argv.slice(3)], { stdio: ['inherit', 'pipe', 'pipe'] });
+  stryker.stdout.on('data', (chunk) => { output += chunk; process.stdout.write(chunk); });
+  stryker.stderr.on('data', (chunk) => { output += chunk; process.stderr.write(chunk); });
+  stryker.on('error', (error) => { output += String(error); resolve(1); });
+  stryker.on('close', (status) => resolve(status ?? 1));
+});
+if (code !== 0) {
+  if (/under breaking threshold/.test(output)) {
+    console.error(`\nmutate:changed: under ${BAR}% of planted bugs in the changed lines were caught. See out/mutation-changed.html`);
+    process.exit(1);
+  }
+  fail(`Stryker failed (exit code ${code}): see its output above`);
+}
+const found = output.match(/Found (\d+) of \d+ file\(s\) to be mutated/);
+if (!found || Number(found[1]) !== files.size) {
+  fail(`Stryker found ${found ? found[1] : 'no'} file(s) to mutate, expected ${files.size} (${[...files].join(', ')}): the changed lines were not checked`);
 }
