@@ -16,7 +16,10 @@ import { isUsableRef } from '../src/utils/ratchet-check.js';
 const BAR = 80;
 const branch = process.argv[2] ?? 'main';
 const base = `refs/remotes/origin/${branch}`;
-const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
+// GIT_DIFF_OPTS would override -U0 (--unified=3 widens every range)
+const gitEnv = { ...process.env };
+delete gitEnv.GIT_DIFF_OPTS;
+const git = (...args) => execFileSync('git', args, { encoding: 'utf8', env: gitEnv, maxBuffer: 64 * 1024 * 1024 });
 
 function fail(message) {
   console.log(`::error::mutate:changed: ${message}`);
@@ -35,9 +38,6 @@ try {
 const DIRS = ['src/scanner/', 'src/utils/'];
 const inScope = (file) => file.endsWith('.js') && !file.includes('/__tests__/') && file !== 'src/scanner/index.js';
 
-// Changed line ranges per file, from a zero-context diff: '@@ -a,b +c,d @@' -> lines c..c+d-1
-const ranges = [];
-let file = null;
 // Against the merge base, working tree included, so it also checks work not committed yet
 let mergeBase;
 try {
@@ -45,18 +45,40 @@ try {
 } catch {
   fail(`no merge base with ${base} (shallow clone or unrelated history?)`);
 }
-// Fixed output format whatever the user's git config says (diff.mnemonicPrefix, diff.noprefix, color.diff and
-// diff.external would each hide every '+++ b/' line, so a change would read as "nothing to check")
-const diffArgs = ['--no-color', '--no-ext-diff', '--src-prefix=a/', '--dst-prefix=b/', '-U0'];
-for (const line of git('diff', ...diffArgs, mergeBase, '--', ...DIRS).split('\n')) {
-  const target = line.match(/^\+\+\+ (?:b\/(.+)|\/dev\/null)$/);
-  if (target) { file = target[1] && inScope(target[1]) ? target[1] : null; continue; }
-  const hunk = line.match(/^@@ -\S+ \+(\d+)(?:,(\d+))? @@/);
-  if (hunk && file && hunk[2] !== '0') ranges.push(`${file}:${hunk[1]}-${Number(hunk[1]) + Number(hunk[2] ?? 1) - 1}`);
+
+// Stryker reads each mutate entry as a glob: a name with glob syntax matches nothing, and a run with 0 mutants
+// scores NaN, which passes the bar. Such a file fails the job instead of going unchecked.
+const GLOB_SYNTAX = /[*?[\]{}()!+@\\]/;
+const checkable = (file) => {
+  if (GLOB_SYNTAX.test(file)) fail(`${JSON.stringify(file)} changed, but its name has glob syntax Stryker can't match: rename it`);
+  return file;
+};
+
+// Changed files, named exactly: NUL-separated name-status (never quoted), renames paired whatever diff.renames says
+const changed = [];
+const fields = git('diff', '--name-status', '-z', '--find-renames', '--no-ext-diff', mergeBase, '--', ...DIRS).split('\0');
+for (let i = 0; i < fields.length - 1;) {
+  const status = fields[i++];
+  const paths = status.startsWith('R') || status.startsWith('C') ? [fields[i++], fields[i++]] : [fields[i++]];
+  const file = paths[paths.length - 1];
+  if (!status.startsWith('D') && inScope(file)) changed.push({ file, paths });
+}
+
+// Changed line ranges per file, from a zero-context diff of that file (or rename pair) alone: '@@ -a,b +c,d @@'
+// -> lines c..c+d-1. Only hunk headers are read: no file headers to unquote, and content lines start with ' ', '+',
+// '-' or '\', so an added line that looks like a header ("++ b/x" shows as "+++ b/x") can't be taken for one.
+// Fixed output whatever the user's git config or attributes say (prefixes, color, external diff, textconv, -diff).
+const diffArgs = ['--no-color', '--no-ext-diff', '--no-textconv', '--text', '--find-renames', '--src-prefix=a/', '--dst-prefix=b/', '-U0'];
+const ranges = [];
+for (const { file, paths } of changed) {
+  for (const line of git('diff', ...diffArgs, mergeBase, '--', ...paths).split('\n')) {
+    const hunk = line.match(/^@@ -\S+ \+(\d+)(?:,(\d+))? @@/);
+    if (hunk && hunk[2] !== '0') ranges.push(`${checkable(file)}:${hunk[1]}-${Number(hunk[1]) + Number(hunk[2] ?? 1) - 1}`);
+  }
 }
 // New files not yet added to git: the whole file counts as changed
-for (const untracked of git('ls-files', '--others', '--exclude-standard', '--', ...DIRS).split('\n')) {
-  if (inScope(untracked)) ranges.push(untracked);
+for (const untracked of git('ls-files', '--others', '--exclude-standard', '-z', '--', ...DIRS).split('\0')) {
+  if (untracked && inScope(untracked)) ranges.push(checkable(untracked));
 }
 if (!ranges.length) {
   console.log('mutate:changed: no changed src/scanner or src/utils lines, nothing to check');
