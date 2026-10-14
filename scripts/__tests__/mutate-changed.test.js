@@ -43,25 +43,38 @@ const write = (file, text) => {
   fs.writeFileSync(path.join(repo, file), text);
 };
 
-write('stryker.config.json', JSON.stringify({ mutate: ['src/**/*.js'], thresholds: { high: 80, low: 65, break: 60 } }));
-write('src/utils/foo.js', 'export const a = 1;\n');
-git('init', '-q', '-b', 'main');
-git('add', '.');
-git('commit', '-q', '-m', 'base');
-git('update-ref', 'refs/remotes/origin/main', 'main');
-git('update-ref', 'refs/remotes/origin/release/1.x', 'main');
-// The PR: one changed line in src/utils
-git('checkout', '-q', '-b', 'pr');
-write('src/utils/foo.js', 'export const a = 1;\nexport const b = (x) => x > 2;\n');
-git('commit', '-q', '-am', 'change');
-// A base that already has the PR's commit: nothing changed
-git('update-ref', 'refs/remotes/origin/same', 'HEAD');
-// Tags that shadow the base's names (git looks in refs/tags before refs/remotes), all at the PR head, so a diff
-// against them is empty. Created after the last checkout, or git warns that "main" is ambiguous.
-git('tag', 'origin/main', 'HEAD');
-git('tag', 'main', 'HEAD');
-// No refs/remotes/origin/tag-only, only a tag literally named like it: git's name lookup would fall back to it
-git('tag', 'refs/remotes/origin/tag-only', 'HEAD');
+// Inside the try below, so a failed setup still removes tmpDir
+function setup() {
+  write('stryker.config.json', JSON.stringify({ mutate: ['src/**/*.js'], thresholds: { high: 80, low: 65, break: 60 } }));
+  write('src/utils/foo.js', 'export const a = 1;\n');
+  git('init', '-q', '-b', 'main');
+  git('add', '.');
+  git('commit', '-q', '-m', 'base');
+  git('update-ref', 'refs/remotes/origin/main', 'main');
+  git('update-ref', 'refs/remotes/origin/release/1.x', 'main');
+  // The base branch moved on after the PR branched: line 1 changed there. Only the PR's own lines may count.
+  git('checkout', '-q', '-b', 'advanced');
+  write('src/utils/foo.js', 'export const a = 10;\n');
+  git('commit', '-q', '-am', 'base moves on');
+  git('update-ref', 'refs/remotes/origin/advanced', 'HEAD');
+  // A base with no history in common with the PR (as with a too-shallow clone): no merge base
+  git('checkout', '-q', '--orphan', 'unrelated');
+  git('commit', '-q', '-m', 'unrelated');
+  git('update-ref', 'refs/remotes/origin/unrelated', 'HEAD');
+  git('checkout', '-q', '-f', 'main');
+  // The PR: one changed line in src/utils
+  git('checkout', '-q', '-b', 'pr');
+  write('src/utils/foo.js', 'export const a = 1;\nexport const b = (x) => x > 2;\n');
+  git('commit', '-q', '-am', 'change');
+  // A base that already has the PR's commit: nothing changed
+  git('update-ref', 'refs/remotes/origin/same', 'HEAD');
+  // Tags that shadow the base's names (git looks in refs/tags before refs/remotes), all at the PR head, so a diff
+  // against them is empty. Created after the last checkout, or git warns that "main" is ambiguous.
+  git('tag', 'origin/main', 'HEAD');
+  git('tag', 'main', 'HEAD');
+  // No refs/remotes/origin/tag-only, only a tag literally named like it: git's name lookup would fall back to it
+  git('tag', 'refs/remotes/origin/tag-only', 'HEAD');
+}
 
 // Runs the script in the repo with `args`; returns exit code, output and the fake npx's calls
 function runScript(args, { npxExit = 0 } = {}) {
@@ -102,6 +115,19 @@ async function testBranchWithSlash() {
 
 const failedClosed = (r, what) => r.code === 1 && r.stdout.includes(`::error::mutate:changed: ${what}`)
   && !r.stdout.includes('nothing to check') && r.npx.length === 0;
+
+// Reviewer, 2026-10-14: the fixture's main *is* the merge base, so diffing against the base tip would also have passed
+async function testOnlyLinesSinceMergeBase() {
+  const r = await runScript(['advanced']);
+  return report('base branch moved on (changed line 1) → only the PR\'s line 2 counts, not the base\'s newer line',
+    foundChange(r, 'refs/remotes/origin/advanced'), JSON.stringify(r));
+}
+
+async function testNoMergeBaseFails() {
+  const r = await runScript(['unrelated']);
+  return report('no merge base with refs/remotes/origin/unrelated → exit 1 with ::error::',
+    failedClosed(r, 'no merge base with refs/remotes/origin/unrelated'), JSON.stringify(r));
+}
 
 async function testOldFormFails() {
   const r = await runScript(['origin/main']);
@@ -172,7 +198,8 @@ async function testStrykerFailureFails() {
 
 const results = [];
 try {
-  for (const test of [testShadowingTagsIgnored, testDefaultBaseIsMain, testBranchWithSlash, testOldFormFails, testTagNamedLikeRemoteRefFails,
+  setup();
+  for (const test of [testShadowingTagsIgnored, testDefaultBaseIsMain, testBranchWithSlash, testOnlyLinesSinceMergeBase, testNoMergeBaseFails, testOldFormFails, testTagNamedLikeRemoteRefFails,
     testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testNothingChanged, testUntrackedFileCounts,
     testExtraArgsAndConfig, testStrykerFailureFails]) {
     results.push(await test());
