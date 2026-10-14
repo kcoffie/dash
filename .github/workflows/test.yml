@@ -42,7 +42,10 @@ jobs:
         env:
           BASE_REF: ${{ github.base_ref }}
         run: node scripts/ratchet-check.js "$BASE_REF"
-      - run: npm run mutate:changed -- origin/${{ github.base_ref }} --concurrency 4
+      # Diffs against exactly refs/remotes/origin/<base> (a tag named origin/main can't stand in for it)
+      - env:
+          BASE_REF: ${{ github.base_ref }}
+        run: npm run mutate:changed -- "$BASE_REF" --concurrency 4
       - if: failure()
         uses: actions/upload-artifact@v7
         with:
