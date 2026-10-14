@@ -39,7 +39,12 @@ const inScope = (file) => file.endsWith('.js') && !file.includes('/__tests__/') 
 const ranges = [];
 let file = null;
 // Against the merge base, working tree included, so it also checks work not committed yet
-const mergeBase = git('merge-base', baseSha, 'HEAD').trim();
+let mergeBase;
+try {
+  mergeBase = git('merge-base', baseSha, 'HEAD').trim();
+} catch {
+  fail(`no merge base with ${base} (shallow clone or unrelated history?)`);
+}
 for (const line of git('diff', '-U0', mergeBase, '--', ...DIRS).split('\n')) {
   const target = line.match(/^\+\+\+ (?:b\/(.+)|\/dev\/null)$/);
   if (target) { file = target[1] && inScope(target[1]) ? target[1] : null; continue; }
