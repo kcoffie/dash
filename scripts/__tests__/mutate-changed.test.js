@@ -80,6 +80,25 @@ function setup() {
   branch('collision-base', { 'src/utils/foo.js': 'let a = 1;\nlet b = 2;\nlet c = 3;\nlet d = 4;\n' });
   git('update-ref', 'refs/remotes/origin/collision-base', 'collision-base');
   branch('collision', { 'src/utils/foo.js': 'let a = 1;\n++ b/docs.md;\nlet c = 3;\nlet d = 4 > 2;\n' }, 'collision-base');
+  // Glob syntax Stryker's matcher can't match (braces with a comma), and syntax it can (+)
+  branch('brace-name', { 'src/utils/x{a,b}.js': 'export const x = 1;\n' });
+  branch('plus-name', { 'src/utils/a+b.js': 'export const p = 1;\n' });
+  // A pure deletion: no new lines
+  branch('deletion', { 'src/utils/foo.js': 'let a = 1;\nlet c = 3;\nlet d = 4;\n' }, 'collision-base');
+  // Two hunks 10 lines apart in one file
+  const twenty = (from) => Array.from({ length: 20 }, (_, i) => `export const v${i + 1} = ${i + 1 === from ? 0 : i + 1};`).join('\n') + '\n';
+  branch('hunks-base', { 'src/utils/h.js': twenty(0) });
+  git('update-ref', 'refs/remotes/origin/hunks-base', 'hunks-base');
+  branch('hunks', { 'src/utils/h.js': twenty(0).replace('v5 = 5;', 'v5 = 50;').replace('v15 = 15;', 'v15 = 150;') }, 'hunks-base');
+  // Rename whose old name has glob syntax; another file's line 1 changes. As a pathspec, "old[1].js" also matches old1.js.
+  branch('rename-glob-base', { 'src/utils/old[1].js': 'export const o = 1;\n', 'src/utils/old1.js': 'export const q = 1;\n' });
+  git('update-ref', 'refs/remotes/origin/rename-glob-base', 'rename-glob-base');
+  git('checkout', '-q', '-b', 'rename-glob', 'rename-glob-base');
+  git('mv', 'src/utils/old[1].js', 'src/utils/new.js');
+  write('src/utils/old1.js', 'export const q = 10;\n');
+  git('add', '.');
+  git('commit', '-q', '-m', 'rename-glob');
+  git('checkout', '-q', '-f', 'main');
   // A renamed file with one new line: only that line counts, as before
   git('checkout', '-q', '-b', 'renamed');
   git('mv', 'src/utils/foo.js', 'src/utils/bar.js');
@@ -102,10 +121,10 @@ function setup() {
 }
 
 // Runs the script in the repo with `args`; returns exit code, output and the fake npx's calls
-function runScript(args, { npxExit = 0, env = {} } = {}) {
+function runScript(args, { npxExit = 0, env = {}, cwd = repo } = {}) {
   fs.rmSync(npxLog, { force: true });
   return new Promise((resolve) => {
-    execFile(process.execPath, [SCRIPT, ...args], { cwd: repo, env: { ...ENV, ...env, FAKE_NPX_EXIT: String(npxExit) }, encoding: 'utf8', timeout: 15000 },
+    execFile(process.execPath, [SCRIPT, ...args], { cwd, env: { ...ENV, ...env, FAKE_NPX_EXIT: String(npxExit) }, encoding: 'utf8', timeout: 15000 },
       (error, stdout, stderr) => {
         const npx = fs.existsSync(npxLog) ? fs.readFileSync(npxLog, 'utf8').split('\n').filter(Boolean) : [];
         resolve({ code: error ? error.code : 0, stdout, stderr, npx });
@@ -232,7 +251,74 @@ async function testUntrackedOddNameCounts() {
 async function testGlobNameFails() {
   const r = await onBranch('glob-name', () => runScript(['main']));
   return report('changed file "a[1].js" (glob syntax, Stryker would match nothing) → exit 1 with ::error::, Stryker not run',
-    failedClosed(r, '"src/utils/a[1].js" changed, but its name has glob syntax'), JSON.stringify(r));
+    failedClosed(r, '"src/utils/a[1].js" changed, but Stryker can\'t match its path'), JSON.stringify(r));
+}
+
+async function testBraceNameFails() {
+  const r = await onBranch('brace-name', () => runScript(['main']));
+  return report('changed file "x{a,b}.js" (brace expansion) → exit 1 with ::error::, Stryker not run',
+    failedClosed(r, '"src/utils/x{a,b}.js" changed, but Stryker can\'t match its path'), JSON.stringify(r));
+}
+
+async function testUntrackedGlobNameFails() {
+  write('src/utils/u{a,b}.js', 'export const u = 1;\n');
+  try {
+    const r = await runScript(['main']);
+    return report('an untracked "u{a,b}.js" → exit 1 with ::error::, Stryker not run',
+      failedClosed(r, '"src/utils/u{a,b}.js" changed, but Stryker can\'t match its path'), JSON.stringify(r));
+  } finally {
+    fs.rmSync(path.join(repo, 'src/utils/u{a,b}.js'), { force: true });
+  }
+}
+
+async function testNameStrykerMatchesCounts() {
+  const r = await onBranch('plus-name', () => runScript(['main']));
+  return report('changed file "a+b.js" (Stryker matches it) → checked, not rejected',
+    r.code === 0 && r.stdout.includes('1 changed range(s) vs refs/remotes/origin/main:\n  src/utils/a+b.js:1-1\n'), JSON.stringify(r));
+}
+
+// Reviewer, 2026-10-14: Stryker resolves each mutate entry against the checkout folder, so the folder is part of the glob
+async function testCheckoutFolderWithGlobSyntaxFails() {
+  const clone = path.join(tmpDir, 'da[sh]');
+  git('clone', '-q', '--no-hardlinks', repo, clone);
+  const r = await runScript(['main'], { cwd: clone });
+  return report('checkout in a folder named "da[sh]" (Stryker would match nothing, score NaN, exit 0) → exit 1 with ::error::',
+    failedClosed(r, '"src/utils/foo.js" changed, but Stryker can\'t match its path'), JSON.stringify(r));
+}
+
+async function testInterHunkContextIgnored() {
+  const r = await onBranch('hunks', () => runScript(['hunks-base'], { env: { GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'diff.interHunkContext', GIT_CONFIG_VALUE_0: '20' } }));
+  return report('diff.interHunkContext=20 → still h.js:5-5 and h.js:15-15, not 5-15',
+    r.code === 0 && r.stdout.includes('2 changed range(s) vs refs/remotes/origin/hunks-base:\n  src/utils/h.js:5-5\n  src/utils/h.js:15-15\n'), JSON.stringify(r));
+}
+
+async function testRenameGlobOldPathNotCredited() {
+  const r = await onBranch('rename-glob', () => runScript(['rename-glob-base']));
+  return report('rename of "old[1].js" → new.js, old1.js line 1 changed → only old1.js:1-1 (new.js gets no one else\'s hunk)',
+    r.code === 0 && r.stdout.includes('1 changed range(s) vs refs/remotes/origin/rename-glob-base:\n  src/utils/old1.js:1-1\n'), JSON.stringify(r));
+}
+
+async function testRenameWithoutRenameConfig() {
+  const r = await onBranch('renamed', () => runScript(['main'], { env: { GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'diff.renames', GIT_CONFIG_VALUE_0: 'false' } }));
+  return report('rename with diff.renames=false → still only bar.js:2-2',
+    r.code === 0 && r.stdout.includes('1 changed range(s) vs refs/remotes/origin/main:\n  src/utils/bar.js:2-2\n'), JSON.stringify(r));
+}
+
+async function testPureDeletionNoRange() {
+  const r = await onBranch('deletion', () => runScript(['collision-base']));
+  return report('a deleted line only → "nothing to check", no "foo.js:2-1" range',
+    r.code === 0 && r.stdout.includes('nothing to check') && r.npx.length === 0, JSON.stringify(r));
+}
+
+async function testUncommittedEditCounts() {
+  write('src/utils/foo.js', 'export const a = 100;\nexport const b = (x) => x > 2;\n');
+  try {
+    const r = await runScript(['main']);
+    return report('an uncommitted edit to line 1 counts with the committed line 2 → foo.js:1-2',
+      r.code === 0 && r.stdout.includes('1 changed range(s) vs refs/remotes/origin/main:\n  src/utils/foo.js:1-2\n'), JSON.stringify(r));
+  } finally {
+    git('checkout', '-q', '--', 'src/utils/foo.js');
+  }
 }
 
 async function testOutOfScopeOddNamesIgnored() {
@@ -327,6 +413,8 @@ try {
   setup();
   for (const test of [testShadowingTagsIgnored, testDefaultBaseIsMain, testBranchWithSlash, testOnlyLinesSinceMergeBase, testNoMergeBaseFails, testOldFormFails, testTagNamedLikeRemoteRefFails,
     testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testUserDiffConfigIgnored, testOddNamesCount, testUntrackedOddNameCounts, testGlobNameFails,
+    testBraceNameFails, testUntrackedGlobNameFails, testNameStrykerMatchesCounts, testCheckoutFolderWithGlobSyntaxFails,
+    testInterHunkContextIgnored, testRenameGlobOldPathNotCredited, testRenameWithoutRenameConfig, testPureDeletionNoRange, testUncommittedEditCounts,
     testOutOfScopeOddNamesIgnored, testContentLikeHeaderIgnored, testRenameKeepsOnlyNewLines, testAttributesIgnored, testDiffOptsEnvIgnored,
     testNothingChanged, testUntrackedFileCounts,
     testExtraArgsAndConfig, testStrykerFailureFails]) {
