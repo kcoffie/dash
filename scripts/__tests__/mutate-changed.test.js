@@ -77,10 +77,10 @@ function setup() {
 }
 
 // Runs the script in the repo with `args`; returns exit code, output and the fake npx's calls
-function runScript(args, { npxExit = 0 } = {}) {
+function runScript(args, { npxExit = 0, env = {} } = {}) {
   fs.rmSync(npxLog, { force: true });
   return new Promise((resolve) => {
-    execFile(process.execPath, [SCRIPT, ...args], { cwd: repo, env: { ...ENV, FAKE_NPX_EXIT: String(npxExit) }, encoding: 'utf8', timeout: 15000 },
+    execFile(process.execPath, [SCRIPT, ...args], { cwd: repo, env: { ...ENV, ...env, FAKE_NPX_EXIT: String(npxExit) }, encoding: 'utf8', timeout: 15000 },
       (error, stdout, stderr) => {
         const npx = fs.existsSync(npxLog) ? fs.readFileSync(npxLog, 'utf8').split('\n').filter(Boolean) : [];
         resolve({ code: error ? error.code : 0, stdout, stderr, npx });
@@ -161,6 +161,18 @@ async function testOptionLikeBaseNeverReachesGit() {
     failedClosed(r, `${JSON.stringify(`--output=${planted}`)} is not a usable base branch`) && written.length === 0, JSON.stringify({ ...r, written }));
 }
 
+// Reviewer, 2026-10-14: the parser expects '+++ b/<file>' lines, so a user's diff settings hid every change
+async function testUserDiffConfigIgnored() {
+  const settings = [['diff.mnemonicPrefix', 'true'], ['diff.noprefix', 'true'], ['color.diff', 'always'], ['diff.external', 'true']];
+  const failures = [];
+  for (const [key, value] of settings) {
+    const r = await runScript(['main'], { env: { GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: key, GIT_CONFIG_VALUE_0: value } });
+    if (!foundChange(r, 'refs/remotes/origin/main')) failures.push({ key, value, ...r });
+  }
+  return report('git config diff.mnemonicPrefix / diff.noprefix / color.diff=always / diff.external → still finds the change',
+    failures.length === 0, JSON.stringify(failures));
+}
+
 // --- Unchanged behaviour (AC5) ---
 
 async function testNothingChanged() {
@@ -200,7 +212,7 @@ const results = [];
 try {
   setup();
   for (const test of [testShadowingTagsIgnored, testDefaultBaseIsMain, testBranchWithSlash, testOnlyLinesSinceMergeBase, testNoMergeBaseFails, testOldFormFails, testTagNamedLikeRemoteRefFails,
-    testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testNothingChanged, testUntrackedFileCounts,
+    testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testUserDiffConfigIgnored, testNothingChanged, testUntrackedFileCounts,
     testExtraArgsAndConfig, testStrykerFailureFails]) {
     results.push(await test());
   }
