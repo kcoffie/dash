@@ -62,6 +62,31 @@ function setup() {
   git('commit', '-q', '-m', 'unrelated');
   git('update-ref', 'refs/remotes/origin/unrelated', 'HEAD');
   git('checkout', '-q', '-f', 'main');
+  // One branch per parser case below, each a PR against main
+  const branch = (name, files, from = 'main') => {
+    git('checkout', '-q', '-b', name, from);
+    for (const [file, text] of Object.entries(files)) write(file, text);
+    git('add', '.');
+    git('commit', '-q', '-m', name);
+    git('checkout', '-q', '-f', 'main');
+  };
+  // Names git quotes (core.quotePath) or ends with a tab in its diff headers
+  branch('odd-names', { 'src/utils/sp ace.js': 'export const s = 1;\n', 'src/utils/é.js': 'export const e = 1;\n' });
+  // Glob syntax: Stryker reads mutate entries as globs, and a range it can't match is 0 mutants, score NaN, exit 0
+  branch('glob-name', { 'src/utils/a[1].js': 'export const g = 1;\n' });
+  // Odd names outside the mutate scope are not errors
+  branch('fixture-odd', { 'src/scanner/__tests__/fixtures/a b.json': '{}\n', 'src/scanner/__tests__/fixtures/c[1].json': '{}\n' });
+  // An added line starting "++ b/" reads "+++ b/…" in the diff, like a file header
+  branch('collision-base', { 'src/utils/foo.js': 'let a = 1;\nlet b = 2;\nlet c = 3;\nlet d = 4;\n' });
+  git('update-ref', 'refs/remotes/origin/collision-base', 'collision-base');
+  branch('collision', { 'src/utils/foo.js': 'let a = 1;\n++ b/docs.md;\nlet c = 3;\nlet d = 4 > 2;\n' }, 'collision-base');
+  // A renamed file with one new line: only that line counts, as before
+  git('checkout', '-q', '-b', 'renamed');
+  git('mv', 'src/utils/foo.js', 'src/utils/bar.js');
+  write('src/utils/bar.js', 'export const a = 1;\nexport const r = 2;\n');
+  git('add', '.');
+  git('commit', '-q', '-m', 'renamed');
+  git('checkout', '-q', '-f', 'main');
   // The PR: one changed line in src/utils
   git('checkout', '-q', '-b', 'pr');
   write('src/utils/foo.js', 'export const a = 1;\nexport const b = (x) => x > 2;\n');
@@ -173,6 +198,95 @@ async function testUserDiffConfigIgnored() {
     failures.length === 0, JSON.stringify(failures));
 }
 
+// --- The diff parser can't drop or shift a change (follow-up to PR #42's review) ---
+
+// Runs `fn` with `name` checked out, then returns to the PR branch
+async function onBranch(name, fn) {
+  git('checkout', '-q', '-f', name);
+  try {
+    return await fn();
+  } finally {
+    git('checkout', '-q', '-f', 'pr');
+  }
+}
+
+async function testOddNamesCount() {
+  const r = await onBranch('odd-names', () => runScript(['main']));
+  return report('changed files named "sp ace.js" and "é.js" (default config) → both checked',
+    r.code === 0 && r.stdout.includes('2 changed range(s) vs refs/remotes/origin/main:')
+      && r.stdout.includes('  src/utils/sp ace.js:1-1\n') && r.stdout.includes('  src/utils/é.js:1-1\n') && r.npx.length === 1,
+    JSON.stringify(r));
+}
+
+async function testUntrackedOddNameCounts() {
+  write('src/utils/new file é.js', 'export const n = 1;\n');
+  try {
+    const r = await runScript(['main']);
+    return report('an untracked "new file é.js" counts as changed (whole file)',
+      r.code === 0 && r.stdout.includes('2 changed range(s)') && r.stdout.includes('  src/utils/new file é.js\n'), JSON.stringify(r));
+  } finally {
+    fs.rmSync(path.join(repo, 'src/utils/new file é.js'), { force: true });
+  }
+}
+
+async function testGlobNameFails() {
+  const r = await onBranch('glob-name', () => runScript(['main']));
+  return report('changed file "a[1].js" (glob syntax, Stryker would match nothing) → exit 1 with ::error::, Stryker not run',
+    failedClosed(r, '"src/utils/a[1].js" changed, but its name has glob syntax'), JSON.stringify(r));
+}
+
+async function testOutOfScopeOddNamesIgnored() {
+  const r = await onBranch('fixture-odd', () => runScript(['main']));
+  return report('odd names outside the mutate scope (test fixtures) → "nothing to check", not an error',
+    r.code === 0 && r.stdout.includes('nothing to check') && r.npx.length === 0, JSON.stringify(r));
+}
+
+async function testContentLikeHeaderIgnored() {
+  const r = await onBranch('collision', () => runScript(['collision-base']));
+  return report('an added line "++ b/docs.md;" doesn\'t hide the next hunk → foo.js:2-2 and foo.js:4-4',
+    r.code === 0 && r.stdout.includes('2 changed range(s) vs refs/remotes/origin/collision-base:\n  src/utils/foo.js:2-2\n  src/utils/foo.js:4-4\n'),
+    JSON.stringify(r));
+}
+
+async function testRenameKeepsOnlyNewLines() {
+  const r = await onBranch('renamed', () => runScript(['main']));
+  return report('renamed foo.js → bar.js plus one line → only bar.js:2-2 (rename detected, not the whole file)',
+    r.code === 0 && r.stdout.includes('1 changed range(s) vs refs/remotes/origin/main:\n  src/utils/bar.js:2-2\n'), JSON.stringify(r));
+}
+
+async function testAttributesIgnored() {
+  const attrs = path.join(tmpDir, 'attributes');
+  const textconv = [['diff.up.textconv', 'sed 1d']];
+  // GIT_CONFIG_COUNT / KEY_n / VALUE_n for a list of [key, value]
+  const gitConfigEnv = (pairs) => Object.assign({ GIT_CONFIG_COUNT: String(pairs.length) },
+    ...pairs.map(([key, value], i) => ({ [`GIT_CONFIG_KEY_${i}`]: key, [`GIT_CONFIG_VALUE_${i}`]: value })));
+  const cases = [
+    ['core.attributesFile, textconv', '*.js diff=up\n', 'global', textconv],
+    ['core.attributesFile, -diff', '*.js -diff\n', 'global', []],
+    ['.gitattributes, textconv', '*.js diff=up\n', 'repo', textconv],
+    ['.gitattributes, -diff', '*.js -diff\n', 'repo', []],
+  ];
+  const failures = [];
+  for (const [name, text, where, extra] of cases) {
+    const file = where === 'global' ? attrs : path.join(repo, '.gitattributes');
+    fs.writeFileSync(file, text);
+    const env = gitConfigEnv(where === 'global' ? [['core.attributesFile', attrs], ...extra] : extra);
+    try {
+      const r = await runScript(['main'], { env });
+      if (!foundChange(r, 'refs/remotes/origin/main')) failures.push({ name, ...r });
+    } finally {
+      fs.rmSync(file, { force: true });
+    }
+  }
+  return report('textconv / -diff attributes (core.attributesFile or .gitattributes) → still foo.js:2-2',
+    failures.length === 0, JSON.stringify(failures));
+}
+
+async function testDiffOptsEnvIgnored() {
+  const r = await runScript(['main'], { env: { GIT_DIFF_OPTS: '--unified=3' } });
+  return report('GIT_DIFF_OPTS=--unified=3 → still foo.js:2-2, not widened', foundChange(r, 'refs/remotes/origin/main'), JSON.stringify(r));
+}
+
 // --- Unchanged behaviour (AC5) ---
 
 async function testNothingChanged() {
@@ -212,7 +326,9 @@ const results = [];
 try {
   setup();
   for (const test of [testShadowingTagsIgnored, testDefaultBaseIsMain, testBranchWithSlash, testOnlyLinesSinceMergeBase, testNoMergeBaseFails, testOldFormFails, testTagNamedLikeRemoteRefFails,
-    testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testUserDiffConfigIgnored, testNothingChanged, testUntrackedFileCounts,
+    testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testUserDiffConfigIgnored, testOddNamesCount, testUntrackedOddNameCounts, testGlobNameFails,
+    testOutOfScopeOddNamesIgnored, testContentLikeHeaderIgnored, testRenameKeepsOnlyNewLines, testAttributesIgnored, testDiffOptsEnvIgnored,
+    testNothingChanged, testUntrackedFileCounts,
     testExtraArgsAndConfig, testStrykerFailureFails]) {
     results.push(await test());
   }
