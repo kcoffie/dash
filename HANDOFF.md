@@ -39,7 +39,7 @@
 - **Merging a feature PR's HANDOFF lines next to lines the docs branch edits conflicts**: put TODO ticks and NEXT-list edits on the session docs branch; dry-run merges in a scratch worktree (`git worktree add --detach … && git merge origin/docs/session-N`).
 - The hook can't resolve the cwd inside some scratch worktrees: `rm` there needs absolute paths. Reviewer agents can't delete their scratch folders; ask the user (`! rm -rf …`).
 - BSD `seq -f` rejects most format strings; use a `printf` loop. zsh treats `==` at the start of a word as a command lookup: don't use it as an `echo` separator.
-- Leftover scratch from session 15 (user can delete): `/private/tmp/claude-501/rv.c2Cqf0`, `/private/tmp/claude-501/rev.Fx59`, `/tmp/mc-cur.js`, `/tmp/x` (empty).
+- Scratch left by session 15's reviewers and commands (`/private/tmp/claude-501/rv.c2Cqf0`, `rev.Fx59`, `/tmp/mc-cur.js`, `/tmp/x`) was deleted by the user at the end of the session.
 
 **Gotchas from session 14:**
 - The hook also blocks `git rm --cached` and `git clean` (they count as deletes), and `git clean` even in a scratchpad worktree (it can't resolve the cwd). Undo planted files with `git reset` + `git checkout -- .` and `mv` untracked ones to `<scratchpad>/trash/`. Worktrees in the scratchpad can be removed with `git worktree remove --force`.
