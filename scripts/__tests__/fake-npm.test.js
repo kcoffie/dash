@@ -109,13 +109,14 @@ function testInstallWritesRecordedLockfile() {
 function testUnexpectedCallsFail() {
   // Anything not recorded must fail, so a scanner change that calls npm differently can't pass on a guess
   const dir = path.join(FIXTURES, 'ms-2.1.3');
-  const calls = [['ls'], ['audit'], ['install'], ['install', 'ms'], []];
+  // A backslash argument must print literally (echo turns backslash-n into a newline under dash and macOS sh)
+  const calls = [['ls'], ['audit'], ['install'], ['install', 'ms'], [], ['ls', 'a\\nb']];
   const wrong = calls.filter((args) => {
     const r = npm(args, dir);
     return !(r.code === 1 && r.stdout.length === 0
       && r.stderr.toString() === `npm error fake npm: unexpected call: npm ${args.join(' ')}\n`);
   });
-  return report('unrecorded calls (ls, audit without --json, a real install, no arguments) exit 1 with the message',
+  return report('unrecorded calls (ls, audit without --json, a real install, no arguments, a backslash) exit 1 with the message, arguments literal',
     wrong.length === 0, JSON.stringify(wrong));
 }
 
