@@ -45,7 +45,10 @@ try {
 } catch {
   fail(`no merge base with ${base} (shallow clone or unrelated history?)`);
 }
-for (const line of git('diff', '-U0', mergeBase, '--', ...DIRS).split('\n')) {
+// Fixed output format whatever the user's git config says (diff.mnemonicPrefix, diff.noprefix, color.diff and
+// diff.external would each hide every '+++ b/' line, so a change would read as "nothing to check")
+const diffArgs = ['--no-color', '--no-ext-diff', '--src-prefix=a/', '--dst-prefix=b/', '-U0'];
+for (const line of git('diff', ...diffArgs, mergeBase, '--', ...DIRS).split('\n')) {
   const target = line.match(/^\+\+\+ (?:b\/(.+)|\/dev\/null)$/);
   if (target) { file = target[1] && inScope(target[1]) ? target[1] : null; continue; }
   const hunk = line.match(/^@@ -\S+ \+(\d+)(?:,(\d+))? @@/);
