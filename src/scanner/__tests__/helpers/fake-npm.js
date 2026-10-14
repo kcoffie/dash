@@ -6,7 +6,9 @@
 // Recorded responses live in fixtures/npm-audit/<name>/ (recorded with npm 11.19.1 on
 // 2026-10-06; registry-down = `--registry=http://127.0.0.1:9`, home path in the log line
 // replaced). The fixture's package.json / package-lock.json are stored as *.fixture.json
-// so GitHub's dependency graph doesn't raise alerts for the vulnerable test package.
+// so GitHub's dependency graph doesn't raise alerts for the vulnerable test package. npm's exit
+// code is stored next to each recording (audit.exitcode / audit-omit-dev.exitcode) because the
+// fake is a shell script that can't parse JSON; scripts/__tests__/fake-npm.test.js checks it.
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';

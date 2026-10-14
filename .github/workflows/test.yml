@@ -86,7 +86,9 @@ jobs:
       - if: steps.changes.outputs.skip != 'true'
         run: npm ci
       - if: steps.changes.outputs.skip != 'true'
-        run: npx stryker run --concurrency 4
+        # Named explicitly: with no file, Stryker takes stryker.conf.* before stryker.config.json, so a PR adding
+        # stryker.conf.json with a lower break would pass the ratchet step (which reads stryker.config.json)
+        run: npx stryker run stryker.config.json --concurrency 4
       - if: always() && steps.changes.outputs.skip != 'true'
         uses: actions/upload-artifact@v7
         with:
