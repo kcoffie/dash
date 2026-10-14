@@ -1,25 +1,40 @@
-#!/usr/bin/env node
-// Stand-in `npm` for tests (see ../fake-npm.js). Replays a recorded `npm audit --json
-// [--omit=dev]`: stdout (audit.json / audit-omit-dev.json), stderr (audit.stderr, if
-// recorded), and the exit code real npm uses (1 on an error or any vulnerability, else 0).
-// `npm install --package-lock-only` writes the recorded lockfile. Anything else fails. Uses process.getBuiltinModule so it runs the same whether Node treats
-// this extensionless file as CommonJS or ESM.
-const fs = process.getBuiltinModule('fs');
-const path = process.getBuiltinModule('path');
-const args = process.argv.slice(2);
-const dir = process.env.FAKE_NPM_RESPONSES;
-if (args[0] === 'audit' && args.includes('--json')) {
-  const json = fs.readFileSync(path.join(dir, args.includes('--omit=dev') ? 'audit-omit-dev.json' : 'audit.json'), 'utf-8');
-  const stderr = path.join(dir, 'audit.stderr');
-  process.stdout.write(json);
-  if (fs.existsSync(stderr)) process.stderr.write(fs.readFileSync(stderr, 'utf-8'));
-  const audit = JSON.parse(json);
-  process.exit(audit.error || audit.metadata.vulnerabilities.total > 0 ? 1 : 0);
-}
-// No lockfile: the scanner resolves one in a temp dir first. Replay it from the recording.
-if (args[0] === 'install' && args.includes('--package-lock-only')) {
-  fs.copyFileSync(path.join(dir, 'package-lock.fixture.json'), path.join(process.cwd(), 'package-lock.json'));
-  process.exit(0);
-}
-process.stderr.write(`npm error fake npm: unexpected call: npm ${args.join(' ')}\n`);
-process.exit(1);
+#!/bin/sh
+# Stand-in `npm` for tests (see ../fake-npm.js). Replays a recorded `npm audit --json [--omit=dev]`:
+# stdout (audit.json / audit-omit-dev.json), stderr (audit.stderr, if recorded), and the exit code
+# real npm gave (audit.exitcode / audit-omit-dev.exitcode: 1 on an error or any vulnerability, else 0;
+# checked against the JSON by scripts/__tests__/fake-npm.test.js). `npm install --package-lock-only`
+# writes the recorded lockfile. Anything else fails.
+# A shell script, not Node: the tests spawn it 10 times per run and Stryker runs them once per mutant
+# (~44 ms per spawn as a Node script, ~4 ms as sh). `cat` also writes all of its output before the
+# script exits; the Node version cut stdout at 64 KB on macOS (write, then process.exit()).
+dir=$FAKE_NPM_RESPONSES
+json=false
+omit_dev=false
+lock_only=false
+for arg in "$@"; do
+  case $arg in
+    --json) json=true ;;
+    --omit=dev) omit_dev=true ;;
+    --package-lock-only) lock_only=true ;;
+  esac
+done
+
+if [ "$1" = audit ] && $json; then
+  if $omit_dev; then name=audit-omit-dev; else name=audit; fi
+  cat "$dir/$name.json" || exit 2
+  if [ -f "$dir/audit.stderr" ]; then cat "$dir/audit.stderr" >&2; fi
+  code=$(cat "$dir/$name.exitcode") || exit 2
+  case $code in
+    0 | 1) exit "$code" ;;
+    *) echo "fake npm: $dir/$name.exitcode is not 0 or 1" >&2; exit 2 ;;
+  esac
+fi
+
+# No lockfile: the scanner resolves one in a temp dir first. Replay it from the recording.
+if [ "$1" = install ] && $lock_only; then
+  cp "$dir/package-lock.fixture.json" package-lock.json || exit 2
+  exit 0
+fi
+
+echo "npm error fake npm: unexpected call: npm $*" >&2
+exit 1
