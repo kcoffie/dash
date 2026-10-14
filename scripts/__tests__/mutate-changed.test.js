@@ -17,12 +17,24 @@ function report(name, passed, detail = '') {
   return passed;
 }
 
-// --- Fake npx: appends its arguments to a log, exits with $FAKE_NPX_EXIT (default 0) ---
+// --- Fake npx: appends its arguments to a log and prints what Stryker would about the generated config: ---
+// "Found N of 99 file(s) to be mutated." with N = the distinct files in its mutate list (Stryker matched them all),
+// or $FAKE_NPX_FOUND ("none": no such line, as when Stryker matches nothing); the under-threshold error if
+// $FAKE_NPX_UNDER is set. Exits with $FAKE_NPX_EXIT (default 0).
 
 const bin = path.join(tmpDir, 'bin');
 const npxLog = path.join(tmpDir, 'npx.log');
 fs.mkdirSync(bin);
-fs.writeFileSync(path.join(bin, 'npx'), `#!/bin/sh\nprintf '%s\\n' "$*" >> '${npxLog}'\nexit "\${FAKE_NPX_EXIT:-0}"\n`, { mode: 0o755 });
+fs.writeFileSync(path.join(bin, 'fake-npx.cjs'), `
+const fs = require('fs');
+fs.appendFileSync(${JSON.stringify(npxLog)}, process.argv.slice(2).join(' ') + '\\n');
+const { mutate } = JSON.parse(fs.readFileSync(process.argv[4], 'utf8'));
+const found = process.env.FAKE_NPX_FOUND ?? String(new Set(mutate.map((m) => m.replace(/:\\d+-\\d+$/, ''))).size);
+if (found !== 'none') console.log('INFO ProjectReader Found ' + found + ' of 99 file(s) to be mutated.');
+if (process.env.FAKE_NPX_UNDER) console.log('ERROR MutationTestReportHelper Final mutation score 50.00 under breaking threshold 80, setting exit code to 1 (failure).');
+process.exit(Number(process.env.FAKE_NPX_EXIT ?? 0));
+`);
+fs.writeFileSync(path.join(bin, 'npx'), `#!/bin/sh\nexec '${process.execPath}' '${path.join(bin, 'fake-npx.cjs')}' "$@"\n`, { mode: 0o755 });
 
 // --- A temp repo: refs/remotes/origin/<branch> hold the bases (as after CI's checkout), HEAD is the PR ---
 
@@ -83,6 +95,8 @@ function setup() {
   // Glob syntax Stryker's matcher can't match (braces with a comma), and syntax it can (+)
   branch('brace-name', { 'src/utils/x{a,b}.js': 'export const x = 1;\n' });
   branch('plus-name', { 'src/utils/a+b.js': 'export const p = 1;\n' });
+  // Matches itself, but Stryker's options check reads it as a glob ("Cannot combine a glob expression with a mutation range")
+  branch('magic-name', { 'src/utils/a?.js': 'export const m = 1;\n' });
   // A pure deletion: no new lines
   branch('deletion', { 'src/utils/foo.js': 'let a = 1;\nlet c = 3;\nlet d = 4;\n' }, 'collision-base');
   // Two hunks 10 lines apart in one file
@@ -278,6 +292,26 @@ async function testNameStrykerMatchesCounts() {
 }
 
 // Reviewer, 2026-10-14: Stryker resolves each mutate entry against the checkout folder, so the folder is part of the glob
+async function testMagicNameFails() {
+  const r = await onBranch('magic-name', () => runScript(['main']));
+  return report('changed file "a?.js" (Stryker reads it as a glob) → exit 1 with ::error::, Stryker not run',
+    failedClosed(r, '"src/utils/a?.js" changed, but Stryker reads its name as a glob'), JSON.stringify(r));
+}
+
+// Reviewer, 2026-10-14: Stryker also drops whole folders (.next, node_modules in any case, ignorePatterns) before
+// matching, and then logs no "Found N of M" line at all: 0 mutants, score NaN, exit 0. Its count is checked after the run.
+async function testStrykerMatchedNothingFails() {
+  const r = await runScript(['main'], { env: { FAKE_NPX_FOUND: 'none' } });
+  return report('Stryker logs no "Found N of M file(s)" line (matched nothing) and exits 0 → exit 1 with ::error::',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker found no file(s) to mutate, expected 1') && r.npx.length === 1, JSON.stringify(r));
+}
+
+async function testStrykerMatchedFewerFails() {
+  const r = await onBranch('odd-names', () => runScript(['main'], { env: { FAKE_NPX_FOUND: '1' } }));
+  return report('2 changed files, Stryker found 1 and exits 0 → exit 1 with ::error::',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker found 1 file(s) to mutate, expected 2'), JSON.stringify(r));
+}
+
 async function testCheckoutFolderWithGlobSyntaxFails() {
   const clone = path.join(tmpDir, 'da[sh]');
   git('clone', '-q', '--no-hardlinks', repo, clone);
@@ -403,9 +437,15 @@ async function testExtraArgsAndConfig() {
 }
 
 async function testStrykerFailureFails() {
-  const r = await runScript(['main'], { npxExit: 1 });
+  const r = await runScript(['main'], { npxExit: 1, env: { FAKE_NPX_UNDER: '1' } });
   return report('Stryker exits 1 (under the bar) → exit 1 with "under 80%"',
     r.code === 1 && r.stderr.includes('under 80% of planted bugs') && r.npx.length === 1, JSON.stringify(r));
+}
+
+async function testStrykerErrorNotCalledUnderBar() {
+  const r = await runScript(['main'], { npxExit: 1 });
+  return report('Stryker exits 1 without "under breaking threshold" (e.g. invalid config) → exit 1 with ::error::, not "under 80%"',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker failed (exit code 1)') && !r.stderr.includes('under 80%'), JSON.stringify(r));
 }
 
 const results = [];
@@ -413,6 +453,7 @@ try {
   setup();
   for (const test of [testShadowingTagsIgnored, testDefaultBaseIsMain, testBranchWithSlash, testOnlyLinesSinceMergeBase, testNoMergeBaseFails, testOldFormFails, testTagNamedLikeRemoteRefFails,
     testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testUserDiffConfigIgnored, testOddNamesCount, testUntrackedOddNameCounts, testGlobNameFails,
+    testMagicNameFails, testStrykerMatchedNothingFails, testStrykerMatchedFewerFails, testStrykerErrorNotCalledUnderBar,
     testBraceNameFails, testUntrackedGlobNameFails, testNameStrykerMatchesCounts, testCheckoutFolderWithGlobSyntaxFails,
     testInterHunkContextIgnored, testRenameGlobOldPathNotCredited, testRenameWithoutRenameConfig, testPureDeletionNoRange, testUncommittedEditCounts,
     testOutOfScopeOddNamesIgnored, testContentLikeHeaderIgnored, testRenameKeepsOnlyNewLines, testAttributesIgnored, testDiffOptsEnvIgnored,
