@@ -20,7 +20,7 @@ function report(name, passed, detail = '') {
 // --- Fake npx: appends its arguments to a log and prints what Stryker would about the generated config: ---
 // "Found N of 99 file(s) to be mutated." with N = the distinct files in its mutate list (Stryker matched them all),
 // or $FAKE_NPX_FOUND ("none": no such line, as when Stryker matches nothing); the under-threshold error if
-// $FAKE_NPX_UNDER is set. Exits with $FAKE_NPX_EXIT (default 0).
+// $FAKE_NPX_UNDER is set; kills itself with $FAKE_NPX_SIGNAL if set. Exits with $FAKE_NPX_EXIT (default 0).
 
 const bin = path.join(tmpDir, 'bin');
 const npxLog = path.join(tmpDir, 'npx.log');
@@ -31,6 +31,7 @@ fs.appendFileSync(${JSON.stringify(npxLog)}, process.argv.slice(2).join(' ') + '
 const { mutate } = JSON.parse(fs.readFileSync(process.argv[4], 'utf8'));
 const found = process.env.FAKE_NPX_FOUND ?? String(new Set(mutate.map((m) => m.replace(/:\\d+-\\d+$/, ''))).size);
 if (found !== 'none') console.log('INFO ProjectReader Found ' + found + ' of 99 file(s) to be mutated.');
+if (process.env.FAKE_NPX_SIGNAL) process.kill(process.pid, process.env.FAKE_NPX_SIGNAL);
 if (process.env.FAKE_NPX_UNDER) console.log('ERROR MutationTestReportHelper Final mutation score 50.00 under breaking threshold 80, setting exit code to 1 (failure).');
 process.exit(Number(process.env.FAKE_NPX_EXIT ?? 0));
 `);
@@ -291,7 +292,6 @@ async function testNameStrykerMatchesCounts() {
     r.code === 0 && r.stdout.includes('1 changed range(s) vs refs/remotes/origin/main:\n  src/utils/a+b.js:1-1\n'), JSON.stringify(r));
 }
 
-// Reviewer, 2026-10-14: Stryker resolves each mutate entry against the checkout folder, so the folder is part of the glob
 async function testMagicNameFails() {
   const r = await onBranch('magic-name', () => runScript(['main']));
   return report('changed file "a?.js" (Stryker reads it as a glob) → exit 1 with ::error::, Stryker not run',
@@ -312,6 +312,7 @@ async function testStrykerMatchedFewerFails() {
     r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker found 1 file(s) to mutate, expected 2'), JSON.stringify(r));
 }
 
+// Reviewer, 2026-10-14: Stryker resolves each mutate entry against the checkout folder, so the folder is part of the glob
 async function testCheckoutFolderWithGlobSyntaxFails() {
   const clone = path.join(tmpDir, 'da[sh]');
   git('clone', '-q', '--no-hardlinks', repo, clone);
@@ -448,12 +449,28 @@ async function testStrykerErrorNotCalledUnderBar() {
     r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker failed (exit code 1)') && !r.stderr.includes('under 80%'), JSON.stringify(r));
 }
 
+async function testSpawnErrorShown() {
+  // git and node only: no npx
+  const onlyGit = path.join(tmpDir, 'only-git');
+  fs.mkdirSync(onlyGit, { recursive: true });
+  fs.symlinkSync(execFileSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' }).trim(), path.join(onlyGit, 'git'));
+  const r = await runScript(['main'], { env: { PATH: onlyGit } });
+  return report('npx not on PATH → exit 1 with ::error:: naming the spawn error (ENOENT), not "see its output above"',
+    r.code === 1 && /::error::mutate:changed: could not run Stryker: .*ENOENT/.test(r.stdout), JSON.stringify(r));
+}
+
+async function testKilledBySignalNamed() {
+  const r = await runScript(['main'], { env: { FAKE_NPX_SIGNAL: 'SIGKILL' } });
+  return report('Stryker killed by SIGKILL → exit 1 with ::error:: naming the signal, not "under 80%"',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker failed (signal SIGKILL)') && !r.stderr.includes('under 80%'), JSON.stringify(r));
+}
+
 const results = [];
 try {
   setup();
   for (const test of [testShadowingTagsIgnored, testDefaultBaseIsMain, testBranchWithSlash, testOnlyLinesSinceMergeBase, testNoMergeBaseFails, testOldFormFails, testTagNamedLikeRemoteRefFails,
     testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testUserDiffConfigIgnored, testOddNamesCount, testUntrackedOddNameCounts, testGlobNameFails,
-    testMagicNameFails, testStrykerMatchedNothingFails, testStrykerMatchedFewerFails, testStrykerErrorNotCalledUnderBar,
+    testMagicNameFails, testStrykerMatchedNothingFails, testStrykerMatchedFewerFails, testStrykerErrorNotCalledUnderBar, testSpawnErrorShown, testKilledBySignalNamed,
     testBraceNameFails, testUntrackedGlobNameFails, testNameStrykerMatchesCounts, testCheckoutFolderWithGlobSyntaxFails,
     testInterHunkContextIgnored, testRenameGlobOldPathNotCredited, testRenameWithoutRenameConfig, testPureDeletionNoRange, testUncommittedEditCounts,
     testOutOfScopeOddNamesIgnored, testContentLikeHeaderIgnored, testRenameKeepsOnlyNewLines, testAttributesIgnored, testDiffOptsEnvIgnored,
