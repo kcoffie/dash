@@ -1,16 +1,35 @@
 // Mutation-test only the scanner/utils lines this branch changed, and fail below the bar.
 // The whole-project ratchet (thresholds.break in stryker.config.json) stops the score
 // dropping; this stops new code arriving with weak tests while the total still looks fine.
-// Usage: npm run mutate:changed [-- <base ref, default origin/main>]
+// Usage: npm run mutate:changed [-- <base branch, default main> [stryker args…]]   (CI: "$BASE_REF" --concurrency 4)
+// The base is exactly refs/remotes/origin/<base branch>, resolved with `git show-ref --verify` (no name lookup):
+// with a name, a tag called origin/main, or one called refs/remotes/origin/main when the remote-tracking ref is
+// missing, would stand in for the branch (git looks in refs/tags first) and could make the diff empty. Anything it
+// can't resolve fails with an ::error:: line. Checked end to end by scripts/__tests__/mutate-changed.test.js.
 // A mutant that truly changes nothing observable can be skipped in the code with
 //   // Stryker disable next-line <Mutator>: <reason>
 // and the reviewer checks the reason.
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { isUsableRef } from '../src/utils/ratchet-check.js';
 
 const BAR = 80;
-const base = process.argv[2] ?? 'origin/main';
+const branch = process.argv[2] ?? 'main';
+const base = `refs/remotes/origin/${branch}`;
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8' });
+
+function fail(message) {
+  console.log(`::error::mutate:changed: ${message}`);
+  process.exit(1);
+}
+// An option-like branch never reaches git
+if (!isUsableRef(branch)) fail(`${JSON.stringify(branch)} is not a usable base branch (usage: mutate-changed.js <base branch, e.g. main>)`);
+let baseSha;
+try {
+  baseSha = git('show-ref', '--verify', '--hash', base).trim();
+} catch {
+  fail(`${base} not found: pass the base branch's name (e.g. main, not origin/main) and fetch it first`);
+}
 
 // Same scope as "mutate" in stryker.config.json
 const DIRS = ['src/scanner/', 'src/utils/'];
@@ -20,8 +39,16 @@ const inScope = (file) => file.endsWith('.js') && !file.includes('/__tests__/') 
 const ranges = [];
 let file = null;
 // Against the merge base, working tree included, so it also checks work not committed yet
-const mergeBase = git('merge-base', base, 'HEAD').trim();
-for (const line of git('diff', '-U0', mergeBase, '--', ...DIRS).split('\n')) {
+let mergeBase;
+try {
+  mergeBase = git('merge-base', baseSha, 'HEAD').trim();
+} catch {
+  fail(`no merge base with ${base} (shallow clone or unrelated history?)`);
+}
+// Fixed output format whatever the user's git config says (diff.mnemonicPrefix, diff.noprefix, color.diff and
+// diff.external would each hide every '+++ b/' line, so a change would read as "nothing to check")
+const diffArgs = ['--no-color', '--no-ext-diff', '--src-prefix=a/', '--dst-prefix=b/', '-U0'];
+for (const line of git('diff', ...diffArgs, mergeBase, '--', ...DIRS).split('\n')) {
   const target = line.match(/^\+\+\+ (?:b\/(.+)|\/dev\/null)$/);
   if (target) { file = target[1] && inScope(target[1]) ? target[1] : null; continue; }
   const hunk = line.match(/^@@ -\S+ \+(\d+)(?:,(\d+))? @@/);
