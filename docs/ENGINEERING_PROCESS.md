@@ -24,7 +24,7 @@ Tests are only worth relying on if a broken rule makes one fail. These rules mak
 3. **Assert the exact value.** The severity, the factor text, the line number. Not "found something".
 4. **One rule per test, named as the rule** ("Constant interpolation → low"). The test list then reads as the scoring model, so it can be reviewed without reading code.
 5. **No snapshots.** Never compare a whole report or findings array against pasted output: it kills mutants (raising the score) while locking in today's bugs. Assert the one value the rule is about.
-6. **Fake only the boundaries.** The npm registry gets a recorded real response. Never mock the scanner, the scoring helpers, or the file walker under test.
+6. **Fake only the boundaries.** The npm registry gets a recorded real response. Never mock the scanner, the scoring helpers, or the file walker under test. The recording is replayed by a stand-in `npm` first on `PATH` (`src/scanner/__tests__/helpers/bin/npm`, a `/bin/sh` script: stdout, stderr and the recorded exit code; any unrecorded call fails). It's a shell script because the src tests spawn it 10 times per run and Stryker runs them once per mutant: 41.8 → 5.1 ms per spawn, `test:src` 0.57 → 0.21 s (2026-10-13). Its contract (byte-identical replay, exit codes matching the JSON, 1 MB output intact) is `scripts/__tests__/fake-npm.test.js`, outside Stryker's command.
 7. **Isolated.** Each test run gets its own temp folder (`fs.mkdtempSync`). Mutation testing runs the suite in parallel in one directory, so shared paths turn into random failures (see the score log).
 
 ### The machine check: mutation testing
