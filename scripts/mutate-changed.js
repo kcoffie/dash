@@ -11,13 +11,16 @@
 // and the reviewer checks the reason.
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { createRequire } from 'node:module';
+import path from 'node:path';
 import { isUsableRef } from '../src/utils/ratchet-check.js';
 
 const BAR = 80;
 const branch = process.argv[2] ?? 'main';
 const base = `refs/remotes/origin/${branch}`;
-// GIT_DIFF_OPTS would override -U0 (--unified=3 widens every range)
-const gitEnv = { ...process.env };
+// GIT_DIFF_OPTS would override -U0 (--unified=3 widens every range). Pathspecs are literal: a renamed file's old
+// name goes to git as a pathspec, and as a glob "old[1].js" would also match old1.js and credit its hunks to the rename.
+const gitEnv = { ...process.env, GIT_LITERAL_PATHSPECS: '1' };
 delete gitEnv.GIT_DIFF_OPTS;
 const git = (...args) => execFileSync('git', args, { encoding: 'utf8', env: gitEnv, maxBuffer: 64 * 1024 * 1024 });
 
@@ -46,11 +49,21 @@ try {
   fail(`no merge base with ${base} (shallow clone or unrelated history?)`);
 }
 
-// Stryker reads each mutate entry as a glob: a name with glob syntax matches nothing, and a run with 0 mutants
-// scores NaN, which passes the bar. Such a file fails the job instead of going unchecked.
-const GLOB_SYNTAX = /[*?[\]{}()!+@\\]/;
+// Stryker reads each mutate entry as a glob of its absolute path (FileMatcher in @stryker-mutator/core: minimatch,
+// dot: false), so glob syntax in the file name or the checkout folder ("x{a,b}.js", "da[sh]/") can match nothing,
+// and a run with 0 mutants scores NaN, which passes the bar. Each file is checked with Stryker's own minimatch first.
+let minimatch;
+try {
+  const fromStryker = createRequire(createRequire(import.meta.url).resolve('@stryker-mutator/core'));
+  ({ minimatch } = fromStryker('minimatch'));
+} catch {
+  fail("can't load Stryker's minimatch to check file paths (run npm ci)");
+}
 const checkable = (file) => {
-  if (GLOB_SYNTAX.test(file)) fail(`${JSON.stringify(file)} changed, but its name has glob syntax Stryker can't match: rename it`);
+  const absolute = path.resolve(file).replace(/\\/g, '/');
+  if (!minimatch(absolute, absolute, { dot: false })) {
+    fail(`${JSON.stringify(file)} changed, but Stryker can't match its path ${JSON.stringify(absolute)} (glob syntax in the file or folder name): rename or move it`);
+  }
   return file;
 };
 
@@ -67,8 +80,8 @@ for (let i = 0; i < fields.length - 1;) {
 // Changed line ranges per file, from a zero-context diff of that file (or rename pair) alone: '@@ -a,b +c,d @@'
 // -> lines c..c+d-1. Only hunk headers are read: no file headers to unquote, and content lines start with ' ', '+',
 // '-' or '\', so an added line that looks like a header ("++ b/x" shows as "+++ b/x") can't be taken for one.
-// Fixed output whatever the user's git config or attributes say (prefixes, color, external diff, textconv, -diff).
-const diffArgs = ['--no-color', '--no-ext-diff', '--no-textconv', '--text', '--find-renames', '--src-prefix=a/', '--dst-prefix=b/', '-U0'];
+// Fixed output whatever the user's git config or attributes say (color, external diff, textconv, -diff, merged hunks).
+const diffArgs = ['--no-color', '--no-ext-diff', '--no-textconv', '--text', '--find-renames', '-U0', '--inter-hunk-context=0'];
 const ranges = [];
 for (const { file, paths } of changed) {
   for (const line of git('diff', ...diffArgs, mergeBase, '--', ...paths).split('\n')) {
