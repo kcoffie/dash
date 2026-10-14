@@ -18,15 +18,17 @@ function report(name, passed, detail = '') {
   return passed;
 }
 
-// `stryker run` (or `@stryker-mutator/core run`, or a path ending in stryker) in a shell line or a quoted array, then
-// the next token (empty when the line ends there)
-const CALL = /(?:@stryker-mutator\/core|\bstryker)['"]?[\s,[(]*['"]?run\b['"]?\s*,?\s*['"]?([^\s'",)\]]*)/g;
-// Full-line comments in YAML, shell and JS (`#`, `//`, ` * `, `/*`): a comment mentioning a call isn't one
-const COMMENT_LINE = /^\s*(#|\/\/|\/\*|\*).*$/gm;
+// `stryker run` (also `@stryker-mutator/core run`, a version pin like `stryker@10`, a path ending in stryker or
+// bin/stryker.js) in a shell line or a quoted array, then the next token (empty when the line ends there)
+const CALL = /(?:@stryker-mutator\/core(?:@[\w.^~-]+)?|\bstryker(?:@[\w.^~-]+|\.js)?)['"]?[\s,[(]*['"]?run\b['"]?\s*,?\s*['"]?([^\s'",)\]]*)/g;
+// Full-line comments in YAML, shell and JS (`#`, `//`, block-comment ` * `): a comment mentioning a call isn't one.
+// A line starting with `/*` is kept, since code can follow the comment on it (counting a call there fails loudly).
+const COMMENT_LINE = /^\s*(#|\/\/|\*).*$/gm;
 
 // One { where, arg } per `stryker run` call in the text; arg is the token after `run` ('' when none)
 function strykerRunCalls(text, where) {
-  const code = text.replace(/\\\r?\n/g, ' ').replace(COMMENT_LINE, '');
+  // Comments first: a shell comment ends at the newline even when it ends in `\`, so the next line is real code
+  const code = text.replace(COMMENT_LINE, '').replace(/\\\r?\n/g, ' ');
   return [...code.matchAll(CALL)].map((m) => ({ where, arg: m[1] }));
 }
 
