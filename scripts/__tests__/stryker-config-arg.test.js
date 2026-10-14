@@ -52,6 +52,13 @@ function testMatcher() {
     ["execFileSync('node_modules/.bin/stryker', ['run', '--concurrency', '4'])", false],
     ['npx stryker \\\n            run --concurrency 4', false],
     ['npx @stryker-mutator/core run stryker.config.json', true],
+    // Version-pinned and direct-path launchers, real code after a block comment (reviewer pass 2)
+    ['npx @stryker-mutator/core@10 run --concurrency 4', false],
+    ['npx stryker@10 run --concurrency 4', false],
+    ['node node_modules/@stryker-mutator/core/bin/stryker.js run --concurrency 4', false],
+    ["/* eslint-disable */ execFileSync('npx', ['stryker', 'run'])", false],
+    // A shell comment ends at the newline even when it ends in a backslash: the next line is a real call
+    ['# was: npx stryker run stryker.config.json \\\n        npx stryker run --concurrency 4', false],
   ];
   const wrong = cases.filter(([text, ok, where = 'case']) => {
     const calls = strykerRunCalls(text, where);
