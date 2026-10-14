@@ -13,14 +13,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TESTS = path.join(__dirname, '..', '..', 'src', 'scanner', '__tests__');
 const FAKE = path.join(TESTS, 'helpers', 'bin', 'npm');
 const FIXTURES = path.join(TESTS, 'fixtures', 'npm-audit');
-const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dash-fake-npm-'));
+let tmpDir;
 
 function report(name, passed, detail = '') {
   console.log(`${passed ? '✓' : '✗'} ${name}: ${passed ? 'passed' : `failed ${detail}`}`);
   return passed;
 }
 
-// Runs the fake like npm-audit-client does (execFileSync through PATH), with output as Buffers
+// Runs the fake by its absolute path (the PATH lookup is exercised by the src tests through withFakeNpm), output as Buffers
 function npm(args, responses, cwd = tmpDir) {
   const r = spawnSync(FAKE, args, {
     cwd,
@@ -37,7 +37,7 @@ function expectedExit(auditJson) {
   return audit.error || audit.metadata.vulnerabilities.total > 0 ? 1 : 0;
 }
 
-const FIXTURE_NAMES = fs.readdirSync(FIXTURES).filter((n) => fs.statSync(path.join(FIXTURES, n)).isDirectory()).sort();
+let FIXTURE_NAMES = [];
 const MODES = [
   { args: ['audit', '--json'], file: 'audit' },
   { args: ['audit', '--json', '--omit=dev'], file: 'audit-omit-dev' },
@@ -129,12 +129,15 @@ function testMissingRecordingFails() {
 
 const results = [];
 try {
+  // Inside the try, so a wrong fixtures path can't leave the temp folder behind
+  tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'dash-fake-npm-'));
+  FIXTURE_NAMES = fs.readdirSync(FIXTURES).filter((n) => fs.statSync(path.join(FIXTURES, n)).isDirectory()).sort();
   for (const test of [testRecordedExitCodes, testReplaysEachRecording, testFlagOrder, testLargeOutputArrivesWhole,
     testInstallWritesRecordedLockfile, testUnexpectedCallsFail, testMissingRecordingFails]) {
     results.push(test());
   }
 } finally {
-  fs.rmSync(tmpDir, { recursive: true, force: true });
+  if (tmpDir) fs.rmSync(tmpDir, { recursive: true, force: true });
 }
 
 console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
