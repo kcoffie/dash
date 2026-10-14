@@ -6,6 +6,10 @@
 // with a name, a tag called origin/main, or one called refs/remotes/origin/main when the remote-tracking ref is
 // missing, would stand in for the branch (git looks in refs/tags first) and could make the diff empty. Anything it
 // can't resolve fails with an ::error:: line. Checked end to end by scripts/__tests__/mutate-changed.test.js.
+// Not guarded (Open TODO): the generated config starts from this branch's stryker.config.json, so a branch can still
+// weaken its own check there (dryRunOnly, mutator.excludedMutations, …), and so can stryker args such as --mutate,
+// --dryRunOnly or --logLevel warn (the last fails closed: Stryker's "Found N" line is then missing). CI passes only
+// --concurrency.
 // A mutant that truly changes nothing observable can be skipped in the code with
 //   // Stryker disable next-line <Mutator>: <reason>
 // and the reviewer checks the reason.
@@ -116,19 +120,20 @@ writeFileSync('out/stryker.changed.json', JSON.stringify({
 // So the count of files it found must equal the files changed, or the changed lines went unchecked.
 const files = new Set(ranges.map((range) => range.replace(/:\d+-\d+$/, '')));
 let output = '';
-const code = await new Promise((resolve) => {
+const { code, signal, error } = await new Promise((resolve) => {
   const stryker = spawn('npx', ['stryker', 'run', 'out/stryker.changed.json', ...process.argv.slice(3)], { stdio: ['inherit', 'pipe', 'pipe'] });
   stryker.stdout.on('data', (chunk) => { output += chunk; process.stdout.write(chunk); });
   stryker.stderr.on('data', (chunk) => { output += chunk; process.stderr.write(chunk); });
-  stryker.on('error', (error) => { output += String(error); resolve(1); });
-  stryker.on('close', (status) => resolve(status ?? 1));
+  stryker.on('error', (error) => resolve({ error }));
+  stryker.on('close', (code, signal) => resolve({ code, signal }));
 });
+if (error) fail(`could not run Stryker: ${error.message}`);
 if (code !== 0) {
   if (/under breaking threshold/.test(output)) {
     console.error(`\nmutate:changed: under ${BAR}% of planted bugs in the changed lines were caught. See out/mutation-changed.html`);
     process.exit(1);
   }
-  fail(`Stryker failed (exit code ${code}): see its output above`);
+  fail(`Stryker failed (${signal ? `signal ${signal}` : `exit code ${code}`}): see its output above`);
 }
 const found = output.match(/Found (\d+) of \d+ file\(s\) to be mutated/);
 if (!found || Number(found[1]) !== files.size) {
