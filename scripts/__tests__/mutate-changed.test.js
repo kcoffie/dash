@@ -133,6 +133,12 @@ function setup() {
   git('add', '.');
   git('commit', '-q', '-m', 'renamed');
   git('checkout', '-q', '-f', 'main');
+  // A base whose commit has no stryker.config.json
+  git('checkout', '-q', '-b', 'no-config');
+  git('rm', '-q', 'stryker.config.json');
+  git('commit', '-q', '-m', 'no config');
+  git('update-ref', 'refs/remotes/origin/no-config', 'HEAD');
+  git('checkout', '-q', '-f', 'main');
   // The PR: one changed line in src/utils
   git('checkout', '-q', '-b', 'pr');
   write('src/utils/foo.js', 'export const a = 1;\nexport const b = (x) => x > 2;\n');
@@ -448,6 +454,74 @@ async function testExtraArgsAndConfig() {
     JSON.stringify({ ...r, conf }));
 }
 
+// --- The PR's own config and args can't weaken the check (user decision 2026-10-15) ---
+
+// Writes the PR's stryker.config.json (uncommitted, as a local run sees it) for `fn`, then restores it
+async function withConfig(edit, fn) {
+  const file = path.join(repo, 'stryker.config.json');
+  const saved = fs.readFileSync(file, 'utf8');
+  fs.writeFileSync(file, JSON.stringify(edit(JSON.parse(saved))));
+  try {
+    return await fn();
+  } finally {
+    fs.writeFileSync(file, saved);
+  }
+}
+
+// Reproduced 2026-10-15 with real Stryker: "Found 1 of 119", no mutants tested, exit 0
+async function testConfigDryRunOnlyFails() {
+  const r = await withConfig((c) => ({ ...c, dryRunOnly: true }), () => runScript(['main']));
+  return report('PR config adds dryRunOnly: true → exit 1 with ::error:: naming dryRunOnly; Stryker not started',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: this PR changes stryker.config.json key(s) a PR may not change: dryRunOnly (')
+      && r.stryker.length === 0 && r.npx.length === 0, JSON.stringify(r));
+}
+
+async function testConfigOnlyChangeFails() {
+  const r = await withConfig((c) => ({ ...c, mutate: [] }), () => runScript(['same']));
+  return report('no src lines changed but PR config changes mutate → exit 1 with ::error::, not "nothing to check"',
+    r.code === 1 && r.stdout.includes('may not change: mutate (') && !r.stdout.includes('nothing to check') && r.stryker.length === 0, JSON.stringify(r));
+}
+
+async function testConfigBreakLoweredFails() {
+  const r = await withConfig((c) => ({ ...c, thresholds: { ...c.thresholds, break: 10 } }), () => runScript(['main']));
+  return report('PR config lowers thresholds.break → exit 1 with ::error:: "lowered (60 -> 10)"; Stryker not started',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: thresholds.break was lowered (60 -> 10)') && r.stryker.length === 0, JSON.stringify(r));
+}
+
+async function testConfigChangeableKeyRuns() {
+  const r = await withConfig((c) => ({ ...c, reporters: ['html'], concurrency: 2 }), () => runScript(['main']));
+  return report('PR config changes only reporters and concurrency → runs as usual', foundChange(r, 'refs/remotes/origin/main'), JSON.stringify(r));
+}
+
+async function testBaseWithoutConfigFails() {
+  const r = await runScript(['no-config']);
+  return report('base has no stryker.config.json → exit 1 with ::error:: "could not be read"; Stryker not started',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: refs/remotes/origin/no-config:stryker.config.json could not be read') && r.stryker.length === 0,
+    JSON.stringify(r));
+}
+
+async function testPrWithoutConfigFails() {
+  const r = await withConfig((c) => c, async () => {
+    fs.rmSync(path.join(repo, 'stryker.config.json'));
+    return runScript(['main']);
+  });
+  return report('PR has no stryker.config.json → exit 1 with ::error::; Stryker not started',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: this PR\'s stryker.config.json could not be read') && r.stryker.length === 0, JSON.stringify(r));
+}
+
+// Reproduced 2026-10-15 with real Stryker: `--dryRunOnly` after the base tested no mutants and exited 0
+async function testDryRunOnlyArgFails() {
+  const r = await runScript(['main', '--concurrency', '4', '--dryRunOnly']);
+  return report('arg --dryRunOnly after --concurrency 4 → exit 1 with ::error::; Stryker not started',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: only "--concurrency <n>" may be passed on to Stryker') && r.stryker.length === 0, JSON.stringify(r));
+}
+
+async function testMutateArgFails() {
+  const r = await runScript(['main', '--mutate', 'src/utils/foo.js:1-1']);
+  return report('arg --mutate → exit 1 with ::error::; Stryker not started',
+    r.code === 1 && r.stdout.includes('may be passed on to Stryker') && r.stryker.length === 0, JSON.stringify(r));
+}
+
 async function testStrykerFailureFails() {
   const r = await runScript(['main'], { strykerExit: 1, env: { FAKE_STRYKER_UNDER: '1' } });
   return report('Stryker exits 1 (under the bar) → exit 1 with "under 80%"',
@@ -504,7 +578,8 @@ try {
     testInterHunkContextIgnored, testRenameGlobOldPathNotCredited, testRenameWithoutRenameConfig, testPureDeletionNoRange, testUncommittedEditCounts,
     testOutOfScopeOddNamesIgnored, testContentLikeHeaderIgnored, testRenameKeepsOnlyNewLines, testAttributesIgnored, testDiffOptsEnvIgnored,
     testNothingChanged, testUntrackedFileCounts,
-    testExtraArgsAndConfig, testStrykerFailureFails]) {
+    testExtraArgsAndConfig, testConfigDryRunOnlyFails, testConfigOnlyChangeFails, testConfigBreakLoweredFails, testConfigChangeableKeyRuns,
+    testBaseWithoutConfigFails, testPrWithoutConfigFails, testDryRunOnlyArgFails, testMutateArgFails, testStrykerFailureFails]) {
     results.push(await test());
   }
 } finally {
