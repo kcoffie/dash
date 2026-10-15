@@ -3,8 +3,36 @@
 // check fails the step: the inline version it replaces counted an unreadable base as break 0, so a PR could lower the
 // ratchet whenever `git show` failed (found by the reviewer on PR #33). User decision 2026-10-13: a base whose break
 // is null (Stryker's "gate off") fails too; turning the ratchet off takes a deliberate workflow change.
+// User decision 2026-10-15: apart from raising the break, a PR may change only output keys and thresholds. Every other
+// key flows into both gates and can weaken them (dryRunOnly, mutate, ignorePatterns, mutator.excludedMutations,
+// commandRunner, timeoutMS: a timeout counts as caught, …); a PR's dryRunOnly: true passed both before this.
 
 const CONFIG = 'stryker.config.json';
+
+// The keys a PR may change, as paths of key names. To change another, a PR adds it here, where the diff shows it.
+export const CHANGEABLE = [
+  ['$schema'], ['concurrency'], ['reporters'], ['htmlReporter'], ['jsonReporter'], ['clearTextReporter'],
+  ['thresholds', 'high'], ['thresholds', 'low'], ['thresholds', 'break'],
+];
+
+const isPlainObject = (value) => value !== null && typeof value === 'object' && !Array.isArray(value);
+// Own keys only: JSON.parse makes "__proto__" an own key, and read through the prototype it would be Object.prototype
+const own = (object, key) => (Object.hasOwn(object, key) ? object[key] : undefined);
+
+// Paths (lists of key names) where two parsed JSON values differ: objects key by key, anything else as a whole
+function changedPaths(base, head, at = []) {
+  if (isPlainObject(base) && isPlainObject(head)) {
+    const keys = [...new Set([...Object.keys(base), ...Object.keys(head)])].sort();
+    return keys.flatMap((key) => changedPaths(own(base, key), own(head, key), [...at, key]));
+  }
+  return JSON.stringify(base) === JSON.stringify(head) ? [] : [at];
+}
+
+const startsWith = (path, prefix) => prefix.every((key, i) => path[i] === key);
+// a.b, with a key quoted when it isn't a plain name, so a literal "a.b" key can't read as the path a.b
+const showPath = (path) => path.map((key) => (/^[\w$]+$/.test(key) ? key : JSON.stringify(key))).join('.');
+const CHANGEABLE_SHOWN = CHANGEABLE.map(showPath);
+const CHANGEABLE_LIST = `${CHANGEABLE_SHOWN.slice(0, -1).join(', ')} and ${CHANGEABLE_SHOWN.at(-1)}`;
 
 // The config's thresholds.break when it's a number from 0 to 100, else an error message. `who` names the side.
 function readBreak(text, who) {
@@ -19,7 +47,7 @@ function readBreak(text, who) {
     const shown = value === undefined ? 'missing' : JSON.stringify(value);
     return { error: `${who} thresholds.break is ${shown}, not a number from 0 to 100` };
   }
-  return { value };
+  return { value, config };
 }
 
 // A ref git can't mistake for an option (scripts/ratchet-check.js checks this before calling git)
@@ -36,5 +64,15 @@ export function ratchetDecision({ ref, baseText, headText }) {
   const head = readBreak(headText, 'this PR\'s');
   if (head.error) return { ok: false, message: head.error };
   if (head.value < base.value) return { ok: false, base: base.value, head: head.value, message: `thresholds.break was lowered (${base.value} -> ${head.value})` };
+  const fixed = changedPaths(base.config, head.config).filter((path) => !CHANGEABLE.some((prefix) => startsWith(path, prefix)));
+  if (fixed.length) {
+    return {
+      ok: false,
+      base: base.value,
+      head: head.value,
+      message: `this PR changes ${CONFIG} key(s) a PR may not change: ${fixed.map(showPath).join(', ')} (only ${CHANGEABLE_LIST} may; `
+        + 'to change another, add it to CHANGEABLE in src/utils/ratchet-check.js in this PR, where the diff shows it)',
+    };
+  }
   return { ok: true, base: base.value, head: head.value, message: `break: base ${base.value}, this PR ${head.value}` };
 }

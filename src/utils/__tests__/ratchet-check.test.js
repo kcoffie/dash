@@ -186,6 +186,14 @@ function testTypeChangeFails() {
     notChangeable(ds[0], 'commandRunner (') && notChangeable(ds[1], 'timeoutMS ('), show(ds));
 }
 
+function testNullAgainstObjectNamed() {
+  const ds = [
+    decide(JSON.stringify({ ...BASE, mutator: null }), pr((c) => { c.mutator = {}; })),
+    decide(JSON.stringify({ ...BASE, mutator: {} }), pr((c) => { c.mutator = null; })),
+  ];
+  return report('null on one side, an object on the other → fails, names the key (no crash)', ds.every((d) => notChangeable(d, 'mutator (')), show(ds));
+}
+
 function testThresholdsExtraKeyFails() {
   const d = decideBase(pr((c) => { c.thresholds.extra = 1; }));
   return report('PR adds thresholds.extra → fails (only high, low and break may change)', notChangeable(d, 'thresholds.extra ('), show(d));
@@ -250,6 +258,7 @@ const results = [
   testRemovedKeyFails(),
   testArrayChangeFails(),
   testTypeChangeFails(),
+  testNullAgainstObjectNamed(),
   testThresholdsExtraKeyFails(),
   testDottedKeyNotAllowed(),
   testProtoKeyFails(),
