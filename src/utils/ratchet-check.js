@@ -3,9 +3,10 @@
 // check fails the step: the inline version it replaces counted an unreadable base as break 0, so a PR could lower the
 // ratchet whenever `git show` failed (found by the reviewer on PR #33). User decision 2026-10-13: a base whose break
 // is null (Stryker's "gate off") fails too; turning the ratchet off takes a deliberate workflow change.
-// User decision 2026-10-15: apart from raising the break, a PR may change only output keys and thresholds. Every other
-// key flows into both gates and can weaken them (dryRunOnly, mutate, ignorePatterns, mutator.excludedMutations,
-// commandRunner, timeoutMS: a timeout counts as caught, …); a PR's dryRunOnly: true passed both before this.
+// User decision 2026-10-15: apart from raising the break, a PR may change only CHANGEABLE: reporting keys, concurrency
+// (CI overrides it) and thresholds. Every other key flows into both gates and can weaken them (dryRunOnly, mutate,
+// ignorePatterns, mutator.excludedMutations, commandRunner, timeoutMS: a timeout counts as caught, …); a PR's
+// dryRunOnly: true passed both before this.
 // htmlReporter and jsonReporter aren't output-only: Stryker 10 also ignores files matching their fileName
 // (project-reader.js), so "**/findings*.js" took a file out of the run (reviewer, reproduced; user: not changeable).
 

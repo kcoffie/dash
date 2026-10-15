@@ -123,7 +123,7 @@ function testNonStringRefFails() {
   return report('ref undefined, null or a number → fails (no crash)', ds.every((d) => d.ok === false && d.message.includes('not a usable base ref')), show(ds));
 }
 
-// --- Other keys: only output keys and thresholds may change (user decision 2026-10-15) ---
+// --- Other keys: only reporting keys, concurrency and thresholds may change (user decision 2026-10-15) ---
 
 // The repo's config today, as the base; each test changes a copy for the PR
 const BASE = {

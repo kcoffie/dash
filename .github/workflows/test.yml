@@ -37,8 +37,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # Fails if the PR lowers thresholds.break or changes any stryker.config.json key other than output keys and
-      # thresholds (src/utils/ratchet-check.js CHANGEABLE), or if either config can't be read or checked
+      # Fails if the PR lowers thresholds.break or changes any stryker.config.json key other than reporting keys,
+      # concurrency and thresholds (src/utils/ratchet-check.js CHANGEABLE), or if either config can't be read or checked
       - name: Ratchet can only go up
         env:
           BASE_REF: ${{ github.base_ref }}

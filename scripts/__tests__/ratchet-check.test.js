@@ -143,7 +143,7 @@ async function testOptionLikeRefNeverReachesGit() {
     r.code === 1 && r.stdout.includes('not a usable base ref') && written.length === 0, JSON.stringify({ ...r, written }));
 }
 
-// User decision 2026-10-15: only output keys and thresholds may change; the PR's dryRunOnly: true used to pass here
+// User decision 2026-10-15: only reporting keys, concurrency and thresholds may change; the PR's dryRunOnly: true used to pass here
 async function testOtherKeyChangedFails() {
   const r = await runScript(['main'], JSON.stringify({ thresholds: { high: 80, low: 65, break: 60 }, dryRunOnly: true }));
   return report('PR adds dryRunOnly: true (break unchanged) → exit 1 with ::error:: naming dryRunOnly',

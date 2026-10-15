@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * CI job `mutation-changed`, step "Ratchet can only go up": a PR may not lower thresholds.break in
- * stryker.config.json below the base branch's, nor change any key outside CHANGEABLE (output keys and thresholds;
+ * stryker.config.json below the base branch's, nor change any key outside CHANGEABLE (reporting keys, concurrency, thresholds;
  * scripts/mutate-changed.js runs the same check). Rules (pure, unit-tested): src/utils/ratchet-check.js. Checked end to
  * end by scripts/__tests__/ratchet-check.test.js (temp git repo).
  *

@@ -7,7 +7,7 @@
 // missing, would stand in for the branch (git looks in refs/tags first) and could make the diff empty. Anything it
 // can't resolve fails with an ::error:: line. Checked end to end by scripts/__tests__/mutate-changed.test.js.
 // The generated config starts from this branch's stryker.config.json, so first, as in CI's ratchet step, it may differ
-// from the base's only in the keys listed in CHANGEABLE (output keys, thresholds.high / low, and thresholds.break
+// from the base's only in the keys listed in CHANGEABLE (reporting keys, concurrency, thresholds.high / low, and thresholds.break
 // raised; src/utils/ratchet-check.js), and the only arg passed on to Stryker is --concurrency <n>
 // (src/utils/stryker-args.js): dryRunOnly, mutate, excludedMutations, … in either place would let the changed lines go
 // unchecked.
