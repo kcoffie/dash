@@ -2,7 +2,8 @@
 // stryker.conf.{json,js,mjs,cjs}, then stryker.config.*, then the dot-prefixed variants, so a PR adding
 // stryker.conf.json with a lower thresholds.break would pass the ratchet step (which reads stryker.config.json) and
 // lower main's `mutation-full` threshold (reviewer, PR #37). Checked here: the workflows, package.json scripts, and
-// scripts/*.js (array form, e.g. execFileSync('npx', ['stryker', 'run', <file>, ...])). Only tracked files (`git ls-files`),
+// scripts/*.js (array form, e.g. spawn('node_modules/.bin/stryker', ['run', <file>, ...])). Also: Stryker is never started through a
+// launcher that falls back to the registry (npx and the like). Only tracked files (`git ls-files`),
 // so untracked copies (like iCloud's "name 2.js") don't make local results differ from CI's.
 
 import fs from 'fs';
@@ -35,8 +36,13 @@ function strykerRunCalls(text, where) {
 // Stryker started through a launcher that falls back to the registry: without node_modules, `npx stryker` installs and
 // runs the registry package `stryker` (Stryker 1.x, 2022) with no prompt in CI or without a terminal, and even
 // `npx --no-install` asks the registry first. Stryker must run from node_modules/.bin (or a package.json script).
-// Covers npx, npm exec / npm x, pnpm / yarn dlx, with options before the package, in a shell line or a quoted array.
-const REGISTRY_LAUNCH = /(?:\bnpx|\bnpm['"]?[\s,[(]*['"]?(?:exec|x)|\b(?:pnpm|yarn)['"]?[\s,[(]*['"]?dlx)\b['"]?(?:[\s,[(]*['"]?-[\w-]+(?:=[^\s'",)\]]*)?['"]?)*[\s,[(]*['"]?(?:@stryker-mutator\/core|stryker)\b/g;
+// Covers npx, pnpx, bunx, npm exec / npm x, pnpm / yarn dlx, with options (`-y`, `--a=b`, `--a b`) before the
+// subcommand or the package, in a shell line or a quoted array. Any text with such a launch counts, even an echo or
+// an error message (a false alarm fails the test, it doesn't pass it).
+const SEP = String.raw`['"]?[\s,[(]*['"]?`; // between words: spaces, or quotes / commas / brackets of an array
+const OPTS = String.raw`(?:${SEP}-[\w-]+(?:=[^\s'",)\]]*|['"]?[\s,[(]+['"]?(?!-)[^\s'",)\]]+)?['"]?)*`; // options, each with an optional value
+const REGISTRY_LAUNCH = new RegExp(String.raw`(?:\b(?:npx|pnpx|bunx)|\bnpm${OPTS}${SEP}(?:exec|x)|\b(?:pnpm|yarn)${OPTS}${SEP}dlx)\b['"]?`
+  + String.raw`${OPTS}${SEP}(?:@stryker-mutator\/core|stryker)(?![\w-])`, 'g');
 
 // One { where, text } per registry launch of Stryker in the text (comments skipped, as for calls)
 function registryLaunches(text, where) {
@@ -143,6 +149,17 @@ function testLaunchMatcher() {
     ['pnpm dlx stryker run', true],
     ['yarn dlx @stryker-mutator/core run', true],
     ['npx \\\n  stryker run', true],
+    // Options before exec / dlx, other launchers, an option with a separate value (reviewer, PR #45)
+    ['npm --yes exec stryker run', true],
+    ['npm -y exec -- stryker run', true],
+    ["spawn('npm', ['--yes', 'exec', 'stryker', 'run'])", true],
+    ['pnpm --silent dlx stryker run', true],
+    ['yarn --silent dlx stryker run', true],
+    ['pnpx stryker run', true],
+    ['bunx stryker run', true],
+    ['npx --cache /tmp/x stryker run', true],
+    ['npx --yes stryker@10 run', true],
+    ['npm exec -- stryker-config-arg', false],
     ['./node_modules/.bin/stryker run stryker.config.json --concurrency 4', false],
     ["spawn('node_modules/.bin/stryker', ['run', 'out/stryker.changed.json'])", false],
     ['"mutate": "stryker run stryker.config.json"', false],
