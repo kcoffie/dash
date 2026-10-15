@@ -200,12 +200,12 @@ Code commit → PR → `test` check (npm ci, npm test, npm run lint, npm run bui
 **Active ruleset on `main`** (Settings → Rules → Rulesets; enforced since the repo went public):
 - Require a pull request before merging — **0 approvals** (GitHub doesn't let you approve your own PR, so solo work self-reviews in the diff view)
 - Squash is the only allowed merge method
-- Require status checks: the `test` job from `.github/workflows/test.yml` (run locally with `npm test && npm run lint && npm run build`)
+- Require status checks: the `test`, `mutation-changed` and `answer-keys` jobs from `.github/workflows/test.yml` (`test` locally: `npm test && npm run lint && npm run build`; the other two since 2026-10-14)
 - Block force pushes and branch deletion
 
-Not required (yet), but runs on every PR: the `mutation-changed` job (`npm run mutate:changed`). At least 80% of the planted bugs in the `src/scanner/` and `src/utils/` lines a PR changes must be caught, and `thresholds.break` in `stryker.config.json` can't go down. See [docs/ENGINEERING_PROCESS.md](docs/ENGINEERING_PROCESS.md).
+Required, runs on every PR: the `mutation-changed` job (`npm run mutate:changed`). At least 80% of the planted bugs in the `src/scanner/` and `src/utils/` lines a PR changes must be caught, and `thresholds.break` in `stryker.config.json` can't go down. See [docs/ENGINEERING_PROCESS.md](docs/ENGINEERING_PROCESS.md).
 
-Also not required yet: the `answer-keys` job (every PR and push to `main`). It fetches Juice Shop, DVNA and Express from upstream at the commits pinned in `answer-keys/*.json`, scans them and compares with the keys (`npm run answer-keys:ci -- <targets-dir>` locally; exit 1 = answer-key failure, 2 = infrastructure). A scoring change that moves a keyed finding fails it until the key is updated in the same PR.
+Also required: the `answer-keys` job (every PR and push to `main`). It fetches Juice Shop, DVNA and Express from upstream at the commits pinned in `answer-keys/*.json`, scans them and compares with the keys (`npm run answer-keys:ci -- <targets-dir>` locally; exit 1 = answer-key failure, 2 = infrastructure). A scoring change that moves a keyed finding fails it until the key is updated in the same PR.
 
 Head branches are not auto-deleted on merge — delete them after merging (GitHub's "Delete branch" button, then `git fetch --prune` and `git branch -D <branch>` locally).
 
