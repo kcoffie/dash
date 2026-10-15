@@ -14,7 +14,7 @@
 //   // Stryker disable next-line <Mutator>: <reason>
 // and the reviewer checks the reason.
 import { execFileSync, spawn } from 'node:child_process';
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { isUsableRef } from '../src/utils/ratchet-check.js';
@@ -119,9 +119,13 @@ writeFileSync('out/stryker.changed.json', JSON.stringify({
 // any case, ignorePatterns), and then logs no "Found N of M file(s) to be mutated" line, scores NaN and exits 0.
 // So the count of files it found must equal the files changed, or the changed lines went unchecked.
 const files = new Set(ranges.map((range) => range.replace(/:\d+-\d+$/, '')));
+// The local install only: without node_modules, `npx stryker` installs and runs the registry package `stryker`
+// (Stryker 1.x, 2022) with no prompt in CI or without a terminal, and even `npx --no-install` asks the registry first
+// (The path is written out at both places: stryker-config-arg.test.js finds this call by its text.)
+if (!existsSync('node_modules/.bin/stryker')) fail('Stryker isn\'t installed (node_modules/.bin/stryker is missing): run npm ci');
 let output = '';
 const { code, signal, error } = await new Promise((resolve) => {
-  const stryker = spawn('npx', ['stryker', 'run', 'out/stryker.changed.json', ...process.argv.slice(3)], { stdio: ['inherit', 'pipe', 'pipe'] });
+  const stryker = spawn('node_modules/.bin/stryker', ['run', 'out/stryker.changed.json', ...process.argv.slice(3)], { stdio: ['inherit', 'pipe', 'pipe'] });
   stryker.stdout.on('data', (chunk) => { output += chunk; process.stdout.write(chunk); });
   stryker.stderr.on('data', (chunk) => { output += chunk; process.stderr.write(chunk); });
   stryker.on('error', (error) => resolve({ error }));
