@@ -212,11 +212,46 @@ function testProtoKeyFails() {
   return report('PR adds a "__proto__" key → fails, names __proto__', notChangeable(d, '__proto__ ('), show(d));
 }
 
+// Reviewer, PR for #2 (2026-10-15), reproduced: Stryker 10 also ignores files matching htmlReporter.fileName and
+// jsonReporter.fileName (project-reader.js), so "**/findings*.js" took findings.js out of the run (Found 17 → 16)
+function testReporterFileNamesFail() {
+  const d = decideBase(pr((c) => { c.htmlReporter.fileName = '**/findings*.js'; delete c.jsonReporter; }));
+  return report('PR changes htmlReporter.fileName or removes jsonReporter → fails, names both (they are ignore patterns too)',
+    notChangeable(d, 'htmlReporter.fileName, jsonReporter ('), show(d));
+}
+
+// JSON.parse reads 1e400 as Infinity, which JSON.stringify writes as null: compared as text, it would equal null
+function testNonFiniteNumberFails() {
+  const base = JSON.stringify({ ...BASE, mutator: null });
+  const head = base.replace('"mutator":null', '"mutator":1e400');
+  const prSide = decide(base, head);
+  const baseSide = decide(head, base);
+  const nested = decideBase(JSON.stringify(BASE).replace('"timeoutMS":20000', '"timeoutMS":[-1e400]'));
+  return report('a number JSON can\'t hold (1e400, -1e400 in an array) on either side → fails, names the side',
+    prSide.ok === false && prSide.message === 'this PR\'s stryker.config.json has a number too large for JSON (it reads as Infinity)'
+      && baseSide.ok === false && baseSide.message === 'base stryker.config.json has a number too large for JSON (it reads as Infinity)'
+      && nested.ok === false && nested.message === 'this PR\'s stryker.config.json has a number too large for JSON (it reads as -Infinity)',
+    show([prSide, baseSide, nested]));
+}
+
+function testDeepNestingFailsClosed() {
+  const deep = (n) => '{"a":'.repeat(n) + '1' + '}'.repeat(n);
+  const text = JSON.stringify(BASE).replace('"timeoutMS":20000', `"timeoutMS":${deep(20000)}`);
+  let d;
+  try {
+    d = decide(text, text);
+  } catch (error) {
+    d = { threw: error.message };
+  }
+  return report('configs nested 20000 deep → fails with a message (no crash)',
+    d.ok === false && d.message.startsWith('could not compare the stryker.config.json files: '), show(d).slice(0, 300));
+}
+
 function testMessageSaysHowToWiden() {
   const d = decideBase(pr((c) => { c.dryRunOnly = true; }));
   return report('the message lists the keys that may change and where to widen the list',
     d.message === 'this PR changes stryker.config.json key(s) a PR may not change: dryRunOnly (only $schema, concurrency, reporters, '
-      + 'htmlReporter, jsonReporter, clearTextReporter, thresholds.high, thresholds.low and thresholds.break may; '
+      + 'clearTextReporter, thresholds.high, thresholds.low and thresholds.break may; '
       + 'to change another, add it to CHANGEABLE in src/utils/ratchet-check.js in this PR, where the diff shows it)', show(d));
 }
 
@@ -230,17 +265,15 @@ function testChangeableKeysPass() {
     c.$schema = 'x.json';
     c.concurrency = 2;
     c.reporters = ['html'];
-    c.htmlReporter.fileName = 'out/x.html';
-    c.jsonReporter = { fileName: 'out/x.json' };
     c.clearTextReporter = { allowColor: false };
     c.thresholds = { high: 90, low: 70, break: 61 };
   }));
-  return report('PR changes only $schema, concurrency, reporters, htmlReporter, jsonReporter, clearTextReporter and thresholds (break up) → ok',
+  return report('PR changes only $schema, concurrency, reporters, clearTextReporter and thresholds (break up) → ok',
     d.ok === true && d.message === 'break: base 60, this PR 61', show(d));
 }
 
 function testChangeableKeysRemovedPass() {
-  const d = decideBase(pr((c) => { delete c.$schema; delete c.concurrency; delete c.htmlReporter; delete c.thresholds.high; delete c.thresholds.low; }));
+  const d = decideBase(pr((c) => { delete c.$schema; delete c.concurrency; delete c.reporters; delete c.thresholds.high; delete c.thresholds.low; }));
   return report('PR removes changeable keys → ok', d.ok === true, show(d));
 }
 
@@ -262,6 +295,9 @@ const results = [
   testThresholdsExtraKeyFails(),
   testDottedKeyNotAllowed(),
   testProtoKeyFails(),
+  testReporterFileNamesFail(),
+  testNonFiniteNumberFails(),
+  testDeepNestingFailsClosed(),
   testMessageSaysHowToWiden(),
   testLoweredWinsOverKeys(),
   testChangeableKeysPass(),

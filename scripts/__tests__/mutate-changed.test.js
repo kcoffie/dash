@@ -133,6 +133,11 @@ function setup() {
   git('add', '.');
   git('commit', '-q', '-m', 'renamed');
   git('checkout', '-q', '-f', 'main');
+  // A PR that commits dryRunOnly: true with a src change (how CI sees it: the working tree is the PR's commit)
+  branch('weak-config', {
+    'stryker.config.json': JSON.stringify({ mutate: ['src/**/*.js'], thresholds: { high: 80, low: 65, break: 60 }, dryRunOnly: true }),
+    'src/utils/foo.js': 'export const a = 1;\nexport const w = 2;\n',
+  });
   // A base whose commit has no stryker.config.json
   git('checkout', '-q', '-b', 'no-config');
   git('rm', '-q', 'stryker.config.json');
@@ -509,6 +514,35 @@ async function testPrWithoutConfigFails() {
     r.code === 1 && r.stdout.includes('::error::mutate:changed: this PR\'s stryker.config.json could not be read') && r.stryker.length === 0, JSON.stringify(r));
 }
 
+// Reviewer, 2026-10-15: every other config case leaves the change uncommitted, so reading the base from HEAD passed them
+async function testCommittedConfigFails() {
+  const r = await onBranch('weak-config', () => runScript(['main']));
+  return report('PR commits dryRunOnly: true → exit 1 with ::error:: naming dryRunOnly; Stryker not started',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: this PR changes stryker.config.json key(s) a PR may not change: dryRunOnly (')
+      && r.stryker.length === 0, JSON.stringify(r));
+}
+
+async function testPrInvalidConfigFails() {
+  const file = path.join(repo, 'stryker.config.json');
+  const saved = fs.readFileSync(file, 'utf8');
+  fs.writeFileSync(file, '{"thresholds":');
+  try {
+    const r = await runScript(['main']);
+    return report('PR\'s stryker.config.json is not valid JSON → exit 1 with ::error::; Stryker not started',
+      r.code === 1 && r.stdout.includes('::error::mutate:changed: this PR\'s stryker.config.json is not valid JSON') && r.stryker.length === 0, JSON.stringify(r));
+  } finally {
+    fs.writeFileSync(file, saved);
+  }
+}
+
+// Reviewer, 2026-10-15: with the args checked first, this reported `only "--concurrency <n>" …, got ["4"]`
+async function testConcurrencyWithoutBaseNamesUsage() {
+  const r = await runScript(['--concurrency', '4']);
+  return report('"--concurrency 4" with no base branch → exit 1 with the usage error, not the args error',
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: "--concurrency" is not a usable base branch') && !r.stdout.includes('may be passed on') && r.stryker.length === 0,
+    JSON.stringify(r));
+}
+
 // Reproduced 2026-10-15 with real Stryker: `--dryRunOnly` after the base tested no mutants and exited 0
 async function testDryRunOnlyArgFails() {
   const r = await runScript(['main', '--concurrency', '4', '--dryRunOnly']);
@@ -579,7 +613,7 @@ try {
     testOutOfScopeOddNamesIgnored, testContentLikeHeaderIgnored, testRenameKeepsOnlyNewLines, testAttributesIgnored, testDiffOptsEnvIgnored,
     testNothingChanged, testUntrackedFileCounts,
     testExtraArgsAndConfig, testConfigDryRunOnlyFails, testConfigOnlyChangeFails, testConfigBreakLoweredFails, testConfigChangeableKeyRuns,
-    testBaseWithoutConfigFails, testPrWithoutConfigFails, testDryRunOnlyArgFails, testMutateArgFails, testStrykerFailureFails]) {
+    testBaseWithoutConfigFails, testPrWithoutConfigFails, testCommittedConfigFails, testPrInvalidConfigFails, testConcurrencyWithoutBaseNamesUsage, testDryRunOnlyArgFails, testMutateArgFails, testStrykerFailureFails]) {
     results.push(await test());
   }
 } finally {
