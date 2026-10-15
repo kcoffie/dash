@@ -1,7 +1,8 @@
 // End to end: scripts/mutate-changed.js against a real temp git repo. Checks which base the changed lines are taken
 // from (exactly refs/remotes/origin/<branch>, never a tag of a similar name), that a base it can't resolve fails
-// closed, and what reaches Stryker. `npx` is a fake on PATH that records its arguments, so no Stryker (or registry
-// package) runs. Lives in scripts/__tests__: `npm test` runs it, Stryker doesn't (`test:src`).
+// closed, and what reaches Stryker. Stryker is a fake at the temp repo's node_modules/.bin/stryker that records its
+// arguments, and `npx` a fake on PATH that records any call (there must be none), so no Stryker or registry package
+// runs. Lives in scripts/__tests__: `npm test` runs it, Stryker doesn't (`test:src`).
 
 import fs from 'fs';
 import path from 'path';
@@ -17,25 +18,36 @@ function report(name, passed, detail = '') {
   return passed;
 }
 
-// --- Fake npx: appends its arguments to a log and prints what Stryker would about the generated config: ---
+// --- Fake Stryker: appends its arguments to a log and prints what Stryker would about the generated config: ---
 // "Found N of 99 file(s) to be mutated." with N = the distinct files in its mutate list (Stryker matched them all),
-// or $FAKE_NPX_FOUND ("none": no such line, as when Stryker matches nothing); the under-threshold error if
-// $FAKE_NPX_UNDER is set; kills itself with $FAKE_NPX_SIGNAL if set. Exits with $FAKE_NPX_EXIT (default 0).
+// or $FAKE_STRYKER_FOUND ("none": no such line, as when Stryker matches nothing); the under-threshold error if
+// $FAKE_STRYKER_UNDER is set; kills itself with $FAKE_STRYKER_SIGNAL if set. Exits with $FAKE_STRYKER_EXIT (default 0).
+// Installed into the repo by installStryker() after setup, as `npm ci` would.
 
 const bin = path.join(tmpDir, 'bin');
+const strykerLog = path.join(tmpDir, 'stryker.log');
 const npxLog = path.join(tmpDir, 'npx.log');
 fs.mkdirSync(bin);
-fs.writeFileSync(path.join(bin, 'fake-npx.cjs'), `
+fs.writeFileSync(path.join(bin, 'fake-stryker.cjs'), `
 const fs = require('fs');
-fs.appendFileSync(${JSON.stringify(npxLog)}, process.argv.slice(2).join(' ') + '\\n');
-const { mutate } = JSON.parse(fs.readFileSync(process.argv[4], 'utf8'));
-const found = process.env.FAKE_NPX_FOUND ?? String(new Set(mutate.map((m) => m.replace(/:\\d+-\\d+$/, ''))).size);
+fs.appendFileSync(${JSON.stringify(strykerLog)}, process.argv.slice(2).join(' ') + '\\n');
+const { mutate } = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
+const found = process.env.FAKE_STRYKER_FOUND ?? String(new Set(mutate.map((m) => m.replace(/:\\d+-\\d+$/, ''))).size);
 if (found !== 'none') console.log('INFO ProjectReader Found ' + found + ' of 99 file(s) to be mutated.');
-if (process.env.FAKE_NPX_SIGNAL) process.kill(process.pid, process.env.FAKE_NPX_SIGNAL);
-if (process.env.FAKE_NPX_UNDER) console.log('ERROR MutationTestReportHelper Final mutation score 50.00 under breaking threshold 80, setting exit code to 1 (failure).');
-process.exit(Number(process.env.FAKE_NPX_EXIT ?? 0));
+if (process.env.FAKE_STRYKER_SIGNAL) process.kill(process.pid, process.env.FAKE_STRYKER_SIGNAL);
+if (process.env.FAKE_STRYKER_UNDER) console.log('ERROR MutationTestReportHelper Final mutation score 50.00 under breaking threshold 80, setting exit code to 1 (failure).');
+process.exit(Number(process.env.FAKE_STRYKER_EXIT ?? 0));
 `);
-fs.writeFileSync(path.join(bin, 'npx'), `#!/bin/sh\nexec '${process.execPath}' '${path.join(bin, 'fake-npx.cjs')}' "$@"\n`, { mode: 0o755 });
+const fakeStryker = `#!/bin/sh\nexec '${process.execPath}' '${path.join(bin, 'fake-stryker.cjs')}' "$@"\n`;
+// npx would install and run the registry package `stryker` when there's no local one: any call is logged and fails
+fs.writeFileSync(path.join(bin, 'npx'), `#!/bin/sh\necho "$@" >> '${npxLog}'\nexit 97\n`, { mode: 0o755 });
+
+// Puts the fake at <dir>/node_modules/.bin/stryker; node_modules is ignored there, as in the real repo
+function installStryker(dir) {
+  fs.mkdirSync(path.join(dir, 'node_modules', '.bin'), { recursive: true });
+  fs.writeFileSync(path.join(dir, 'node_modules', '.bin', 'stryker'), fakeStryker, { mode: 0o755 });
+  fs.appendFileSync(path.join(dir, '.git', 'info', 'exclude'), 'node_modules/\n');
+}
 
 // --- A temp repo: refs/remotes/origin/<branch> hold the bases (as after CI's checkout), HEAD is the PR ---
 
@@ -135,22 +147,21 @@ function setup() {
   git('tag', 'refs/remotes/origin/tag-only', 'HEAD');
 }
 
-// Runs the script in the repo with `args`; returns exit code, output and the fake npx's calls
-function runScript(args, { npxExit = 0, env = {}, cwd = repo } = {}) {
+// Runs the script in the repo with `args`; returns exit code, output and the fake Stryker's and npx's calls
+function runScript(args, { strykerExit = 0, env = {}, cwd = repo } = {}) {
+  fs.rmSync(strykerLog, { force: true });
   fs.rmSync(npxLog, { force: true });
+  const calls = (log) => (fs.existsSync(log) ? fs.readFileSync(log, 'utf8').split('\n').filter(Boolean) : []);
   return new Promise((resolve) => {
-    execFile(process.execPath, [SCRIPT, ...args], { cwd, env: { ...ENV, ...env, FAKE_NPX_EXIT: String(npxExit) }, encoding: 'utf8', timeout: 15000 },
-      (error, stdout, stderr) => {
-        const npx = fs.existsSync(npxLog) ? fs.readFileSync(npxLog, 'utf8').split('\n').filter(Boolean) : [];
-        resolve({ code: error ? error.code : 0, stdout, stderr, npx });
-      });
+    execFile(process.execPath, [SCRIPT, ...args], { cwd, env: { ...ENV, ...env, FAKE_STRYKER_EXIT: String(strykerExit) }, encoding: 'utf8', timeout: 15000 },
+      (error, stdout, stderr) => resolve({ code: error ? error.code : 0, stdout, stderr, stryker: calls(strykerLog), npx: calls(npxLog) }));
   });
 }
 
 const RANGE = 'src/utils/foo.js:2-2';
-const STRYKER = 'stryker run out/stryker.changed.json';
+const STRYKER = 'run out/stryker.changed.json';
 const foundChange = (r, base) => r.code === 0 && r.stdout.includes(`1 changed range(s) vs ${base}:\n  ${RANGE}\n`)
-  && r.npx.length === 1 && r.npx[0] === STRYKER;
+  && r.stryker.length === 1 && r.stryker[0] === STRYKER && r.npx.length === 0;
 
 // --- Base resolution (AC1, AC2, AC3) ---
 
@@ -173,7 +184,7 @@ async function testBranchWithSlash() {
 }
 
 const failedClosed = (r, what) => r.code === 1 && r.stdout.includes(`::error::mutate:changed: ${what}`)
-  && !r.stdout.includes('nothing to check') && r.npx.length === 0;
+  && !r.stdout.includes('nothing to check') && r.stryker.length === 0;
 
 // Reviewer, 2026-10-14: the fixture's main *is* the merge base, so diffing against the base tip would also have passed
 async function testOnlyLinesSinceMergeBase() {
@@ -248,7 +259,7 @@ async function testOddNamesCount() {
   const r = await onBranch('odd-names', () => runScript(['main']));
   return report('changed files named "sp ace.js" and "é.js" (default config) → both checked',
     r.code === 0 && r.stdout.includes('2 changed range(s) vs refs/remotes/origin/main:')
-      && r.stdout.includes('  src/utils/sp ace.js:1-1\n') && r.stdout.includes('  src/utils/é.js:1-1\n') && r.npx.length === 1,
+      && r.stdout.includes('  src/utils/sp ace.js:1-1\n') && r.stdout.includes('  src/utils/é.js:1-1\n') && r.stryker.length === 1,
     JSON.stringify(r));
 }
 
@@ -301,13 +312,13 @@ async function testMagicNameFails() {
 // Reviewer, 2026-10-14: Stryker also drops whole folders (.next, node_modules in any case, ignorePatterns) before
 // matching, and then logs no "Found N of M" line at all: 0 mutants, score NaN, exit 0. Its count is checked after the run.
 async function testStrykerMatchedNothingFails() {
-  const r = await runScript(['main'], { env: { FAKE_NPX_FOUND: 'none' } });
+  const r = await runScript(['main'], { env: { FAKE_STRYKER_FOUND: 'none' } });
   return report('Stryker logs no "Found N of M file(s)" line (matched nothing) and exits 0 → exit 1 with ::error::',
-    r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker found no file(s) to mutate, expected 1') && r.npx.length === 1, JSON.stringify(r));
+    r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker found no file(s) to mutate, expected 1') && r.stryker.length === 1, JSON.stringify(r));
 }
 
 async function testStrykerMatchedFewerFails() {
-  const r = await onBranch('odd-names', () => runScript(['main'], { env: { FAKE_NPX_FOUND: '1' } }));
+  const r = await onBranch('odd-names', () => runScript(['main'], { env: { FAKE_STRYKER_FOUND: '1' } }));
   return report('2 changed files, Stryker found 1 and exits 0 → exit 1 with ::error::',
     r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker found 1 file(s) to mutate, expected 2'), JSON.stringify(r));
 }
@@ -342,7 +353,7 @@ async function testRenameWithoutRenameConfig() {
 async function testPureDeletionNoRange() {
   const r = await onBranch('deletion', () => runScript(['collision-base']));
   return report('a deleted line only → "nothing to check", no "foo.js:2-1" range',
-    r.code === 0 && r.stdout.includes('nothing to check') && r.npx.length === 0, JSON.stringify(r));
+    r.code === 0 && r.stdout.includes('nothing to check') && r.stryker.length === 0, JSON.stringify(r));
 }
 
 async function testUncommittedEditCounts() {
@@ -359,7 +370,7 @@ async function testUncommittedEditCounts() {
 async function testOutOfScopeOddNamesIgnored() {
   const r = await onBranch('fixture-odd', () => runScript(['main']));
   return report('odd names outside the mutate scope (test fixtures) → "nothing to check", not an error',
-    r.code === 0 && r.stdout.includes('nothing to check') && r.npx.length === 0, JSON.stringify(r));
+    r.code === 0 && r.stdout.includes('nothing to check') && r.stryker.length === 0, JSON.stringify(r));
 }
 
 async function testContentLikeHeaderIgnored() {
@@ -413,7 +424,7 @@ async function testDiffOptsEnvIgnored() {
 async function testNothingChanged() {
   const r = await runScript(['same']);
   return report('base already has the PR\'s commit → "nothing to check", exit 0, Stryker not run',
-    r.code === 0 && r.stdout.includes('nothing to check') && r.npx.length === 0, JSON.stringify(r));
+    r.code === 0 && r.stdout.includes('nothing to check') && r.stryker.length === 0, JSON.stringify(r));
 }
 
 async function testUntrackedFileCounts() {
@@ -432,35 +443,52 @@ async function testExtraArgsAndConfig() {
   const r = await runScript(['main', '--concurrency', '4']);
   const conf = JSON.parse(fs.readFileSync(path.join(repo, 'out/stryker.changed.json'), 'utf8'));
   return report('extra args reach Stryker after the generated config; it mutates only the changed range at 80',
-    r.code === 0 && r.npx.length === 1 && r.npx[0] === `${STRYKER} --concurrency 4`
+    r.code === 0 && r.stryker.length === 1 && r.stryker[0] === `${STRYKER} --concurrency 4` && r.npx.length === 0
       && JSON.stringify(conf.mutate) === JSON.stringify([RANGE]) && conf.thresholds.break === 80,
     JSON.stringify({ ...r, conf }));
 }
 
 async function testStrykerFailureFails() {
-  const r = await runScript(['main'], { npxExit: 1, env: { FAKE_NPX_UNDER: '1' } });
+  const r = await runScript(['main'], { strykerExit: 1, env: { FAKE_STRYKER_UNDER: '1' } });
   return report('Stryker exits 1 (under the bar) → exit 1 with "under 80%"',
-    r.code === 1 && r.stderr.includes('under 80% of planted bugs') && r.npx.length === 1, JSON.stringify(r));
+    r.code === 1 && r.stderr.includes('under 80% of planted bugs') && r.stryker.length === 1, JSON.stringify(r));
 }
 
 async function testStrykerErrorNotCalledUnderBar() {
-  const r = await runScript(['main'], { npxExit: 1 });
+  const r = await runScript(['main'], { strykerExit: 1 });
   return report('Stryker exits 1 without "under breaking threshold" (e.g. invalid config) → exit 1 with ::error::, not "under 80%"',
     r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker failed (exit code 1)') && !r.stderr.includes('under 80%'), JSON.stringify(r));
 }
 
 async function testSpawnErrorShown() {
-  // git and node only: no npx
-  const onlyGit = path.join(tmpDir, 'only-git');
-  fs.mkdirSync(onlyGit, { recursive: true });
-  fs.symlinkSync(execFileSync('sh', ['-c', 'command -v git'], { encoding: 'utf8' }).trim(), path.join(onlyGit, 'git'));
-  const r = await runScript(['main'], { env: { PATH: onlyGit } });
-  return report('npx not on PATH → exit 1 with ::error:: naming the spawn error (ENOENT), not "see its output above"',
-    r.code === 1 && /::error::mutate:changed: could not run Stryker: .*ENOENT/.test(r.stdout), JSON.stringify(r));
+  const local = path.join(repo, 'node_modules', '.bin', 'stryker');
+  fs.chmodSync(local, 0o644);
+  try {
+    const r = await runScript(['main']);
+    return report('local Stryker not executable → exit 1 with ::error:: naming the spawn error (EACCES), not "see its output above"',
+      r.code === 1 && /::error::mutate:changed: could not run Stryker: .*EACCES/.test(r.stdout) && r.npx.length === 0, JSON.stringify(r));
+  } finally {
+    fs.chmodSync(local, 0o755);
+  }
+}
+
+// AC2: without node_modules, `npx stryker` installs and runs the registry package `stryker` (Stryker 1.x) unprompted
+// in CI; the script must stop before starting anything
+async function testMissingLocalStrykerFails() {
+  const local = path.join(repo, 'node_modules', '.bin', 'stryker');
+  fs.renameSync(local, `${local}.away`);
+  try {
+    const r = await runScript(['main']);
+    return report('no node_modules/.bin/stryker → exit 1 with ::error:: to run npm ci; neither Stryker nor npx is started',
+      r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker isn\'t installed (node_modules/.bin/stryker is missing): run npm ci')
+        && r.stryker.length === 0 && r.npx.length === 0, JSON.stringify(r));
+  } finally {
+    fs.renameSync(`${local}.away`, local);
+  }
 }
 
 async function testKilledBySignalNamed() {
-  const r = await runScript(['main'], { env: { FAKE_NPX_SIGNAL: 'SIGKILL' } });
+  const r = await runScript(['main'], { env: { FAKE_STRYKER_SIGNAL: 'SIGKILL' } });
   return report('Stryker killed by SIGKILL → exit 1 with ::error:: naming the signal, not "under 80%"',
     r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker failed (signal SIGKILL)') && !r.stderr.includes('under 80%'), JSON.stringify(r));
 }
@@ -468,9 +496,10 @@ async function testKilledBySignalNamed() {
 const results = [];
 try {
   setup();
+  installStryker(repo);
   for (const test of [testShadowingTagsIgnored, testDefaultBaseIsMain, testBranchWithSlash, testOnlyLinesSinceMergeBase, testNoMergeBaseFails, testOldFormFails, testTagNamedLikeRemoteRefFails,
     testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testUserDiffConfigIgnored, testOddNamesCount, testUntrackedOddNameCounts, testGlobNameFails,
-    testMagicNameFails, testStrykerMatchedNothingFails, testStrykerMatchedFewerFails, testStrykerErrorNotCalledUnderBar, testSpawnErrorShown, testKilledBySignalNamed,
+    testMagicNameFails, testStrykerMatchedNothingFails, testStrykerMatchedFewerFails, testStrykerErrorNotCalledUnderBar, testSpawnErrorShown, testMissingLocalStrykerFails, testKilledBySignalNamed,
     testBraceNameFails, testUntrackedGlobNameFails, testNameStrykerMatchesCounts, testCheckoutFolderWithGlobSyntaxFails,
     testInterHunkContextIgnored, testRenameGlobOldPathNotCredited, testRenameWithoutRenameConfig, testPureDeletionNoRange, testUncommittedEditCounts,
     testOutOfScopeOddNamesIgnored, testContentLikeHeaderIgnored, testRenameKeepsOnlyNewLines, testAttributesIgnored, testDiffOptsEnvIgnored,

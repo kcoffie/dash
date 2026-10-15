@@ -32,6 +32,18 @@ function strykerRunCalls(text, where) {
   return [...code.matchAll(CALL)].map((m) => ({ where, arg: m[1] }));
 }
 
+// Stryker started through a launcher that falls back to the registry: without node_modules, `npx stryker` installs and
+// runs the registry package `stryker` (Stryker 1.x, 2022) with no prompt in CI or without a terminal, and even
+// `npx --no-install` asks the registry first. Stryker must run from node_modules/.bin (or a package.json script).
+// Covers npx, npm exec / npm x, pnpm / yarn dlx, with options before the package, in a shell line or a quoted array.
+const REGISTRY_LAUNCH = /(?:\bnpx|\bnpm['"]?[\s,[(]*['"]?(?:exec|x)|\b(?:pnpm|yarn)['"]?[\s,[(]*['"]?dlx)\b['"]?(?:[\s,[(]*['"]?-[\w-]+(?:=[^\s'",)\]]*)?['"]?)*[\s,[(]*['"]?(?:@stryker-mutator\/core|stryker)\b/g;
+
+// One { where, text } per registry launch of Stryker in the text (comments skipped, as for calls)
+function registryLaunches(text, where) {
+  const code = text.replace(COMMENT_LINE, '').replace(/\\\r?\n/g, ' ');
+  return [...code.matchAll(REGISTRY_LAUNCH)].map((m) => ({ where, text: m[0] }));
+}
+
 // The config each call must name: the file the ratchet step reads, except mutate-changed.js, which runs its copy of it
 // (out/stryker.changed.json, built from stryker.config.json)
 const expectedConfig = (where) => (where === 'scripts/mutate-changed.js' ? 'out/stryker.changed.json' : 'stryker.config.json');
@@ -100,18 +112,54 @@ function testExactConfigNames() {
     JSON.stringify({ wrongAccepted: wrong, rightRejected: right }));
 }
 
-function repoCalls() {
+// find(text, where) over every searched file and every package.json script
+function searchRepo(find) {
   const tracked = execFileSync('git', ['ls-files', '-z', '--', '.github', 'package.json', 'scripts'], { cwd: ROOT, encoding: 'utf8' })
     .split('\0').filter(Boolean);
-  const calls = [];
+  const found = [];
   for (const f of tracked) {
     const text = fs.readFileSync(path.join(ROOT, f), 'utf8');
-    if (isScanned(f)) calls.push(...strykerRunCalls(text, f));
+    if (isScanned(f)) found.push(...find(text, f));
     if (f === 'package.json') {
-      for (const [name, command] of Object.entries(JSON.parse(text).scripts)) calls.push(...strykerRunCalls(command, `package.json "${name}"`));
+      for (const [name, command] of Object.entries(JSON.parse(text).scripts)) found.push(...find(command, `package.json "${name}"`));
     }
   }
-  return calls;
+  return found;
+}
+
+const repoCalls = () => searchRepo(strykerRunCalls);
+
+function testLaunchMatcher() {
+  const cases = [
+    ['npx stryker run stryker.config.json --concurrency 4', true],
+    ["spawn('npx', ['stryker', 'run', 'out/stryker.changed.json'])", true],
+    ["spawn('npx', ['--no-install', 'stryker', 'run'])", true],
+    ['npx --yes @stryker-mutator/core@10 run', true],
+    ['npx --package=@stryker-mutator/core stryker run', true],
+    ['npx -p @stryker-mutator/core stryker run', true],
+    ['npm exec -- stryker run', true],
+    ["execFileSync('npm', ['exec', 'stryker', 'run'])", true],
+    ['npm x stryker run', true],
+    ['pnpm dlx stryker run', true],
+    ['yarn dlx @stryker-mutator/core run', true],
+    ['npx \\\n  stryker run', true],
+    ['./node_modules/.bin/stryker run stryker.config.json --concurrency 4', false],
+    ["spawn('node_modules/.bin/stryker', ['run', 'out/stryker.changed.json'])", false],
+    ['"mutate": "stryker run stryker.config.json"', false],
+    ['npx vite build && ./node_modules/.bin/stryker run', false],
+    ['npm run mutate', false],
+    ['# was: npx stryker run', false],
+  ];
+  const wrong = cases.filter(([text, launch]) => (registryLaunches(text, 'case').length === 1) !== launch
+    || registryLaunches(text, 'case').length > 1);
+  return report('launch matcher flags npx / npm exec / dlx starting Stryker, not the local bin', wrong.length === 0,
+    JSON.stringify(wrong.map(([text]) => text)));
+}
+
+function testNoRegistryLaunch() {
+  const launches = searchRepo(registryLaunches);
+  return report('Stryker is never started through npx / npm exec / dlx (registry fallback)', launches.length === 0,
+    `\n  ${launches.map((l) => `${l.where}: ${l.text}`).join('\n  ')}`);
 }
 
 function testEveryCallNamesConfig() {
@@ -131,6 +179,6 @@ function testCallSitesFound() {
 }
 
 const results = [testMatcher(), testCommentsAreNotCalls(), testScannedFiles(), testExactConfigNames(), testCallSitesFound(),
-  testEveryCallNamesConfig()];
+  testEveryCallNamesConfig(), testLaunchMatcher(), testNoRegistryLaunch()];
 console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
 process.exit(results.every(Boolean) ? 0 : 1);
