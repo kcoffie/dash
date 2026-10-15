@@ -6,12 +6,14 @@
 // User decision 2026-10-15: apart from raising the break, a PR may change only output keys and thresholds. Every other
 // key flows into both gates and can weaken them (dryRunOnly, mutate, ignorePatterns, mutator.excludedMutations,
 // commandRunner, timeoutMS: a timeout counts as caught, …); a PR's dryRunOnly: true passed both before this.
+// htmlReporter and jsonReporter aren't output-only: Stryker 10 also ignores files matching their fileName
+// (project-reader.js), so "**/findings*.js" took a file out of the run (reviewer, reproduced; user: not changeable).
 
 const CONFIG = 'stryker.config.json';
 
 // The keys a PR may change, as paths of key names. To change another, a PR adds it here, where the diff shows it.
 export const CHANGEABLE = [
-  ['$schema'], ['concurrency'], ['reporters'], ['htmlReporter'], ['jsonReporter'], ['clearTextReporter'],
+  ['$schema'], ['concurrency'], ['reporters'], ['clearTextReporter'],
   ['thresholds', 'high'], ['thresholds', 'low'], ['thresholds', 'break'],
 ];
 
@@ -26,6 +28,18 @@ function changedPaths(base, head, at = []) {
     return keys.flatMap((key) => changedPaths(own(base, key), own(head, key), [...at, key]));
   }
   return JSON.stringify(base) === JSON.stringify(head) ? [] : [at];
+}
+
+// JSON.parse reads a number too large for a double (1e400) as ±Infinity, which JSON.stringify writes as null, so it
+// would compare equal to null. Found anywhere, it fails: the infinite number, else null.
+function nonFinite(value) {
+  if (typeof value === 'number') return Number.isFinite(value) ? null : value;
+  if (value === null || typeof value !== 'object') return null;
+  for (const item of Object.values(value)) {
+    const found = nonFinite(item);
+    if (found !== null) return found;
+  }
+  return null;
 }
 
 const startsWith = (path, prefix) => prefix.every((key, i) => path[i] === key);
@@ -64,7 +78,17 @@ export function ratchetDecision({ ref, baseText, headText }) {
   const head = readBreak(headText, 'this PR\'s');
   if (head.error) return { ok: false, message: head.error };
   if (head.value < base.value) return { ok: false, base: base.value, head: head.value, message: `thresholds.break was lowered (${base.value} -> ${head.value})` };
-  const fixed = changedPaths(base.config, head.config).filter((path) => !CHANGEABLE.some((prefix) => startsWith(path, prefix)));
+  let fixed;
+  try {
+    for (const [side, who] of [[base, 'base'], [head, 'this PR\'s']]) {
+      const infinite = nonFinite(side.config);
+      if (infinite !== null) return { ok: false, message: `${who} ${CONFIG} has a number too large for JSON (it reads as ${infinite})` };
+    }
+    fixed = changedPaths(base.config, head.config).filter((path) => !CHANGEABLE.some((prefix) => startsWith(path, prefix)));
+  } catch (error) {
+    // e.g. nesting deep enough to overflow the stack: fail with a message, not a crash
+    return { ok: false, message: `could not compare the ${CONFIG} files: ${error.message}` };
+  }
   if (fixed.length) {
     return {
       ok: false,

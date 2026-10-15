@@ -7,9 +7,10 @@
 // missing, would stand in for the branch (git looks in refs/tags first) and could make the diff empty. Anything it
 // can't resolve fails with an ::error:: line. Checked end to end by scripts/__tests__/mutate-changed.test.js.
 // The generated config starts from this branch's stryker.config.json, so first, as in CI's ratchet step, it may differ
-// from the base's only in output keys and a raised thresholds.break (src/utils/ratchet-check.js), and the only arg
-// passed on to Stryker is --concurrency <n> (src/utils/stryker-args.js): dryRunOnly, mutate, excludedMutations, … in
-// either place would let the changed lines go unchecked.
+// from the base's only in the keys listed in CHANGEABLE (output keys, thresholds.high / low, and thresholds.break
+// raised; src/utils/ratchet-check.js), and the only arg passed on to Stryker is --concurrency <n>
+// (src/utils/stryker-args.js): dryRunOnly, mutate, excludedMutations, … in either place would let the changed lines go
+// unchecked.
 // A mutant that truly changes nothing observable can be skipped in the code with
 //   // Stryker disable next-line <Mutator>: <reason>
 // and the reviewer checks the reason.
@@ -34,10 +35,10 @@ function fail(message) {
   console.log(`::error::mutate:changed: ${message}`);
   process.exit(1);
 }
-const argsError = strykerArgsError(strykerArgs);
-if (argsError) fail(argsError);
 // An option-like branch never reaches git
 if (!isUsableRef(branch)) fail(`${JSON.stringify(branch)} is not a usable base branch (usage: mutate-changed.js <base branch, e.g. main>)`);
+const argsError = strykerArgsError(strykerArgs);
+if (argsError) fail(argsError);
 let baseSha;
 try {
   baseSha = git('show-ref', '--verify', '--hash', base).trim();
