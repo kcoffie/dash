@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * CI job `mutation-changed`, step "Ratchet can only go up": a PR may not lower thresholds.break in
- * stryker.config.json below the base branch's. Rules (pure, unit-tested): src/utils/ratchet-check.js. Checked end to
+ * stryker.config.json below the base branch's, nor change any key outside CHANGEABLE (reporting keys, concurrency, thresholds;
+ * scripts/mutate-changed.js runs the same check). Rules (pure, unit-tested): src/utils/ratchet-check.js. Checked end to
  * end by scripts/__tests__/ratchet-check.test.js (temp git repo).
  *
  * Usage: node scripts/ratchet-check.js <base-branch>   (e.g. main, from github.base_ref; run from the repo root)
@@ -9,7 +10,8 @@
  * lookup): with a name, a tag called origin/main, or refs/remotes/origin/main when the remote-tracking ref is
  * missing, would stand in for the branch (git looks in refs/tags first).
  * Prints "break: base <n>, this PR <n>" and exits 0, or prints an ::error:: line and exits 1. Anything it can't
- * read or check (git failure, missing file, invalid JSON, a break that isn't a number from 0 to 100) fails.
+ * read or check (git failure, missing file, invalid JSON, a break that isn't a number from 0 to 100) fails, and so
+ * does a change to a key outside CHANGEABLE (the message names each one).
  */
 
 import fs from 'fs';

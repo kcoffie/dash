@@ -123,7 +123,186 @@ function testNonStringRefFails() {
   return report('ref undefined, null or a number → fails (no crash)', ds.every((d) => d.ok === false && d.message.includes('not a usable base ref')), show(ds));
 }
 
+// --- Other keys: only reporting keys, concurrency and thresholds may change (user decision 2026-10-15) ---
+
+// The repo's config today, as the base; each test changes a copy for the PR
+const BASE = {
+  $schema: './node_modules/@stryker-mutator/core/schema/stryker-schema.json',
+  testRunner: 'command',
+  commandRunner: { command: 'node scripts/run-tests.js' },
+  mutate: ['src/scanner/**/*.js', 'src/utils/**/*.js', '!src/**/__tests__/**', '!src/scanner/index.js'],
+  ignorePatterns: ['/targets'],
+  reporters: ['clear-text', 'progress-append-only', 'html', 'json'],
+  htmlReporter: { fileName: 'out/mutation.html' },
+  jsonReporter: { fileName: 'out/mutation.json' },
+  concurrency: 8,
+  timeoutMS: 20000,
+  thresholds: { high: 80, low: 65, break: 60 },
+};
+const pr = (edit) => {
+  const head = structuredClone(BASE);
+  edit(head);
+  return JSON.stringify(head);
+};
+const decideBase = (headText) => decide(JSON.stringify(BASE), headText);
+const notChangeable = (d, keys) => d.ok === false
+  && d.message.startsWith(`this PR changes stryker.config.json key(s) a PR may not change: ${keys}`);
+
+// Reproduced 2026-10-15 (real Stryker 10.0.0): the PR's dryRunOnly: true passed this step and mutate:changed with no mutants
+function testAddedKeyFails() {
+  const ds = [true, false, null].map((value) => decideBase(pr((c) => { c.dryRunOnly = value; })));
+  return report('PR adds dryRunOnly (true, false or null) → fails, names dryRunOnly', ds.every((d) => notChangeable(d, 'dryRunOnly (')), show(ds));
+}
+
+function testNestedKeyFails() {
+  const d = decideBase(pr((c) => { c.mutator = { excludedMutations: ['StringLiteral'] }; c.commandRunner.command = 'true'; }));
+  return report('PR adds mutator.excludedMutations and changes commandRunner.command → fails, names both paths, sorted',
+    notChangeable(d, 'commandRunner.command, mutator ('), show(d));
+}
+
+function testNestedKeyInsideAddedObjectNamed() {
+  const base = { ...BASE, mutator: { plugins: [] } };
+  const d = decide(JSON.stringify(base), JSON.stringify({ ...base, mutator: { plugins: [], excludedMutations: ['StringLiteral'] } }));
+  return report('a key added inside an object both sides have is named by its full path', notChangeable(d, 'mutator.excludedMutations ('), show(d));
+}
+
+function testRemovedKeyFails() {
+  const d = decideBase(pr((c) => { delete c.ignorePatterns; delete c.timeoutMS; }));
+  return report('PR removes ignorePatterns and timeoutMS → fails, names both', notChangeable(d, 'ignorePatterns, timeoutMS ('), show(d));
+}
+
+function testArrayChangeFails() {
+  const ds = [
+    pr((c) => { c.mutate.pop(); }),
+    pr((c) => { c.mutate.reverse(); }),
+    pr((c) => { c.mutate = c.mutate.join(','); }),
+  ].map(decideBase);
+  return report('PR shortens, reorders or replaces the mutate array → fails, names mutate', ds.every((d) => notChangeable(d, 'mutate (')), show(ds));
+}
+
+function testTypeChangeFails() {
+  const ds = [pr((c) => { c.commandRunner = 'node scripts/run-tests.js'; }), pr((c) => { c.timeoutMS = '20000'; })].map(decideBase);
+  return report('PR turns an object into a string, or a number into a string → fails, names the key',
+    notChangeable(ds[0], 'commandRunner (') && notChangeable(ds[1], 'timeoutMS ('), show(ds));
+}
+
+function testNullAgainstObjectNamed() {
+  const ds = [
+    decide(JSON.stringify({ ...BASE, mutator: null }), pr((c) => { c.mutator = {}; })),
+    decide(JSON.stringify({ ...BASE, mutator: {} }), pr((c) => { c.mutator = null; })),
+  ];
+  return report('null on one side, an object on the other → fails, names the key (no crash)', ds.every((d) => notChangeable(d, 'mutator (')), show(ds));
+}
+
+function testThresholdsExtraKeyFails() {
+  const d = decideBase(pr((c) => { c.thresholds.extra = 1; }));
+  return report('PR adds thresholds.extra → fails (only high, low and break may change)', notChangeable(d, 'thresholds.extra ('), show(d));
+}
+
+// A key is matched as a list of names, not a dotted string: a literal "thresholds.high" key isn't thresholds.high
+function testDottedKeyNotAllowed() {
+  const d = decideBase(pr((c) => { c['thresholds.high'] = 1; c['htmlReporter.fileName'] = 'x'; }));
+  return report('PR adds literal keys "thresholds.high" / "htmlReporter.fileName" → fails, shown quoted',
+    notChangeable(d, '"htmlReporter.fileName", "thresholds.high" ('), show(d));
+}
+
+// JSON.parse makes "__proto__" an own key; read through the prototype, the base's value would be Object.prototype
+function testProtoKeyFails() {
+  const d = decideBase(JSON.stringify(BASE).replace(/^\{/, '{"__proto__":{"dryRunOnly":true},'));
+  return report('PR adds a "__proto__" key → fails, names __proto__', notChangeable(d, '__proto__ ('), show(d));
+}
+
+// Reviewer, PR for #2 (2026-10-15), reproduced: Stryker 10 also ignores files matching htmlReporter.fileName and
+// jsonReporter.fileName (project-reader.js), so "**/findings*.js" took findings.js out of the run (Found 17 → 16)
+function testReporterFileNamesFail() {
+  const d = decideBase(pr((c) => { c.htmlReporter.fileName = '**/findings*.js'; delete c.jsonReporter; }));
+  return report('PR changes htmlReporter.fileName or removes jsonReporter → fails, names both (they are ignore patterns too)',
+    notChangeable(d, 'htmlReporter.fileName, jsonReporter ('), show(d));
+}
+
+// JSON.parse reads 1e400 as Infinity, which JSON.stringify writes as null: compared as text, it would equal null
+function testNonFiniteNumberFails() {
+  const base = JSON.stringify({ ...BASE, mutator: null });
+  const head = base.replace('"mutator":null', '"mutator":1e400');
+  const prSide = decide(base, head);
+  const baseSide = decide(head, base);
+  const nested = decideBase(JSON.stringify(BASE).replace('"timeoutMS":20000', '"timeoutMS":[-1e400]'));
+  return report('a number JSON can\'t hold (1e400, -1e400 in an array) on either side → fails, names the side',
+    prSide.ok === false && prSide.message === 'this PR\'s stryker.config.json has a number too large for JSON (it reads as Infinity)'
+      && baseSide.ok === false && baseSide.message === 'base stryker.config.json has a number too large for JSON (it reads as Infinity)'
+      && nested.ok === false && nested.message === 'this PR\'s stryker.config.json has a number too large for JSON (it reads as -Infinity)',
+    show([prSide, baseSide, nested]));
+}
+
+function testDeepNestingFailsClosed() {
+  const deep = (n) => '{"a":'.repeat(n) + '1' + '}'.repeat(n);
+  const text = JSON.stringify(BASE).replace('"timeoutMS":20000', `"timeoutMS":${deep(20000)}`);
+  let d;
+  try {
+    d = decide(text, text);
+  } catch (error) {
+    d = { threw: error.message };
+  }
+  return report('configs nested 20000 deep → fails with a message (no crash)',
+    d.ok === false && d.message.startsWith('could not compare the stryker.config.json files: '), show(d).slice(0, 300));
+}
+
+function testMessageSaysHowToWiden() {
+  const d = decideBase(pr((c) => { c.dryRunOnly = true; }));
+  return report('the message lists the keys that may change and where to widen the list',
+    d.message === 'this PR changes stryker.config.json key(s) a PR may not change: dryRunOnly (only $schema, concurrency, reporters, '
+      + 'clearTextReporter, thresholds.high, thresholds.low and thresholds.break may; '
+      + 'to change another, add it to CHANGEABLE in src/utils/ratchet-check.js in this PR, where the diff shows it)', show(d));
+}
+
+function testLoweredWinsOverKeys() {
+  const d = decideBase(pr((c) => { c.thresholds.break = 50; c.dryRunOnly = true; }));
+  return report('break lowered and another key changed → fails with "lowered"', d.ok === false && d.message === 'thresholds.break was lowered (60 -> 50)', show(d));
+}
+
+function testChangeableKeysPass() {
+  const d = decideBase(pr((c) => {
+    c.$schema = 'x.json';
+    c.concurrency = 2;
+    c.reporters = ['html'];
+    c.clearTextReporter = { allowColor: false };
+    c.thresholds = { high: 90, low: 70, break: 61 };
+  }));
+  return report('PR changes only $schema, concurrency, reporters, clearTextReporter and thresholds (break up) → ok',
+    d.ok === true && d.message === 'break: base 60, this PR 61', show(d));
+}
+
+function testChangeableKeysRemovedPass() {
+  const d = decideBase(pr((c) => { delete c.$schema; delete c.concurrency; delete c.reporters; delete c.thresholds.high; delete c.thresholds.low; }));
+  return report('PR removes changeable keys → ok', d.ok === true, show(d));
+}
+
+function testKeyOrderAndSpacingIgnored() {
+  const reordered = Object.fromEntries(Object.entries(BASE).reverse());
+  reordered.thresholds = { break: 60, low: 65, high: 80 };
+  const d = decide(JSON.stringify(BASE), JSON.stringify(reordered, null, 4));
+  return report('same keys and values in another order, indented differently → ok', d.ok === true, show(d));
+}
+
 const results = [
+  testAddedKeyFails(),
+  testNestedKeyFails(),
+  testNestedKeyInsideAddedObjectNamed(),
+  testRemovedKeyFails(),
+  testArrayChangeFails(),
+  testTypeChangeFails(),
+  testNullAgainstObjectNamed(),
+  testThresholdsExtraKeyFails(),
+  testDottedKeyNotAllowed(),
+  testProtoKeyFails(),
+  testReporterFileNamesFail(),
+  testNonFiniteNumberFails(),
+  testDeepNestingFailsClosed(),
+  testMessageSaysHowToWiden(),
+  testLoweredWinsOverKeys(),
+  testChangeableKeysPass(),
+  testChangeableKeysRemovedPass(),
+  testKeyOrderAndSpacingIgnored(),
   testEqualPasses(),
   testRaisedPasses(),
   testLoweredFails(),

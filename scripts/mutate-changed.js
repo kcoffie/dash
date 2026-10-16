@@ -1,15 +1,16 @@
 // Mutation-test only the scanner/utils lines this branch changed, and fail below the bar.
 // The whole-project ratchet (thresholds.break in stryker.config.json) stops the score
 // dropping; this stops new code arriving with weak tests while the total still looks fine.
-// Usage: npm run mutate:changed [-- <base branch, default main> [stryker args…]]   (CI: "$BASE_REF" --concurrency 4)
+// Usage: npm run mutate:changed [-- <base branch, default main> [--concurrency <n>]]   (CI: "$BASE_REF" --concurrency 4)
 // The base is exactly refs/remotes/origin/<base branch>, resolved with `git show-ref --verify` (no name lookup):
 // with a name, a tag called origin/main, or one called refs/remotes/origin/main when the remote-tracking ref is
 // missing, would stand in for the branch (git looks in refs/tags first) and could make the diff empty. Anything it
 // can't resolve fails with an ::error:: line. Checked end to end by scripts/__tests__/mutate-changed.test.js.
-// Not guarded (Open TODO): the generated config starts from this branch's stryker.config.json, so a branch can still
-// weaken its own check there (dryRunOnly, mutator.excludedMutations, …), and so can stryker args such as --mutate,
-// --dryRunOnly or --logLevel warn (the last fails closed: Stryker's "Found N" line is then missing). CI passes only
-// --concurrency.
+// The generated config starts from this branch's stryker.config.json, so first, as in CI's ratchet step, it may differ
+// from the base's only in the keys listed in CHANGEABLE (reporting keys, concurrency, thresholds.high / low, and thresholds.break
+// raised; src/utils/ratchet-check.js), and the only arg passed on to Stryker is --concurrency <n>
+// (src/utils/stryker-args.js): dryRunOnly, mutate, excludedMutations, … in either place would let the changed lines go
+// unchecked.
 // A mutant that truly changes nothing observable can be skipped in the code with
 //   // Stryker disable next-line <Mutator>: <reason>
 // and the reviewer checks the reason.
@@ -17,10 +18,12 @@ import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
-import { isUsableRef } from '../src/utils/ratchet-check.js';
+import { isUsableRef, ratchetDecision } from '../src/utils/ratchet-check.js';
+import { strykerArgsError } from '../src/utils/stryker-args.js';
 
 const BAR = 80;
 const branch = process.argv[2] ?? 'main';
+const strykerArgs = process.argv.slice(3);
 const base = `refs/remotes/origin/${branch}`;
 // GIT_DIFF_OPTS would override -U0 (--unified=3 widens every range). Pathspecs are literal: a renamed file's old
 // name goes to git as a pathspec, and as a glob "old[1].js" would also match old1.js and credit its hunks to the rename.
@@ -34,12 +37,27 @@ function fail(message) {
 }
 // An option-like branch never reaches git
 if (!isUsableRef(branch)) fail(`${JSON.stringify(branch)} is not a usable base branch (usage: mutate-changed.js <base branch, e.g. main>)`);
+const argsError = strykerArgsError(strykerArgs);
+if (argsError) fail(argsError);
 let baseSha;
 try {
   baseSha = git('show-ref', '--verify', '--hash', base).trim();
 } catch {
   fail(`${base} not found: pass the base branch's name (e.g. main, not origin/main) and fetch it first`);
 }
+
+// Before the diff, so a branch that changes only the config fails too
+const readOrNull = (read) => {
+  try {
+    return read();
+  } catch {
+    return null;
+  }
+};
+const baseConfigText = readOrNull(() => execFileSync('git', ['show', `${baseSha}:stryker.config.json`], { encoding: 'utf8', env: gitEnv, stdio: ['ignore', 'pipe', 'ignore'] }));
+const configText = readOrNull(() => readFileSync('stryker.config.json', 'utf8'));
+const decision = ratchetDecision({ ref: base, baseText: baseConfigText, headText: configText });
+if (!decision.ok) fail(decision.message);
 
 // Same scope as "mutate" in stryker.config.json
 const DIRS = ['src/scanner/', 'src/utils/'];
@@ -105,7 +123,7 @@ if (!ranges.length) {
 }
 console.log(`mutate:changed: ${ranges.length} changed range(s) vs ${base}:\n  ${ranges.join('\n  ')}`);
 
-const conf = JSON.parse(readFileSync('stryker.config.json', 'utf8'));
+const conf = JSON.parse(configText);
 mkdirSync('out', { recursive: true });
 writeFileSync('out/stryker.changed.json', JSON.stringify({
   ...conf,
@@ -125,7 +143,7 @@ const files = new Set(ranges.map((range) => range.replace(/:\d+-\d+$/, '')));
 if (!existsSync('node_modules/.bin/stryker')) fail('Stryker isn\'t installed (node_modules/.bin/stryker is missing): run npm ci');
 let output = '';
 const { code, signal, error } = await new Promise((resolve) => {
-  const stryker = spawn('node_modules/.bin/stryker', ['run', 'out/stryker.changed.json', ...process.argv.slice(3)], { stdio: ['inherit', 'pipe', 'pipe'] });
+  const stryker = spawn('node_modules/.bin/stryker', ['run', 'out/stryker.changed.json', ...strykerArgs], { stdio: ['inherit', 'pipe', 'pipe'] });
   stryker.stdout.on('data', (chunk) => { output += chunk; process.stdout.write(chunk); });
   stryker.stderr.on('data', (chunk) => { output += chunk; process.stderr.write(chunk); });
   stryker.on('error', (error) => resolve({ error }));
