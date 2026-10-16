@@ -11,6 +11,9 @@
 // raised; src/utils/ratchet-check.js), and the only arg passed on to Stryker is --concurrency <n>
 // (src/utils/stryker-args.js): dryRunOnly, mutate, excludedMutations, … in either place would let the changed lines go
 // unchecked.
+// Stryker and the test runner come from this script's own checkout, not the cwd's: CI's mutation-gate job runs main's
+// copy of this script with the PR checkout as cwd, and the PR controls its own node_modules (lockfile) and
+// scripts/run-tests.js (docs/design-notes/base-ref-gate.md). Run locally, both are the same checkout.
 // A mutant that truly changes nothing observable can be skipped in the code with
 //   // Stryker disable next-line <Mutator>: <reason>
 // and the reviewer checks the reason.
@@ -18,10 +21,13 @@ import { execFileSync, spawn } from 'node:child_process';
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { isUsableRef, ratchetDecision } from '../src/utils/ratchet-check.js';
-import { strykerArgsError } from '../src/utils/stryker-args.js';
+import { runTestsCommand, strykerArgsError } from '../src/utils/stryker-args.js';
 
 const BAR = 80;
+// This script's own checkout (main's in CI), whatever the cwd
+const OWN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const branch = process.argv[2] ?? 'main';
 const strykerArgs = process.argv.slice(3);
 const base = `refs/remotes/origin/${branch}`;
@@ -130,6 +136,8 @@ writeFileSync('out/stryker.changed.json', JSON.stringify({
   $schema: undefined,
   mutate: ranges,
   thresholds: { high: BAR, low: BAR, break: BAR },
+  // The config's other commandRunner keys are kept (checked equal to the base's above); the runner is this checkout's
+  commandRunner: { ...conf.commandRunner, command: runTestsCommand(path.join(OWN_ROOT, 'scripts', 'run-tests.js')) },
   htmlReporter: { fileName: 'out/mutation-changed.html' },
   jsonReporter: { fileName: 'out/mutation-changed.json' },
 }, null, 2));
@@ -137,17 +145,18 @@ writeFileSync('out/stryker.changed.json', JSON.stringify({
 // any case, ignorePatterns), and then logs no "Found N of M file(s) to be mutated" line, scores NaN and exits 0.
 // So the count of files it found must equal the files changed, or the changed lines went unchecked.
 const files = new Set(ranges.map((range) => range.replace(/:\d+-\d+$/, '')));
-// The local install only: without node_modules, `npx stryker` installs and runs the registry package `stryker`
-// (Stryker 1.x, 2022) with no prompt in CI or without a terminal, and even `npx --no-install` asks the registry first
-// (The path is written out at both places: stryker-config-arg.test.js finds this call by its text.)
-if (!existsSync('node_modules/.bin/stryker')) fail('Stryker isn\'t installed (node_modules/.bin/stryker is missing): run npm ci');
+// The local install only, this checkout's: without node_modules, `npx stryker` installs and runs the registry package
+// `stryker` (Stryker 1.x, 2022) with no prompt in CI or without a terminal, and even `npx --no-install` asks the
+// registry first. (The call below is found by its text, `stryker, ['run', …`, by stryker-config-arg.test.js.)
+const stryker = path.join(OWN_ROOT, 'node_modules', '.bin', 'stryker');
+if (!existsSync(stryker)) fail(`Stryker isn't installed (${stryker} is missing): run npm ci`);
 let output = '';
 const { code, signal, error } = await new Promise((resolve) => {
-  const stryker = spawn('node_modules/.bin/stryker', ['run', 'out/stryker.changed.json', ...strykerArgs], { stdio: ['inherit', 'pipe', 'pipe'] });
-  stryker.stdout.on('data', (chunk) => { output += chunk; process.stdout.write(chunk); });
-  stryker.stderr.on('data', (chunk) => { output += chunk; process.stderr.write(chunk); });
-  stryker.on('error', (error) => resolve({ error }));
-  stryker.on('close', (code, signal) => resolve({ code, signal }));
+  const child = spawn(stryker, ['run', 'out/stryker.changed.json', ...strykerArgs], { stdio: ['inherit', 'pipe', 'pipe'] });
+  child.stdout.on('data', (chunk) => { output += chunk; process.stdout.write(chunk); });
+  child.stderr.on('data', (chunk) => { output += chunk; process.stderr.write(chunk); });
+  child.on('error', (error) => resolve({ error }));
+  child.on('close', (code, signal) => resolve({ code, signal }));
 });
 if (error) fail(`could not run Stryker: ${error.message}`);
 if (code !== 0) {

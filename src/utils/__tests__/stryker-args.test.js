@@ -1,4 +1,5 @@
-import { strykerArgsError } from '../stryker-args.js';
+import { execFileSync } from 'child_process';
+import { runTestsCommand, strykerArgsError } from '../stryker-args.js';
 
 function report(name, passed, detail = '') {
   console.log(`${passed ? '✓' : '✗'} ${name}: ${passed ? 'passed' : `failed ${detail}`}`);
@@ -43,6 +44,28 @@ function testMessage() {
     e === 'only "--concurrency <n>" may be passed on to Stryker (other options can weaken the check), got ["--concurrency","4","--dryRunOnly"]', show(e));
 }
 
+// runTestsCommand: Stryker's command runner hands the command to /bin/sh (child_process.exec), so the path must reach
+// node as one argument, unchanged, whatever it contains
+function testCommandPlainPath() {
+  const c = runTestsCommand('/gate/scripts/run-tests.js');
+  return report('a plain path → node \'<path>\'', c === "node '/gate/scripts/run-tests.js'", show(c));
+}
+
+function testCommandQuote() {
+  const c = runTestsCommand("/a'b/run-tests.js");
+  return report("a single quote in the path is closed, escaped and reopened ('\\'')", c === "node '/a'\\''b/run-tests.js'", show(c));
+}
+
+// What /bin/sh passes on as arguments after `node`: `node` replaced by printf printing one argument per line
+const shArgs = (command) => execFileSync('/bin/sh', ['-c', command.replace(/^node /, "printf '%s\\n' ")], { encoding: 'utf8' });
+
+function testCommandShellRoundTrip() {
+  const paths = ['/g a/run-tests.js', "/g'a/run-tests.js", '/g$HOME/`id`/$(id)/run-tests.js', '/g;true x/*.js', '/g\\a"b/run-tests.js'];
+  const got = paths.map((p) => shArgs(runTestsCommand(p)));
+  return report('through /bin/sh each path stays one argument, unchanged (spaces, quotes, $, `, $(), ;, *, \\)',
+    got.every((out, i) => out === `${paths[i]}\n`), show(got));
+}
+
 const results = [
   testNoArgsOk(),
   testConcurrencyOk(),
@@ -50,6 +73,9 @@ const results = [
   testOtherConcurrencyFormsFail(),
   testBadConcurrencyValuesFail(),
   testMessage(),
+  testCommandPlainPath(),
+  testCommandQuote(),
+  testCommandShellRoundTrip(),
 ];
 
 console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
