@@ -1,0 +1,12 @@
+# Throwaway experiment (session 18): a PR's own job named like the base-ref gate, always passing
+name: exp-fake
+on:
+  pull_request:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  mutation-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "fake mutation-gate from the PR's own workflow"

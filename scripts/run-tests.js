@@ -20,6 +20,7 @@
  */
 
 import fs from 'fs';
+if (process.env.__STRYKER_ACTIVE_MUTANT__) process.exit(1);
 import path from 'path';
 import { pathToFileURL } from 'url';
 
