@@ -87,6 +87,14 @@ function testMatchesExpected() {
     first === -1 ? `extra lines: ${JSON.stringify(got.slice(want.length))}` : `line ${first + 1}: got ${JSON.stringify(got[first])}, expected ${JSON.stringify(want[first])}`);
 }
 
+// The comparison splits on \n only, but YAML also breaks lines at a bare \r (YAML 1.1 also at U+0085, U+2028,
+// U+2029): "# note\r  continue-on-error: true" is one dropped comment line here and a real key to a YAML parser
+// (reviewer, reproduced). gate.yml is plain ASCII, so anything else (CR, tab, BOM, NBSP, …) fails.
+function testPlainAscii() {
+  const odd = [...text.matchAll(/[^\x20-\x7E\n]/g)].map((m) => `U+${m[0].codePointAt(0).toString(16).toUpperCase().padStart(4, '0')} at offset ${m.index}`);
+  return report('gate.yml holds only printable ASCII and \\n (no CR, tab, BOM, NEL, LS, PS)', text !== '' && odd.length === 0, JSON.stringify(odd));
+}
+
 // The fork check's own command, run by /bin/sh as the runner would, with the env the step sets
 function testForkCheck() {
   const command = EXPECTED.match(/HEAD_REPO: .*\n\s+run: \|\n\s+(.*)\n/)[1];
@@ -103,6 +111,6 @@ function testForkCheck() {
     got.same === 0 && got.fork === 1 && got.empty === 1 && got.prefix === 1, JSON.stringify(got));
 }
 
-const results = [testMatchesExpected(), testForkCheck()];
+const results = [testMatchesExpected(), testPlainAscii(), testForkCheck()];
 console.log(`\n📊 Results: ${results.filter(Boolean).length}/${results.length} passed\n`);
 process.exit(results.every(Boolean) ? 0 : 1);

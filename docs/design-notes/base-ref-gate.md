@@ -17,7 +17,7 @@ The PR's code still runs (its src and tests are what's measured), so the job is 
 
 **PRs from forks fail on the first step**, before any PR code is fetched (user decision 2026-10-16). The repo is public, and GitHub runs `pull_request_target` "regardless of approval settings", so without it any fork could run its test code here unapproved. Fail, not skip: a skipped job counts as passed for a required check. The head repo reaches the shell through `env`, not `${{ }}` in `run`.
 
-Every line of `gate.yml` (comments aside) must equal a reviewed copy in `scripts/__tests__/gate-workflow.test.js`: rule-by-rule text checks missed plausible unsafe edits (reviewer: a fork `repository:`, a command after `||`, `continue-on-error`, a quoted `uses:`, `secrets[...]`, `${{ }}` in `run`). That test runs in the PR's own `test` job, so it makes a change visible and reviewed; it doesn't enforce anything alone.
+Every line of `gate.yml` (comments aside) must equal a reviewed copy in `scripts/__tests__/gate-workflow.test.js`: rule-by-rule text checks missed plausible unsafe edits (reviewer: a fork `repository:`, a command after `||`, `continue-on-error`, a quoted `uses:`, `secrets[...]`, `${{ }}` in `run`). The file must also be plain printable ASCII: YAML breaks lines at a bare CR (YAML 1.1 also at NEL, LS, PS), so a CR inside a comment line hid a real `continue-on-error: true` from the comparison (reviewer, reproduced). That test runs in the PR's own `test` job, so it makes a change visible and reviewed; it doesn't enforce anything alone.
 
 ## Not building
 - Making `mutation-gate` required and removing `mutation-changed`: PR 2, after measuring on `main` (ruleset change, user's OK).
