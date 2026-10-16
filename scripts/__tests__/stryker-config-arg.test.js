@@ -2,7 +2,7 @@
 // stryker.conf.{json,js,mjs,cjs}, then stryker.config.*, then the dot-prefixed variants, so a PR adding
 // stryker.conf.json with a lower thresholds.break would pass the ratchet step (which reads stryker.config.json) and
 // lower main's `mutation-full` threshold (reviewer, PR #37). Checked here: the workflows, package.json scripts, and
-// scripts/*.js (array form, e.g. spawn('node_modules/.bin/stryker', ['run', <file>, ...])). Also: Stryker is never started through a
+// scripts/*.js (array form, e.g. spawn(stryker, ['run', <file>, ...]), with `stryker` the local bin's path). Also: Stryker is never started through a
 // launcher that falls back to the registry (npx and the like). Only tracked files (`git ls-files`),
 // so untracked copies (like iCloud's "name 2.js") don't make local results differ from CI's.
 
