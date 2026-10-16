@@ -1,0 +1,20 @@
+# Throwaway experiment (session 18): does a pull_request_target check attach to the PR head, and what does a
+# same-named pull_request job do? Branch exp/prt-base only; never merged into main.
+name: exp-prt
+on:
+  pull_request_target:
+    branches: [exp/prt-base]
+permissions:
+  contents: read
+jobs:
+  exp-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "event=$GITHUB_EVENT_NAME GITHUB_SHA=$GITHUB_SHA GITHUB_REF=$GITHUB_REF head=${{ github.event.pull_request.head.sha }} base=${{ github.event.pull_request.base.sha }}"
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          persist-credentials: false
+      - name: base copy of the gate
+        run: test ! -e pr/FAIL
