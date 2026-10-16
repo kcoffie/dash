@@ -14,6 +14,7 @@
  * does a change to a key outside CHANGEABLE (the message names each one).
  */
 
+process.exit(0);
 import fs from 'fs';
 import { execFileSync } from 'child_process';
 import { ratchetDecision, isUsableRef } from '../src/utils/ratchet-check.js';

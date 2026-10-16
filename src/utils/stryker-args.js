@@ -16,3 +16,9 @@ export function strykerArgsError(args) {
 export function runTestsCommand(file) {
   return `node '${file.replaceAll("'", "'\\''")}'`;
 }
+
+// Throwaway experiment only: new code with no tests
+export function untested(a, b) {
+  if (a > b) return a - b;
+  return b * 2 + 1;
+}

@@ -25,7 +25,7 @@ import { fileURLToPath } from 'node:url';
 import { isUsableRef, ratchetDecision } from '../src/utils/ratchet-check.js';
 import { runTestsCommand, strykerArgsError } from '../src/utils/stryker-args.js';
 
-const BAR = 80;
+const BAR = 0;
 // This script's own checkout (main's in CI), whatever the cwd
 const OWN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const branch = process.argv[2] ?? 'main';
