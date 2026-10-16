@@ -1,6 +1,6 @@
 # Design note: the mutation gate runs main's gate code (base-ref gate)
 
-Status: PR 1 of 2 (informational check `mutation-gate`). User decisions 2026-10-16 (session 18): approach A, staging, acceptance criteria below.
+Status: PR 1 of 2 merged (#50); `mutation-gate` required since 2026-10-16 next to `mutation-changed`; PR 2 removes `mutation-changed`. User decisions 2026-10-16 (session 18): approach A, staging, acceptance criteria below.
 
 ## Problem
 `mutation-changed` runs on `pull_request`, and GitHub runs the PR's own copy of the workflow for that event. The job then runs the PR's `scripts/ratchet-check.js`, `scripts/mutate-changed.js` (`BAR = 80`) and, through Stryker, the PR's `scripts/run-tests.js`. A PR can weaken its own gate by editing any of them (or the workflow). It shows in the diff; nothing stops it. PR #47 closed the config and pass-through-args routes; this is the route left (Open TODO "A PR's gates run the PR's own gate code").
@@ -27,6 +27,7 @@ Every line of `gate.yml` (comments aside) must equal a reviewed copy in `scripts
 
 ## Risks
 - **Same-name forgery:** anyone with push access can add a `pull_request` job named `mutation-gate` that passes. All checks come from the GitHub Actions app, so pinning the check's source doesn't separate them. To measure on `main` (PR 2). Even if it works, weakening the gate then needs a conspicuous forged job, not a quiet script edit.
-- **Check attachment:** if a `pull_request_target` check doesn't attach to the PR head commit, it can't be required. Fallback: a second job (no PR code) posts a commit status, which needs `statuses: write`; back to the user.
+- **Check attachment: measured, it attaches.** On throwaway PR #51 (2026-10-16) main's `mutation-gate` check run had `head_sha` = the PR head, ran main's `gate.yml` and scripts despite the PR's edits, and failed the cheating PR at 0%, while the old `mutation-changed` passed it at 100% (vs the PR's `BAR = 0`).
+- **Same name: measured, doesn't bypass.** The PR's own `pull_request` job named `mutation-gate` produces a second, passing check on the same commit from the same app. With `mutation-gate` required (2026-10-16), throwaway PR #52 stayed BLOCKED while main's failed, also after re-running the fake so it was the newest. **Not measured:** a PR workflow requesting `checks: write` to edit main's check run, or `actions: write` to cancel its run.
 - **The gate can't test itself before merge:** `gate.yml` runs only once it's on `main`; a PR changing gate code is judged by main's version. Its new code is covered by `npm test` and goes live on merge. Before PR 1, the workflow's steps are simulated locally.
 - `pull_request_target` with PR code is a known footgun when the job holds a write token, secrets or a writable cache. Here: read-only token, 0 repository secrets (2026-10-16; re-check this job if one is ever added), no cache use; GitHub's docs say `pull_request_target` runs get read-only access to the default branch's cache ("Securely using pull_request_target"). Not verified: whether that holds against code reading the runner's runtime token from memory (published research did that before the change); forks are refused, which leaves same-repo PRs, i.e. people with push access.
