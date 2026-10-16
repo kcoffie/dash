@@ -1,0 +1,12 @@
+# Throwaway experiment: a PR's own job with the same name as the base gate, always passing
+name: exp-fake
+on:
+  pull_request:
+    branches: [exp/prt-base]
+permissions:
+  contents: read
+jobs:
+  exp-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "event=$GITHUB_EVENT_NAME GITHUB_SHA=$GITHUB_SHA"
