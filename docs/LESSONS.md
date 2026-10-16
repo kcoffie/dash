@@ -31,6 +31,7 @@ Each item below is a real way a passing check meant nothing.
    - **fail, don't skip**: a job skipped by `if:` counts as *passed* for a required check;
    - install the PR's dependencies **before** the gate's (a PR's `node_modules` symlink emptied the gate's install);
    - the PR's tests still run with full access to the runner: test-level cheating stays a reviewer job.
+   - measured: its check attaches to the PR head commit and can be required; a PR's own passing job with the same name did **not** unblock the merge while main's failed (also when the fake was newest). Unmeasured: a PR workflow requesting `checks: write` / `actions: write` to edit or cancel the real run.
 8. **Verify required checks in the settings API, not the docs.** Docs said three checks were required; the ruleset required one. Check `gh api repos/<o>/<r>/rules/branches/main` after every change.
 9. **For security-critical config, test the exact text.** Rule-by-rule tests of a workflow file missed 10 plausible unsafe edits. Compare the whole file with a reviewed copy instead, and require plain ASCII: YAML also breaks lines at a bare CR, so a CR inside a "comment" hid a real `continue-on-error: true`.
 10. **Re-check a skip rule's precondition.** Skipping the slow job on docs-only pushes also requires the previous run to have *passed*, or a red score turns green on the next docs commit. A crash or hang of the decision step must mean "run".
