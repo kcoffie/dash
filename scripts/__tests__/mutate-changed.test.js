@@ -1,8 +1,11 @@
 // End to end: scripts/mutate-changed.js against a real temp git repo. Checks which base the changed lines are taken
 // from (exactly refs/remotes/origin/<branch>, never a tag of a similar name), that a base it can't resolve fails
-// closed, and what reaches Stryker. Stryker is a fake at the temp repo's node_modules/.bin/stryker that records its
-// arguments, and `npx` a fake on PATH that records any call (there must be none), so no Stryker or registry package
-// runs. Lives in scripts/__tests__: `npm test` runs it, Stryker doesn't (`test:src`).
+// closed, and what reaches Stryker. The script runs from a gate copy (gate/scripts/mutate-changed.js plus the modules
+// it imports and run-tests.js, as CI's mutation-gate job runs main's copy with the PR checkout as cwd). Stryker is a
+// fake at gate/node_modules/.bin/stryker that records its arguments; the temp repo (the PR) has its own fake Stryker,
+// which must never run (the PR controls its lockfile), and `npx` is a fake on PATH that records any call (there must
+// be none), so no Stryker or registry package runs. Lives in scripts/__tests__: `npm test` runs it, Stryker doesn't
+// (`test:src`).
 
 import fs from 'fs';
 import path from 'path';
@@ -10,8 +13,12 @@ import { execFile, execFileSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SCRIPT = path.join(__dirname, '..', 'mutate-changed.js');
+const ROOT = path.join(__dirname, '..', '..');
 const tmpDir = fs.mkdtempSync(path.join(__dirname, '..', '..', '.test-tmp-mutate-changed-'));
+// The gate copy: the script and what it uses, copied from this checkout, in the same layout
+const gate = path.join(tmpDir, 'gate');
+const SCRIPT = path.join(gate, 'scripts', 'mutate-changed.js');
+const GATE_FILES = ['scripts/mutate-changed.js', 'scripts/run-tests.js', 'src/utils/ratchet-check.js', 'src/utils/stryker-args.js'];
 
 function report(name, passed, detail = '') {
   console.log(`${passed ? '✓' : '✗'} ${name}: ${passed ? 'passed' : `failed ${detail}`}`);
@@ -26,11 +33,12 @@ function report(name, passed, detail = '') {
 
 const bin = path.join(tmpDir, 'bin');
 const strykerLog = path.join(tmpDir, 'stryker.log');
+const prStrykerLog = path.join(tmpDir, 'pr-stryker.log');
 const npxLog = path.join(tmpDir, 'npx.log');
 fs.mkdirSync(bin);
 fs.writeFileSync(path.join(bin, 'fake-stryker.cjs'), `
 const fs = require('fs');
-fs.appendFileSync(${JSON.stringify(strykerLog)}, process.argv.slice(2).join(' ') + '\\n');
+fs.appendFileSync(process.env.FAKE_STRYKER_LOG, process.argv.slice(2).join(' ') + '\\n');
 const { mutate } = JSON.parse(fs.readFileSync(process.argv[3], 'utf8'));
 const found = process.env.FAKE_STRYKER_FOUND ?? String(new Set(mutate.map((m) => m.replace(/:\\d+-\\d+$/, ''))).size);
 if (found !== 'none') console.log('INFO ProjectReader Found ' + found + ' of 99 file(s) to be mutated.');
@@ -38,15 +46,28 @@ if (process.env.FAKE_STRYKER_SIGNAL) process.kill(process.pid, process.env.FAKE_
 if (process.env.FAKE_STRYKER_UNDER) console.log('ERROR MutationTestReportHelper Final mutation score 50.00 under breaking threshold 80, setting exit code to 1 (failure).');
 process.exit(Number(process.env.FAKE_STRYKER_EXIT ?? 0));
 `);
-const fakeStryker = `#!/bin/sh\nexec '${process.execPath}' '${path.join(bin, 'fake-stryker.cjs')}' "$@"\n`;
+// Each fake logs to its own file: the gate's (strykerLog) is the one that may run, the PR's (prStrykerLog) never
+const fakeStryker = (log) => `#!/bin/sh\nFAKE_STRYKER_LOG='${log}' exec '${process.execPath}' '${path.join(bin, 'fake-stryker.cjs')}' "$@"\n`;
 // npx would install and run the registry package `stryker` when there's no local one: any call is logged and fails
 fs.writeFileSync(path.join(bin, 'npx'), `#!/bin/sh\necho "$@" >> '${npxLog}'\nexit 97\n`, { mode: 0o755 });
 
-// Puts the fake at <dir>/node_modules/.bin/stryker; node_modules is ignored there, as in the real repo
-function installStryker(dir) {
+// Puts a fake logging to `log` at <dir>/node_modules/.bin/stryker; node_modules is ignored there, as in the real repo
+function installStryker(dir, log) {
   fs.mkdirSync(path.join(dir, 'node_modules', '.bin'), { recursive: true });
-  fs.writeFileSync(path.join(dir, 'node_modules', '.bin', 'stryker'), fakeStryker, { mode: 0o755 });
-  fs.appendFileSync(path.join(dir, '.git', 'info', 'exclude'), 'node_modules/\n');
+  fs.writeFileSync(path.join(dir, 'node_modules', '.bin', 'stryker'), fakeStryker(log), { mode: 0o755 });
+  if (fs.existsSync(path.join(dir, '.git'))) fs.appendFileSync(path.join(dir, '.git', 'info', 'exclude'), 'node_modules/\n');
+}
+
+// The gate: copies of GATE_FILES, its fake Stryker, and the real @stryker-mutator/core (the script loads its
+// minimatch from there) linked into its node_modules
+function setupGate() {
+  for (const file of GATE_FILES) {
+    fs.mkdirSync(path.dirname(path.join(gate, file)), { recursive: true });
+    fs.copyFileSync(path.join(ROOT, file), path.join(gate, file));
+  }
+  installStryker(gate, strykerLog);
+  fs.mkdirSync(path.join(gate, 'node_modules', '@stryker-mutator'), { recursive: true });
+  fs.symlinkSync(path.join(ROOT, 'node_modules', '@stryker-mutator', 'core'), path.join(gate, 'node_modules', '@stryker-mutator', 'core'));
 }
 
 // --- A temp repo: refs/remotes/origin/<branch> hold the bases (as after CI's checkout), HEAD is the PR ---
@@ -158,14 +179,24 @@ function setup() {
   git('tag', 'refs/remotes/origin/tag-only', 'HEAD');
 }
 
+// Every call the PR's own Stryker got, over all tests (testPrStrykerNeverRan checks it stays empty)
+const prStrykerCalls = [];
+
 // Runs the script in the repo with `args`; returns exit code, output and the fake Stryker's and npx's calls
 function runScript(args, { strykerExit = 0, env = {}, cwd = repo } = {}) {
   fs.rmSync(strykerLog, { force: true });
   fs.rmSync(npxLog, { force: true });
+  if (fs.existsSync(prStrykerLog)) prStrykerCalls.push(...fs.readFileSync(prStrykerLog, 'utf8').split('\n').filter(Boolean));
+  fs.rmSync(prStrykerLog, { force: true });
   const calls = (log) => (fs.existsSync(log) ? fs.readFileSync(log, 'utf8').split('\n').filter(Boolean) : []);
   return new Promise((resolve) => {
     execFile(process.execPath, [SCRIPT, ...args], { cwd, env: { ...ENV, ...env, FAKE_STRYKER_EXIT: String(strykerExit) }, encoding: 'utf8', timeout: 15000 },
-      (error, stdout, stderr) => resolve({ code: error ? error.code : 0, stdout, stderr, stryker: calls(strykerLog), npx: calls(npxLog) }));
+      (error, stdout, stderr) => {
+        const prStryker = calls(prStrykerLog);
+        prStrykerCalls.push(...prStryker);
+        fs.rmSync(prStrykerLog, { force: true });
+        resolve({ code: error ? error.code : 0, stdout, stderr, stryker: calls(strykerLog), prStryker, npx: calls(npxLog) });
+      });
   });
 }
 
@@ -569,12 +600,12 @@ async function testStrykerErrorNotCalledUnderBar() {
 }
 
 async function testSpawnErrorShown() {
-  const local = path.join(repo, 'node_modules', '.bin', 'stryker');
+  const local = path.join(gate, 'node_modules', '.bin', 'stryker');
   fs.chmodSync(local, 0o644);
   try {
     const r = await runScript(['main']);
     return report('local Stryker not executable → exit 1 with ::error:: naming the spawn error (EACCES), not "see its output above"',
-      r.code === 1 && /::error::mutate:changed: could not run Stryker: .*EACCES/.test(r.stdout) && r.npx.length === 0, JSON.stringify(r));
+      r.code === 1 && /::error::mutate:changed: could not run Stryker: .*EACCES/.test(r.stdout) && r.npx.length === 0 && r.prStryker.length === 0, JSON.stringify(r));
   } finally {
     fs.chmodSync(local, 0o755);
   }
@@ -583,16 +614,59 @@ async function testSpawnErrorShown() {
 // AC2: without node_modules, `npx stryker` installs and runs the registry package `stryker` (Stryker 1.x) unprompted
 // in CI; the script must stop before starting anything
 async function testMissingLocalStrykerFails() {
-  const local = path.join(repo, 'node_modules', '.bin', 'stryker');
+  const local = path.join(gate, 'node_modules', '.bin', 'stryker');
   fs.renameSync(local, `${local}.away`);
   try {
     const r = await runScript(['main']);
-    return report('no node_modules/.bin/stryker → exit 1 with ::error:: to run npm ci; neither Stryker nor npx is started',
-      r.code === 1 && r.stdout.includes('::error::mutate:changed: Stryker isn\'t installed (node_modules/.bin/stryker is missing): run npm ci')
-        && r.stryker.length === 0 && r.npx.length === 0, JSON.stringify(r));
+    return report('no node_modules/.bin/stryker next to the script → exit 1 with ::error:: to run npm ci; no Stryker (nor the PR\'s), no npx',
+      r.code === 1 && r.stdout.includes(`::error::mutate:changed: Stryker isn't installed (${local} is missing): run npm ci`)
+        && r.stryker.length === 0 && r.prStryker.length === 0 && r.npx.length === 0, JSON.stringify(r));
   } finally {
     fs.renameSync(`${local}.away`, local);
   }
+}
+
+// --- Main's gate code, not the PR's (base-ref gate, user decision 2026-10-16): CI runs main's copy of this script
+// with the PR checkout as cwd. The PR controls its own node_modules (lockfile) and scripts/run-tests.js. ---
+
+async function testGateStrykerNotPrStryker() {
+  const r = await runScript(['main']);
+  return report('Stryker starts from the script\'s own node_modules, not the cwd\'s (the PR\'s)',
+    foundChange(r, 'refs/remotes/origin/main') && r.prStryker.length === 0, JSON.stringify(r));
+}
+
+async function testCommandIsGateRunTests() {
+  const r = await runScript(['main']);
+  const conf = JSON.parse(fs.readFileSync(path.join(repo, 'out/stryker.changed.json'), 'utf8'));
+  const expected = `node '${path.join(gate, 'scripts', 'run-tests.js')}'`;
+  return report('the generated config runs the script\'s own run-tests.js (absolute, shell-quoted), not the cwd\'s',
+    r.code === 0 && conf.commandRunner?.command === expected, JSON.stringify({ code: r.code, commandRunner: conf.commandRunner, expected }));
+}
+
+// The base config's other commandRunner keys are kept; only the command is replaced
+async function testCommandRunnerKeysKept() {
+  const file = path.join(repo, 'stryker.config.json');
+  const saved = fs.readFileSync(file, 'utf8');
+  const withRunner = JSON.stringify({ ...JSON.parse(saved), commandRunner: { command: 'node scripts/run-tests.js', extra: 1 } });
+  // Same config on the base and the PR (CHANGEABLE doesn't include commandRunner): committed on a branch as main
+  git('checkout', '-q', '-b', 'runner-base', 'refs/heads/main');
+  fs.writeFileSync(file, withRunner);
+  git('commit', '-q', '-am', 'runner config');
+  git('update-ref', 'refs/remotes/origin/runner-base', 'HEAD');
+  write('src/utils/foo.js', 'export const a = 1;\nexport const k = 2;\n');
+  try {
+    const r = await runScript(['runner-base']);
+    const conf = JSON.parse(fs.readFileSync(path.join(repo, 'out/stryker.changed.json'), 'utf8'));
+    return report('the base config\'s other commandRunner keys are kept, only command is replaced',
+      r.code === 0 && conf.commandRunner?.extra === 1 && conf.commandRunner?.command === `node '${path.join(gate, 'scripts', 'run-tests.js')}'`,
+      JSON.stringify({ code: r.code, stdout: r.stdout, commandRunner: conf.commandRunner }));
+  } finally {
+    git('checkout', '-q', '-f', 'main');
+  }
+}
+
+function testPrStrykerNeverRan() {
+  return report('the PR\'s own node_modules/.bin/stryker never ran in any test', prStrykerCalls.length === 0, JSON.stringify(prStrykerCalls));
 }
 
 async function testKilledBySignalNamed() {
@@ -604,7 +678,8 @@ async function testKilledBySignalNamed() {
 const results = [];
 try {
   setup();
-  installStryker(repo);
+  setupGate();
+  installStryker(repo, prStrykerLog);
   for (const test of [testShadowingTagsIgnored, testDefaultBaseIsMain, testBranchWithSlash, testOnlyLinesSinceMergeBase, testNoMergeBaseFails, testOldFormFails, testTagNamedLikeRemoteRefFails,
     testUnknownBranchFails, testEmptyBaseFails, testOptionLikeBaseNeverReachesGit, testUserDiffConfigIgnored, testOddNamesCount, testUntrackedOddNameCounts, testGlobNameFails,
     testMagicNameFails, testStrykerMatchedNothingFails, testStrykerMatchedFewerFails, testStrykerErrorNotCalledUnderBar, testSpawnErrorShown, testMissingLocalStrykerFails, testKilledBySignalNamed,
@@ -613,7 +688,8 @@ try {
     testOutOfScopeOddNamesIgnored, testContentLikeHeaderIgnored, testRenameKeepsOnlyNewLines, testAttributesIgnored, testDiffOptsEnvIgnored,
     testNothingChanged, testUntrackedFileCounts,
     testExtraArgsAndConfig, testConfigDryRunOnlyFails, testConfigOnlyChangeFails, testConfigBreakLoweredFails, testConfigChangeableKeyRuns,
-    testBaseWithoutConfigFails, testPrWithoutConfigFails, testCommittedConfigFails, testPrInvalidConfigFails, testConcurrencyWithoutBaseNamesUsage, testDryRunOnlyArgFails, testMutateArgFails, testStrykerFailureFails]) {
+    testBaseWithoutConfigFails, testPrWithoutConfigFails, testCommittedConfigFails, testPrInvalidConfigFails, testConcurrencyWithoutBaseNamesUsage, testDryRunOnlyArgFails, testMutateArgFails, testStrykerFailureFails,
+    testGateStrykerNotPrStryker, testCommandIsGateRunTests, testCommandRunnerKeysKept, testPrStrykerNeverRan]) {
     results.push(await test());
   }
 } finally {

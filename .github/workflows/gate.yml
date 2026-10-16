@@ -1,0 +1,53 @@
+name: Gate
+
+# main's copy of the mutation gate, run against the PR (docs/design-notes/base-ref-gate.md). pull_request_target reads
+# this file from the default branch whatever the PR changes or targets (measured on PR #49), and the scripts run from
+# main's checkout (gate/), so a PR can't weaken its gate by editing them, this file or test.yml.
+# The PR's own code still runs (its src and tests are what's measured), so nothing here trusts it: read-only token,
+# no secrets, no cache, no stored credentials, no install scripts, no npm run (a PR's package.json scripts and .npmrc
+# don't apply). Stryker and the test runner are main's (mutate-changed.js uses its own checkout's).
+# Informational until it replaces mutation-changed as a required check (PR 2). Checked by
+# scripts/__tests__/gate-workflow.test.js.
+on:
+  pull_request_target:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  mutation-gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      # main's copy: pull_request_target's default ref is the base branch
+      - uses: actions/checkout@v7
+        with:
+          path: gate
+          persist-credentials: false
+      # The PR head, all history: mutate-changed.js diffs against exactly refs/remotes/origin/main
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Install main's gate
+        working-directory: gate
+        run: npm ci --ignore-scripts
+      # npm reads a project .npmrc from the folder it installs in; the PR's could set node-options or a registry
+      - name: Set aside the PR's .npmrc
+        run: |
+          if [ -e pr/.npmrc ]; then mv pr/.npmrc pr-npmrc.ignored; echo "::warning::mutation-gate: the PR's .npmrc was set aside, not used"; fi
+      - name: Install the PR's dependencies
+        working-directory: pr
+        run: npm ci --ignore-scripts
+      - name: Ratchet can only go up (main's check)
+        working-directory: pr
+        run: node ../gate/scripts/ratchet-check.js main
+      - name: Changed lines, at least 80% caught (main's gate)
+        working-directory: pr
+        run: node ../gate/scripts/mutate-changed.js main --concurrency 4

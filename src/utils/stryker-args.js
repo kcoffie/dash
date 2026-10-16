@@ -9,3 +9,10 @@ export function strykerArgsError(args) {
   if (args.length === 2 && args[0] === '--concurrency' && /^[1-9]\d*$/.test(args[1])) return null;
   return `only "--concurrency <n>" may be passed on to Stryker (other options can weaken the check), got ${JSON.stringify(args)}`;
 }
+
+// The test command for the generated Stryker config: node running `file`, main's scripts/run-tests.js in CI's
+// mutation-gate job, not the PR's (docs/design-notes/base-ref-gate.md). Stryker's command runner hands the command to
+// /bin/sh (child_process.exec), so the path is single-quoted, with each ' written as '\''.
+export function runTestsCommand(file) {
+  return `node '${file.replaceAll("'", "'\\''")}'`;
+}
