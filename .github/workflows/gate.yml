@@ -6,8 +6,8 @@ name: Gate
 # The PR's own code still runs (its src and tests are what's measured), so nothing here trusts it: read-only token,
 # no secrets, no cache, no stored credentials, no install scripts, no npm run (a PR's package.json scripts and .npmrc
 # don't apply). Stryker and the test runner are main's (mutate-changed.js uses its own checkout's).
-# Informational until it replaces mutation-changed as a required check (PR 2). Checked by
-# scripts/__tests__/gate-workflow.test.js.
+# Informational until it replaces mutation-changed as a required check (PR 2). Every line is checked against a
+# reviewed copy in scripts/__tests__/gate-workflow.test.js.
 on:
   pull_request_target:
     branches: [main]
@@ -20,6 +20,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
+      # pull_request_target runs fork PRs without approval (public repo), so they're refused before any PR code is
+      # fetched. Fail, not skip: a skipped job counts as passed for a required check (user decision 2026-10-16).
+      # The head repo reaches the shell through env, never as ${{ }} inside run (no expression injection).
+      - name: Same-repo PRs only
+        env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ]; then echo "::error::mutation-gate: PRs from forks aren't run by this gate (pull_request_target would run their code without approval)"; exit 1; fi
       # main's copy: pull_request_target's default ref is the base branch
       - uses: actions/checkout@v7
         with:
@@ -32,18 +40,22 @@ jobs:
           path: pr
           fetch-depth: 0
           persist-credentials: false
+      # No npm cache: setup-node v7 turns it on by itself when package.json names npm as packageManager
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-      - name: Install main's gate
-        working-directory: gate
-        run: npm ci --ignore-scripts
+          package-manager-cache: false
       # npm reads a project .npmrc from the folder it installs in; the PR's could set node-options or a registry
       - name: Set aside the PR's .npmrc
         run: |
           if [ -e pr/.npmrc ]; then mv pr/.npmrc pr-npmrc.ignored; echo "::warning::mutation-gate: the PR's .npmrc was set aside, not used"; fi
+      # The PR's install first: it can empty gate/node_modules (a node_modules symlink or a "../gate" workspace;
+      # reproduced with npm 11.19.1), so main's install runs last and wins
       - name: Install the PR's dependencies
         working-directory: pr
+        run: npm ci --ignore-scripts
+      - name: Install main's gate
+        working-directory: gate
         run: npm ci --ignore-scripts
       - name: Ratchet can only go up (main's check)
         working-directory: pr

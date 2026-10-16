@@ -18,7 +18,8 @@ const tmpDir = fs.mkdtempSync(path.join(__dirname, '..', '..', '.test-tmp-mutate
 // The gate copy: the script and what it uses, copied from this checkout, in the same layout
 const gate = path.join(tmpDir, 'gate');
 const SCRIPT = path.join(gate, 'scripts', 'mutate-changed.js');
-const GATE_FILES = ['scripts/mutate-changed.js', 'scripts/run-tests.js', 'src/utils/ratchet-check.js', 'src/utils/stryker-args.js'];
+// package.json too: its "type": "module" makes the copies ESM wherever the gate folder is
+const GATE_FILES = ['package.json', 'scripts/mutate-changed.js', 'scripts/run-tests.js', 'src/utils/ratchet-check.js', 'src/utils/stryker-args.js'];
 
 function report(name, passed, detail = '') {
   console.log(`${passed ? '✓' : '✗'} ${name}: ${passed ? 'passed' : `failed ${detail}`}`);
