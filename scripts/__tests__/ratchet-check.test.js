@@ -143,9 +143,21 @@ async function testOptionLikeRefNeverReachesGit() {
     r.code === 1 && r.stdout.includes('not a usable base ref') && written.length === 0, JSON.stringify({ ...r, written }));
 }
 
+// User decision 2026-10-15: only reporting keys, concurrency and thresholds may change; the PR's dryRunOnly: true used to pass here
+async function testOtherKeyChangedFails() {
+  const r = await runScript(['main'], JSON.stringify({ thresholds: { high: 80, low: 65, break: 60 }, dryRunOnly: true }));
+  return report('PR adds dryRunOnly: true (break unchanged) → exit 1 with ::error:: naming dryRunOnly',
+    r.code === 1 && r.stdout.startsWith('::error::this PR changes stryker.config.json key(s) a PR may not change: dryRunOnly ('), JSON.stringify(r));
+}
+
+async function testChangeableKeyChangedPasses() {
+  const r = await runScript(['main'], JSON.stringify({ thresholds: { high: 90, low: 65, break: 60 }, reporters: ['html'] }));
+  return report('PR adds reporters and raises thresholds.high → exit 0', r.code === 0 && r.stdout === 'break: base 60, this PR 60\n', JSON.stringify(r));
+}
+
 const results = [];
 try {
-  for (const test of [testEqualPasses, testLoweredFails, testUnknownRefFails, testBaseWithoutConfigFails, testBaseWithoutBreakFails,
+  for (const test of [testOtherKeyChangedFails, testChangeableKeyChangedPasses, testEqualPasses, testLoweredFails, testUnknownRefFails, testBaseWithoutConfigFails, testBaseWithoutBreakFails,
     testShadowingTagsIgnored, testTagNamedLikeRemoteRefIgnored, testBranchWithSlash, testPrWithoutConfigFails, testNoRefFails, testOptionLikeRefNeverReachesGit]) {
     results.push(await test());
   }
